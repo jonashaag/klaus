@@ -1,0 +1,10 @@
+{% set title = 'Repository list' %}
+{% extends 'base.html' %}
+
+{% block content %}
+<ul class=repolist>
+  {% for name, _ in repos %}
+  <li><a href="{{ build_url('view_repo', repo=name) }}">{{ name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}
