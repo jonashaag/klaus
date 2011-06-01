@@ -1,0 +1,12 @@
+definitely
+----------
+* branch selector
+* history view for current directory
+* file history
+* navigation: repo list, tree breadcrumbs
+
+maybe
+-----
+* file blame
+* search function
+* (p)ajax
