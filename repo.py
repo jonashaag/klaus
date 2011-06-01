@@ -20,12 +20,16 @@ class RepoWrapper(dulwich.repo.Repo):
             head = self[head.parents[0]]
             max_commits -= 1
 
-    def listdir(self, commit=None, root=None):
+    def get_tree(self, commit, path):
         tree = self[commit.tree]
-        if root is not None:
-            for directory in root.split('/'):
-                tree = self[tree[directory].sha]
-        return tree.iteritems()
+        if path:
+            for directory in path.split('/'):
+                tree = self[tree[directory][1]]
+        return tree
+
+    def listdir(self, commit, root=None):
+        tree = self.get_tree(commit, root)
+        return ((entry.path, entry.in_path(root)) for entry in tree.iteritems())
 
     def commit_diff(self, commit):
         parent = self[commit.parents[0]]

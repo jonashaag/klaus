@@ -1,0 +1,12 @@
+{% if path %}
+  {% set title = '%s in %s/%s' % (path, repo.name, commit_id) %}
+{% else %}
+  {% set title = '%s/%s' % (repo.name, commit_id) %}
+{% endif %}
+
+{% extends 'base.html' %}
+{% block content %}
+
+{{ blob.data|pygmentize }}
+
+{% endblock %}

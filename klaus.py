@@ -1,4 +1,5 @@
 import os
+import stat
 import time
 from functools import wraps
 
@@ -78,8 +79,6 @@ def get_repo(name):
         raise HttpError(404, 'No repository named "%s"' % name)
 
 def get_commit(repo, id):
-    if isinstance(repo, basestring):
-        repo = get_repo(repo)
     try:
         commit = repo[id]
         if not isinstance(commit, Commit):
@@ -88,23 +87,45 @@ def get_commit(repo, id):
     except KeyError:
         raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, id))
 
+def get_branch_or_commit(repo, id):
+    try:
+        return repo.get_branch(id)
+    except KeyError:
+        return get_commit(repo, id)
+
+def get_tree_or_blob_url(repo, commit_id, tree_entry):
+    if tree_entry.mode & stat.S_IFDIR:
+        view = 'view_tree'
+    else:
+        view = 'view_blob'
+    return app.build_url(view,
+        repo=repo.name, commit_id=commit_id, path=tree_entry.path)
+
 @app.route('/')
 def repo_list(env):
     return {'repos' : app.repos.items()}
 
 @app.route('/:repo:/')
 def view_repo(env, repo):
-    redirect_to = app.build_url('view_tree', repo=repo, commit_id='master')
+    redirect_to = app.build_url('view_tree', repo=repo, commit_id='master', path='')
     return '302 Move On', {'Location' : redirect_to}, ''
 
-@app.route('/:repo:/tree/:commit_id:/')
-def view_tree(env, repo, commit_id):
+@app.route('/:repo:/tree/:commit_id:/(?P<path>.*)')
+def view_tree(env, repo, commit_id, path):
     repo = get_repo(repo)
-    try:
-        commit = repo.get_branch(commit_id)
-    except KeyError:
-        commit = get_commit(repo, commit_id)
-    return {'repo' : repo, 'commit' : commit}
+    commit = get_branch_or_commit(repo, commit_id)
+    files = ((name, get_tree_or_blob_url(repo, commit_id, entry))
+             for name, entry in repo.listdir(commit, path))
+    return {'repo' : repo, 'commit_id' : commit_id,
+            'files' : files, 'path' : path}
+
+@app.route('/:repo:/blob/:commit_id:/(?P<path>.*)')
+def view_blob(env, repo, commit_id, path):
+    repo = get_repo(repo)
+    commit = get_branch_or_commit(repo, commit_id)
+    directory, filename = os.path.split(path)
+    blob = repo[repo.get_tree(commit, directory)[filename][1]]
+    return {'repo' : repo, 'blob' : blob, 'path' : path, 'commit_id' : commit_id}
 
 @app.route('/:repo:/commit/:id:/')
 def view_commit(env, repo, id):

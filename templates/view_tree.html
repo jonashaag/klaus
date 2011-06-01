@@ -1,4 +1,9 @@
-{% set title = repo.name %}
+{% if path %}
+  {% set title = '%s in %s/%s' % (path, repo.name, commit_id) %}
+{% else %}
+  {% set title = '%s/%s' % (repo.name, commit_id) %}
+{% endif %}
+
 {% extends 'base.html' %}
 {% block content %}
 
@@ -17,8 +22,8 @@
 </ul>
 
 <ul class=tree>
-{% for file, _, _ in repo.listdir(commit=commit) %}
-  <li>{{ file }}</li>
+{% for name, url in files %}
+  <li><a href="{{ url }}">{{ name }}</a></li>
 {% endfor %}
 </ul>
 
