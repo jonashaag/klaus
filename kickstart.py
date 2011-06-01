@@ -34,6 +34,7 @@ class ReloadApplicationMiddleware(object):
 
 def import_app():
     sys.modules.pop('klaus', None)
+    sys.modules.pop('repo', None)
     from klaus import app
     app.repos = {repo.rstrip(os.sep).split(os.sep)[-1] : repo
                  for repo in sys.argv[1:]}
