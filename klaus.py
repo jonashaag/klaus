@@ -77,23 +77,39 @@ def get_repo(name):
     except KeyError:
         raise HttpError(404, 'No repository named "%s"' % name)
 
+def get_commit(repo, id):
+    if isinstance(repo, basestring):
+        repo = get_repo(repo)
+    try:
+        commit = repo[id]
+        if not isinstance(commit, Commit):
+            raise KeyError
+        return commit
+    except KeyError:
+        raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, id))
+
 @app.route('/')
 def repo_list(env):
     return {'repos' : app.repos.items()}
 
 @app.route('/:repo:/')
 def view_repo(env, repo):
-    return {'repo' : get_repo(repo)}
+    redirect_to = app.build_url('view_tree', repo=repo, commit_id='master')
+    return '302 Move On', {'Location' : redirect_to}, ''
+
+@app.route('/:repo:/tree/:commit_id:/')
+def view_tree(env, repo, commit_id):
+    repo = get_repo(repo)
+    try:
+        commit = repo.get_branch(commit_id)
+    except KeyError:
+        commit = get_commit(repo, commit_id)
+    return {'repo' : repo, 'commit' : commit}
 
 @app.route('/:repo:/commit/:id:/')
 def view_commit(env, repo, id):
     repo = get_repo(repo)
-    try:
-        commit = repo[id]
-        if not isinstance(commit, Commit):
-            raise KeyError
-    except KeyError:
-        raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, id))
+    commit = get_commit(repo, id)
     return {'commit' : commit, 'repo' : repo}
 
 
