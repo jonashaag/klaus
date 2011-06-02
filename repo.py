@@ -38,11 +38,6 @@ class RepoWrapper(dulwich.repo.Repo):
                                       parent.tree, commit.tree)
         return stringio.getvalue()
 
-class ChangeWrapper(dulwich.diff_tree.TreeChange):
-    def as_udiff(self):
-        with open(self.old.path) as f1, open(self.new.path) as f2:
-            return ''.join(difflib.unified_diff(f1, f2))
-
 def Repo(name, path, _cache={}):
     repo = _cache.get(path)
     if repo is None:
