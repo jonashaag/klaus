@@ -6,18 +6,26 @@ import difflib
 import dulwich, dulwich.patch
 
 class RepoWrapper(dulwich.repo.Repo):
-    def get_branch(self, name=None):
-        if name is None:
-            name = 'master'
+    def get_branch_or_commit(self, id):
+        try:
+            return self[id]
+        except KeyError:
+            return self.get_branch(id)
+
+    def get_branch(self, name):
         return self['refs/heads/'+name]
 
-    def history(self, branch=None, max_commits=None):
+    def get_default_branch(self):
+        return self.get_branch('master')
+
+    def history(self, commit=None, max_commits=None):
+        if commit is None:
+            commit = self.get_default_branch()
         if max_commits is None:
             max_commits = float('inf')
-        head = self.get_branch(branch)
-        while max_commits and head.parents:
-            yield head
-            head = self[head.parents[0]]
+        while max_commits and commit.parents:
+            yield commit
+            commit = self[commit.parents[0]]
             max_commits -= 1
 
     def get_tree(self, commit, path):

@@ -87,12 +87,6 @@ def get_commit(repo, id):
     except KeyError:
         raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, id))
 
-def get_branch_or_commit(repo, id):
-    try:
-        return repo.get_branch(id)
-    except KeyError:
-        return get_commit(repo, id)
-
 def get_tree_or_blob_url(repo, commit_id, tree_entry):
     if tree_entry.mode & stat.S_IFDIR:
         view = 'view_tree'
@@ -113,7 +107,7 @@ def view_repo(env, repo):
 @app.route('/:repo:/tree/:commit_id:/(?P<path>.*)')
 def view_tree(env, repo, commit_id, path):
     repo = get_repo(repo)
-    commit = get_branch_or_commit(repo, commit_id)
+    commit = repo.get_branch_or_commit(commit_id)
     files = ((name, get_tree_or_blob_url(repo, commit_id, entry))
              for name, entry in repo.listdir(commit, path))
     return {'repo' : repo, 'commit_id' : commit_id,
@@ -122,7 +116,7 @@ def view_tree(env, repo, commit_id, path):
 @app.route('/:repo:/blob/:commit_id:/(?P<path>.*)')
 def view_blob(env, repo, commit_id, path):
     repo = get_repo(repo)
-    commit = get_branch_or_commit(repo, commit_id)
+    commit = repo.get_branch_or_commit(commit_id)
     directory, filename = os.path.split(path)
     blob = repo[repo.get_tree(commit, directory)[filename][1]]
     return {'repo' : repo, 'blob' : blob, 'path' : path, 'commit_id' : commit_id}
