@@ -1,9 +1,17 @@
+import os
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
 import difflib
 import dulwich, dulwich.patch
+
+def pairwise(iterable):
+    prev = None
+    for item in iterable:
+        if prev is not None:
+            yield prev, item
+        prev = item
 
 class RepoWrapper(dulwich.repo.Repo):
     def get_branch_or_commit(self, id):
@@ -18,15 +26,29 @@ class RepoWrapper(dulwich.repo.Repo):
     def get_default_branch(self):
         return self.get_branch('master')
 
-    def history(self, commit=None, max_commits=None):
+    def history(self, commit=None, path=None, max_commits=None):
+        commits = self._history(commit)
+        if path:
+            commits = (c1 for c1, c2 in pairwise(commits)
+                       if self._path_changed_between(path, c1, c2))
+        for commit in commits:
+            if not max_commits:
+                break
+            max_commits -= 1
+            yield commit
+
+    def _history(self, commit):
         if commit is None:
             commit = self.get_default_branch()
-        if max_commits is None:
-            max_commits = float('inf')
-        while max_commits and commit.parents:
+        while commit.parents:
             yield commit
             commit = self[commit.parents[0]]
-            max_commits -= 1
+
+    def _path_changed_between(self, path, commit1, commit2):
+        path, filename = os.path.split(path)
+        blob1 = self.get_tree(commit1, path)[filename]
+        blob2 = self.get_tree(commit2, path)[filename]
+        return blob1[1] != blob2[1]
 
     def get_tree(self, commit, path):
         tree = self[commit.tree]

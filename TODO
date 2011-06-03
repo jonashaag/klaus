@@ -1,9 +1,9 @@
 definitely
 ----------
 * branch selector
-* history view for current directory
 * file history
 * navigation: repo list, tree breadcrumbs
+* raw file views (mimetype!)
 
 maybe
 -----

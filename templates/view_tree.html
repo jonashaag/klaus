@@ -8,7 +8,7 @@
 {% block content %}
 
 <ul class=history>
-{% for commit in repo.history(max_commits=10) %}
+{% for commit in repo.history(max_commits=10, path=path) %}
   <li>
     <span class=id>
       <a href="{{ build_url('view_commit', repo=repo.name, id=commit.id) }}">
