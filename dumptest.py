@@ -9,6 +9,7 @@ BASE_URL = 'http://localhost:8080'
 
 errors = defaultdict(set)
 urls = {'/'}
+seen = set()
 while urls:
     try:
         http_conn.close()
@@ -16,6 +17,9 @@ while urls:
         pass
     http_conn = httplib.HTTPConnection('localhost', 8080)
     url = urls.pop()
+    if url in seen:
+        continue
+    seen.add(url)
     print 'Requesting %r...' % url
     http_conn.request('GET', BASE_URL + url)
     response = http_conn.getresponse()
