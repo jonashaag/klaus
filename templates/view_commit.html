@@ -15,7 +15,7 @@
     <span class=datetime>{{ commit.commit_time|timesince }} ago</span>
   </div>
   <div class=changes>
-    {{ repo.commit_diff(commit)|pygmentize }}
+    {{ repo.commit_diff(commit)|pygmentize('udiff') }}
   </div>
 </div>
 

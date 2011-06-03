@@ -46,15 +46,22 @@ class RepoWrapper(dulwich.repo.Repo):
 
     def _path_changed_between(self, path, commit1, commit2):
         path, filename = os.path.split(path)
-        blob1 = self.get_tree(commit1, path)[filename]
-        blob2 = self.get_tree(commit2, path)[filename]
-        return blob1[1] != blob2[1]
+        tree1 = self.get_tree(commit1, path)
+        tree2 = self.get_tree(commit2, path)
+        try:
+            blob1 = tree1[filename]
+            blob2 = tree2[filename]
+            return blob1 == blob2
+        except KeyError:
+            # file new or deleted in tree2
+            return True
 
     def get_tree(self, commit, path):
         tree = self[commit.tree]
         if path:
             for directory in path.split('/'):
-                tree = self[tree[directory][1]]
+                if directory:
+                    tree = self[tree[directory][1]]
         return tree
 
     def listdir(self, commit, root=None):
