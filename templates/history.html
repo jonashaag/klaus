@@ -3,11 +3,18 @@
 {% block content %}
 
 {% from 'history.inc.html' import history %}
-{% call history(repo, path, max_length=30, skip=30*page) %}
+{% call(have_more_commits) history(repo, path, max_length=30, skip=30*page) %}
   <div class=pagination>
-    <a href="{{ urls.prev }}" {% if page == 1%}class=inactive{% endif %}>
-      « newer</a>
-    <a href="{{ urls.next }}">» older</a>
+    {% if page %}
+      <a href="{{ urls.prev }}">« newer</a>
+    {% else %}
+      <a href=# class=inactive>« newer</a>
+    {% endif %}
+    {% if have_more_commits %}
+      <a href="{{ urls.next }}">» older</a>
+    {% else %}
+      <a href=# class=inactive>» older</a>
+    {% endif%}
   </div>
 {% endcall %}
 
