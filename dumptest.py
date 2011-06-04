@@ -3,7 +3,7 @@ import re
 import httplib
 from collections import defaultdict
 
-AHREF_RE = re.compile('href="([^"]+)"')
+AHREF_RE = re.compile('href="([\w/][^"]+)"')
 
 BASE_URL = 'http://localhost:8080'
 
