@@ -66,10 +66,13 @@ class RepoWrapper(dulwich.repo.Repo):
         return ((entry.path, entry.in_path(root)) for entry in tree.iteritems())
 
     def commit_diff(self, commit):
-        parent = self[commit.parents[0]]
+        if commit.parents:
+            parent_tree = self[commit.parents[0]].tree
+        else:
+            parent_tree = None
         stringio = StringIO()
         dulwich.patch.write_tree_diff(stringio, self.object_store,
-                                      parent.tree, commit.tree)
+                                      parent_tree, commit.tree)
         return stringio.getvalue()
 
 def Repo(name, path, _cache={}):
