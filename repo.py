@@ -39,6 +39,7 @@ class RepoWrapper(dulwich.repo.Repo):
         while commit.parents:
             yield commit
             commit = self[commit.parents[0]]
+        yield commit
 
     def _path_changed_between(self, path, commit1, commit2):
         path, filename = os.path.split(path)
