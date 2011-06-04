@@ -85,14 +85,15 @@ def get_repo(name):
     except KeyError:
         raise HttpError(404, 'No repository named "%s"' % name)
 
-def get_commit(repo, id):
+def get_repo_and_commit(repo_name, commit_id):
+    repo = get_repo(repo_name)
     try:
-        commit = repo[id]
+        commit = repo.get_branch_or_commit(commit_id)
         if not isinstance(commit, Commit):
             raise KeyError
-        return commit
     except KeyError:
         raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, id))
+    return repo, commit
 
 def get_tree_or_blob_url(repo, commit_id, tree_entry):
     if tree_entry.mode & stat.S_IFDIR:
@@ -108,6 +109,9 @@ def make_title(repo, branch, path):
     else:
         return '%s/%s' % (repo.name, branch)
 
+def guess_is_binary(data):
+    return '\0' in data
+
 @app.route('/')
 def repo_list(env):
     return {'repos' : app.repos.items()}
@@ -119,8 +123,7 @@ def view_repo(env, repo):
 
 @app.route('/:repo:/tree/:commit_id:/(?P<path>.*)')
 def view_tree(env, repo, commit_id, path):
-    repo = get_repo(repo)
-    commit = repo.get_branch_or_commit(commit_id)
+    repo, commit = get_repo_and_commit(repo, commit_id)
     files = ((name, get_tree_or_blob_url(repo, commit_id, entry))
              for name, entry in repo.listdir(commit, path))
     return {'repo' : repo, 'files' : files, 'path' : path, 'commit_id' : commit_id,
@@ -128,8 +131,7 @@ def view_tree(env, repo, commit_id, path):
 
 @app.route('/:repo:/history/:commit_id:/(?P<path>.*)')
 def history(env, repo, commit_id, path):
-    repo = get_repo(repo)
-    commit = repo.get_branch_or_commit(commit_id)
+    repo, commit = get_repo_and_commit(repo, commit_id)
     try:
         page = int(env['QUERY_STRING'].replace('page=', ''))
     except (KeyError, ValueError):
@@ -142,16 +144,25 @@ def history(env, repo, commit_id, path):
 
 @app.route('/:repo:/blob/:commit_id:/(?P<path>.*)')
 def view_blob(env, repo, commit_id, path):
-    repo = get_repo(repo)
-    commit = repo.get_branch_or_commit(commit_id)
-    directory, filename = os.path.split(path)
+    repo, commit = get_repo_and_commit(repo, commit_id)
+    directory, filename = os.path.split(path.strip('/'))
     blob = repo[repo.get_tree(commit, directory)[filename][1]]
-    return {'blob' : blob, 'title' : make_title(repo, commit_id, path)}
+    if '/raw/' in env['PATH_INFO']:
+        raw_data = blob.data
+        mime = 'application/octet-stream' if guess_is_binary(filename) else 'text/plain'
+        return '200 yo', {'Content-Type' : mime}, raw_data
+    else:
+        return {'blob' : blob, 'title' : make_title(repo, commit_id, path),
+                'raw_url' : app.build_url('raw_file', repo=repo.name,
+                                          commit_id=commit_id, path=path)}
+
+@app.route('/:repo:/raw/:commit_id:/(?P<path>.*)')
+def raw_file(*args, **kwargs):
+    return view_blob(*args, **kwargs)
 
 @app.route('/:repo:/commit/:id:/')
 def view_commit(env, repo, id):
-    repo = get_repo(repo)
-    commit = get_commit(repo, id)
+    repo, commit = get_repo_and_commit(repo, id)
     return {'commit' : commit, 'repo' : repo}
 
 
