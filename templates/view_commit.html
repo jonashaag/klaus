@@ -2,7 +2,7 @@
 {% extends 'base.html' %}
 
 {% block h1 %}
-  Commit "{{commit.message|shorten_message}}" to
+  Commit "{{commit.message.decode('utf-8')|shorten_message}}" to
   <a href="{{ build_url('view_repo', repo=repo.name) }}">{{ repo.name }}</a>
 {% endblock %}
 
