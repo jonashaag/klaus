@@ -63,8 +63,15 @@ def timesince(when, now=time.time):
             delta -= n*seconds
             result.append((n, unit))
 
-    if result[0][1] != 'year':
-        result = result[1:]
+    n, unit = result[0]
+    if unit == 'month':
+        if n == 1:
+            # 1 month, 3 weeks --> 7 weeks
+            result = [(result[1][0] + 4, 'week')]
+        else:
+            # 2 months, 1 week -> 2 months
+            result = result[:1]
+
     return ', '.join('%d %s%s' % (n, unit, 's' if n != 1 else '')
                      for n, unit in result[:2])
 
@@ -95,6 +102,12 @@ def get_tree_or_blob_url(repo, commit_id, tree_entry):
     return app.build_url(view,
         repo=repo.name, commit_id=commit_id, path=tree_entry.path)
 
+def make_title(repo, branch, path):
+    if path:
+        return '%s in %s/%s' %  (path, repo.name, branch)
+    else:
+        return '%s/%s' % (repo.name, branch)
+
 @app.route('/')
 def repo_list(env):
     return {'repos' : app.repos.items()}
@@ -110,8 +123,22 @@ def view_tree(env, repo, commit_id, path):
     commit = repo.get_branch_or_commit(commit_id)
     files = ((name, get_tree_or_blob_url(repo, commit_id, entry))
              for name, entry in repo.listdir(commit, path))
-    return {'repo' : repo, 'commit_id' : commit_id,
-            'files' : files, 'path' : path}
+    return {'repo' : repo, 'files' : files, 'path' : path, 'commit_id' : commit_id,
+            'title' : make_title(repo, commit_id, path)}
+
+@app.route('/:repo:/history/:commit_id:/(?P<path>.*)')
+def history(env, repo, commit_id, path):
+    repo = get_repo(repo)
+    commit = repo.get_branch_or_commit(commit_id)
+    try:
+        page = int(env['QUERY_STRING'].replace('page=', ''))
+    except (KeyError, ValueError):
+        page = 0
+    this_url = app.build_url('history', repo=repo.name, commit_id=commit_id, path=path)
+    urls = {'next' : this_url + '?page=%d' % (page+1),
+            'prev' : this_url + '?page=%d' % (page-1)}
+    return {'repo' : repo, 'path' : path, 'page' : page, 'urls' : urls,
+            'title' : make_title(repo, commit_id, path)}
 
 @app.route('/:repo:/blob/:commit_id:/(?P<path>.*)')
 def view_blob(env, repo, commit_id, path):
@@ -119,7 +146,7 @@ def view_blob(env, repo, commit_id, path):
     commit = repo.get_branch_or_commit(commit_id)
     directory, filename = os.path.split(path)
     blob = repo[repo.get_tree(commit, directory)[filename][1]]
-    return {'repo' : repo, 'blob' : blob, 'path' : path, 'commit_id' : commit_id}
+    return {'blob' : blob, 'title' : make_title(repo, commit_id, path)}
 
 @app.route('/:repo:/commit/:id:/')
 def view_commit(env, repo, id):

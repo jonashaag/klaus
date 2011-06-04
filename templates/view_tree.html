@@ -1,25 +1,11 @@
-{% if path %}
-  {% set title = '%s in %s/%s' % (path, repo.name, commit_id) %}
-{% else %}
-  {% set title = '%s/%s' % (repo.name, commit_id) %}
-{% endif %}
-
 {% extends 'base.html' %}
 {% block content %}
 
-<ul class=history>
-{% for commit in repo.history(max_commits=10, path=path) %}
-  <li>
-    <span class=id>
-      <a href="{{ build_url('view_commit', repo=repo.name, id=commit.id) }}">
-        {{ commit.id|shorten_id }}
-      </a>
-    </span>
-    <span class=message>{{ commit.message.decode('utf-8') }}</span>
-    <span class=datetime>{{ commit.commit_time|timesince }} ago</span>
-  </li>
-{% endfor %}
-</ul>
+{% from 'history.inc.html' import history %}
+{% call history(repo, path, max_length=10) %}
+  <a href="{{ build_url('history', repo=repo.name, commit_id=commit_id, path=path) }}"
+     class=history-more>more</a>
+ {% endcall %}
 
 <ul class=tree>
 {% for name, url in files %}

@@ -1,0 +1,14 @@
+{% set title = 'History of ' + title %}
+{% extends 'base.html' %}
+{% block content %}
+
+{% from 'history.inc.html' import history %}
+{% call history(repo, path, max_length=30, skip=30*page) %}
+  <div class=pagination>
+    <a href="{{ urls.prev }}" {% if page == 1%}class=inactive{% endif %}>
+      « newer</a>
+    <a href="{{ urls.next }}">» older</a>
+  </div>
+{% endcall %}
+
+{% endblock %}

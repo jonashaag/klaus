@@ -26,12 +26,16 @@ class RepoWrapper(dulwich.repo.Repo):
     def get_default_branch(self):
         return self.get_branch('master')
 
-    def history(self, commit=None, path=None, max_commits=None):
+    def history(self, commit=None, path=None, max_commits=None, skip=0):
         commits = self._history(commit)
+        path = path.strip('/')
         if path:
             commits = (c1 for c1, c2 in pairwise(commits)
                        if self._path_changed_between(path, c1, c2))
         for commit in commits:
+            if skip:
+                skip -= 1
+                continue
             if not max_commits:
                 break
             max_commits -= 1
@@ -59,7 +63,7 @@ class RepoWrapper(dulwich.repo.Repo):
     def get_tree(self, commit, path):
         tree = self[commit.tree]
         if path:
-            for directory in path.split('/'):
+            for directory in path.strip('/').split('/'):
                 if directory:
                     tree = self[tree[directory][1]]
         return tree

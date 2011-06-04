@@ -1,0 +1,18 @@
+{% macro history(repo, path, max_length, skip=0) %}
+<div class=history>
+  <ul>
+  {% for commit in repo.history(max_commits=max_length, path=path, skip=skip) %}
+    <li>
+      <span class=id>
+        <a href="{{ build_url('view_commit', repo=repo.name, id=commit.id) }}">
+          {{ commit.id|shorten_id }}
+        </a>
+      </span>
+      <span class=message>{{ commit.message.decode('utf-8') }}</span>
+      <span class=datetime>{{ commit.commit_time|timesince }} ago</span>
+    </li>
+  {% endfor %}
+  </ul>
+  {% if caller %}{{ caller() }}{% endif %}
+</div>
+{% endmacro %}
