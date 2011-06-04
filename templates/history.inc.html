@@ -8,7 +8,7 @@
           {{ commit.id|shorten_id }}
         </a>
       </span>
-      <span class=message>{{ commit.message.decode('utf-8') }}</span>
+      <span class=message>{{ commit.message.decode('utf-8')|shorten_message }}</span>
       <span class=datetime>{{ commit.commit_time|timesince }} ago</span>
     </li>
   {% endfor %}

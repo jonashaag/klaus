@@ -75,6 +75,7 @@ def timesince(when, now=time.time):
 
 app.jinja_env.filters['timesince'] = timesince
 app.jinja_env.filters['shorten_id'] = lambda id: id[:7]
+app.jinja_env.filters['shorten_message'] = lambda msg: msg.split('\n')[0]
 app.jinja_env.filters['pygmentize'] = pygmentize
 
 def get_repo(name):
