@@ -169,9 +169,7 @@ if app.debug:
     def view(env, path):
         path = './static/' + path
         relpath = os.path.join(os.getcwd(), path)
-        if os.path.isdir(relpath):
-            return index(relpath, path)
-        elif os.path.isfile(relpath):
+        if os.path.isfile(relpath):
             return open(relpath)
         else:
             raise HttpError(404, 'Not Found')
