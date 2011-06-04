@@ -98,7 +98,7 @@ def get_repo_and_commit(repo_name, commit_id):
         if not isinstance(commit, Commit):
             raise KeyError
     except KeyError:
-        raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, id))
+        raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, commit_id))
     return repo, commit
 
 def get_tree_or_blob_url(repo, commit_id, tree_entry):
