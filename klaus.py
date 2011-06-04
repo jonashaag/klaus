@@ -24,11 +24,14 @@ class KlausApplication(NanoApplication):
         super_decorator = super(KlausApplication, self).route(pattern)
         def decorator(callback):
             @wraps(callback)
-            def wrapper(*args, **kwargs):
-                res = callback(*args, **kwargs)
-                if isinstance(res, dict):
-                    res = self.render_template(callback.__name__ + '.html', **res)
-                return res
+            def wrapper(env, **kwargs):
+                try:
+                    return self.render_template(callback.__name__ + '.html',
+                                                **callback(env, **kwargs))
+                except Response as e:
+                    if len(e.args) == 1:
+                        return e.args[0]
+                    return e.args
             return super_decorator(wrapper)
         return decorator
 
@@ -85,99 +88,142 @@ app.jinja_env.filters['shorten_id'] = lambda id: id[:7]
 app.jinja_env.filters['shorten_message'] = lambda msg: msg.split('\n')[0]
 app.jinja_env.filters['pygmentize'] = pygmentize
 
-def get_repo(name):
-    try:
-        return Repo(name, app.repos[name])
-    except KeyError:
-        raise HttpError(404, 'No repository named "%s"' % name)
-
-def get_repo_and_commit(repo_name, commit_id):
-    repo = get_repo(repo_name)
-    try:
-        commit = repo.get_branch_or_commit(commit_id)
-        if not isinstance(commit, Commit):
-            raise KeyError
-    except KeyError:
-        raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, commit_id))
-    return repo, commit
-
-def get_tree_or_blob_url(repo, commit_id, tree_entry):
-    if tree_entry.mode & stat.S_IFDIR:
-        view = 'view_tree'
-    else:
-        view = 'view_blob'
-    return app.build_url(view,
-        repo=repo.name, commit_id=commit_id, path=tree_entry.path)
-
-def make_title(repo, branch, path):
-    if path:
-        return '%s in %s/%s' % (path, repo.name, branch)
-    else:
-        return '%s/%s' % (repo.name, branch)
-
 def guess_is_binary(data):
     return '\0' in data
 
-@app.route('/')
-def repo_list(env):
-    return {'repos': app.repos.items()}
-
-@app.route('/:repo:/')
-def view_repo(env, repo):
-    redirect_to = app.build_url('view_tree', repo=repo, commit_id='master', path='')
-    return '302 Move On', {'Location': redirect_to}, ''
-
-@app.route('/:repo:/tree/:commit_id:/(?P<path>.*)')
-def view_tree(env, repo, commit_id, path):
-    repo, commit = get_repo_and_commit(repo, commit_id)
-    files = ((name, get_tree_or_blob_url(repo, commit_id, entry))
-             for name, entry in repo.listdir(commit, path))
-    return {'repo': repo, 'files': files, 'path': path, 'commit_id': commit_id,
-            'title': make_title(repo, commit_id, path)}
-
-@app.route('/:repo:/history/:commit_id:/(?P<path>.*)')
-def history(env, repo, commit_id, path):
-    repo, commit = get_repo_and_commit(repo, commit_id)
-    try:
-        page = int(env['QUERY_STRING'].replace('page=', ''))
-    except (KeyError, ValueError):
-        page = 0
-    this_url = app.build_url('history', repo=repo.name, commit_id=commit_id, path=path)
-    urls = {'next': this_url + '?page=%d' % (page+1),
-            'prev': this_url + '?page=%d' % (page-1)}
-    return {'repo': repo, 'path': path, 'page': page, 'urls': urls,
-            'title': make_title(repo, commit_id, path)}
-
-@app.route('/:repo:/blob/:commit_id:/(?P<path>.*)')
-def view_blob(env, repo, commit_id, path):
-    repo, commit = get_repo_and_commit(repo, commit_id)
-    directory, filename = os.path.split(path.strip('/'))
-    blob = repo[repo.get_tree(commit, directory)[filename][1]]
-    if '/raw/' in env['PATH_INFO']:
-        raw_data = blob.data
-        mime = 'application/octet-stream' if guess_is_binary(filename) else 'text/plain'
-        return '200 yo', {'Content-Type': mime}, raw_data
-    else:
-        return {'blob': blob, 'title': make_title(repo, commit_id, path),
-                'raw_url': app.build_url('raw_file', repo=repo.name,
-                                          commit_id=commit_id, path=path)}
-
-@app.route('/:repo:/raw/:commit_id:/(?P<path>.*)')
-def raw_file(*args, **kwargs):
-    return view_blob(*args, **kwargs)
-
-@app.route('/:repo:/commit/:id:/')
-def view_commit(env, repo, id):
-    repo, commit = get_repo_and_commit(repo, id)
-    return {'commit': commit, 'repo': repo}
+def subpaths(path):
+    seen = []
+    for part in path.split('/'):
+        seen.append(part)
+        yield part, '/'.join(seen)
 
 
-if app.debug:
-    @app.route('/static/(?P<path>.+)')
-    def view(env, path):
-        path = './static/' + path
+class Response(Exception):
+    pass
+
+class BaseView(dict):
+    def __init__(self, env):
+        self['environ'] = env
+        self.view()
+
+    def direct_response(self, *args):
+        raise Response(*args)
+
+def route(pattern, name=None):
+    def decorator(cls):
+        cls.__name__ = name or cls.__name__.lower()
+        app.route(pattern)(cls)
+        return cls
+    return decorator
+
+@route('/', 'repo_list')
+class RepoList(BaseView):
+    def view(self):
+        self['repos'] =  app.repos.items()
+
+class BaseRepoView(BaseView):
+    def __init__(self, env, repo, commit_id, path=None):
+        self['repo'] = repo = self.get_repo(repo)
+        self['commit_id'] = commit_id
+        self['commit'] = self.get_commit(repo, commit_id)
+        self['path'] = path
+        if path is not None:
+            self['subpaths'] = subpaths(path)
+        super(BaseRepoView, self).__init__(env)
+
+    def get_repo(self, name):
+        try:
+            return Repo(name, app.repos[name])
+        except KeyError:
+            raise HttpError(404, 'No repository named "%s"' % name)
+
+    def get_commit(self, repo, id):
+        try:
+            commit = repo.get_branch_or_commit(id)
+            if not isinstance(commit, Commit):
+                raise KeyError
+        except KeyError:
+            raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, id))
+        return commit
+
+    def build_url(self, view=None, **kwargs):
+        if view is None:
+            view = self.__class__.__name__
+        default_kwargs = {
+            'repo' : self['repo'].name,
+            'commit_id' : self['commit_id'],
+            'path' : self['path']
+        }
+        return app.build_url(view, **dict(default_kwargs, **kwargs))
+
+
+@route('/:repo:/tree/:commit_id:/(?P<path>.*)', 'view_tree')
+class TreeView(BaseRepoView):
+    def view(self):
+        self['files'] = ((name, self.get_tree_or_blob_url(entry))
+                         for name, entry in self.listdir())
+
+    def listdir(self):
+        return self['repo'].listdir(self['commit'], self['path'])
+
+    def get_tree_or_blob_url(self, tree_entry):
+        view = 'view_tree' if tree_entry.mode & stat.S_IFDIR else 'view_blob'
+        return self.build_url(view, path=tree_entry.path)
+
+
+@route('/:repo:/history/:commit_id:/(?P<path>.*)')
+class History(BaseRepoView):
+    def view(self):
+        try:
+            page = int(self['environ']['QUERY_STRING'].replace('page=', ''))
+        except (KeyError, ValueError):
+            page = 0
+        this_url = self.build_url()
+        self['urls'] = {'next': this_url + '?page=%d' % (page+1),
+                        'prev': this_url + '?page=%d' % (page-1)}
+        self['page'] = page
+
+
+class BaseBlobView(BaseRepoView):
+    def view(self):
+        directory, filename = os.path.split(self['path'].strip('/'))
+        repo = self['repo']
+        tree_id = repo.get_tree(self['commit'], directory)[filename][1]
+        blob = repo[tree_id]
+        self['blob'] = blob
+        self['filename'] = filename
+
+@route('/:repo:/blob/:commit_id:/(?P<path>.*)', 'view_blob')
+class BlobView(BaseBlobView):
+    def view(self):
+        super(BlobView, self).view()
+        self['raw_url'] = self.build_url('raw_blob')
+
+
+@route('/:repo:/raw/:commit_id:/(?P<path>.*)', 'raw_blob')
+class RawBlob(BaseBlobView):
+    def view(self):
+        super(RawBlob, self).view()
+        mime = 'application/octet-stream' \
+               if guess_is_binary(self['filename']) else 'text/plain'
+        self.direct_response('200 yo', {'Content-Type': mime}, self['blob'].data)
+
+@route('/:repo:/commit/:commit_id:/', 'view_commit')
+class CommitView(BaseRepoView):
+    def view(self):
+        pass
+
+
+@route('/static/(?P<path>.+)', 'static')
+class StaticFilesView(BaseView):
+    def __init__(self, env, path):
+        self['path'] = path
+        super(StaticFilesView, self).__init__(env)
+
+    def view(self):
+        path = './static/' + self['path']
         relpath = os.path.join(os.getcwd(), path)
         if os.path.isfile(relpath):
-            return open(relpath)
+            self.direct_response(open(relpath))
         else:
             raise HttpError(404, 'Not Found')

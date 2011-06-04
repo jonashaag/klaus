@@ -6,7 +6,7 @@
   {% if not loop.last or history|length < max_length %}
     <li>
       <span class=id>
-        <a href="{{ build_url('view_commit', repo=repo.name, id=commit.id) }}">
+        <a href="{{ build_url('view_commit', repo=repo.name, commit_id=commit.id) }}">
           {{ commit.id|shorten_id }}
         </a>
       </span>

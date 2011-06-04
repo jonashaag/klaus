@@ -1,6 +1,12 @@
-<!doctype html>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
-<link rel=stylesheet href=/static/pygments.css>
-<title>{{ title }}</title>
-<h1>{% block h1 %}{{ title }}{% endblock %}</h1>
-{% block content %}{% endblock %}
+{% extends 'skeleton.html' %}
+
+{% block breadcrumbs %}
+  <a href="{{ build_url('view_tree', repo=repo.name, commit_id=commit_id, path='') }}">{{ repo.name }}/{{ commit_id }}</a>
+  {% for name, subpath in subpaths %}
+    {% if loop.last %}
+    <a href="">{{ name }}</a>
+    {% else %}
+    <a href="{{ build_url('view_tree', repo=repo.name, commit_id=commit_id, path=subpath) }}">{{ name }}</a>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
