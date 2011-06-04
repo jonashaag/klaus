@@ -1,4 +1,5 @@
-""" Very dump testing tool: Ensures all sites respond with HTTP 2xx/3xx """
+""" Very dumb testing tool: Ensures all sites respond with HTTP 2xx/3xx """
+import sys
 import re
 import httplib
 from collections import defaultdict
@@ -20,7 +21,8 @@ while urls:
     if url in seen:
         continue
     seen.add(url)
-    print 'Requesting %r...' % url
+    if '-v' in sys.argv:
+        print 'Requesting %r...' % url
     http_conn.request('GET', BASE_URL + url)
     response = http_conn.getresponse()
     status = str(response.status)
