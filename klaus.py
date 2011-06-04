@@ -47,19 +47,27 @@ def pygmentize(code, language=None, formatter=HtmlFormatter(linenos=True)):
 def timesince(when, now=time.time):
     delta = now() - when
     result = []
-    for unit, seconds in [
-        ('year', 365*24*60*60),
-        ('month', 30*24*60*60),
-        ('week', 7*24*60*60),
-        ('day', 24*60*60),
-        ('hour', 60*60),
-        ('minute', 60),
-        ('second', 1),
+    break_next = False
+    for unit, seconds, break_immediately in [
+        ('year', 365*24*60*60, False),
+        ('month', 30*24*60*60, False),
+        ('week', 7*24*60*60, False),
+        ('day', 24*60*60, True),
+        ('hour', 60*60, False),
+        ('minute', 60, True),
+        ('second', 1, False),
     ]:
         if delta > seconds:
             n = int(delta/seconds)
             delta -= n*seconds
             result.append((n, unit))
+            if break_immediately:
+                break
+            if not break_next:
+                break_next = True
+                continue
+        if break_next:
+            break
 
     n, unit = result[0]
     if unit == 'month':
