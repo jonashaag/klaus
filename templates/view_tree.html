@@ -2,9 +2,11 @@
 {% block content %}
 
 {% from 'history.inc.html' import history %}
-{% call history(repo, path, max_length=10) %}
+{% call(have_more_commits) history(repo, path, max_length=10) %}
+{% if have_more_commits %}
   <a href="{{ build_url('history', repo=repo.name, commit_id=commit_id, path=path) }}"
      class=history-more>more</a>
+ {% endif %}
  {% endcall %}
 
 <ul class=tree>
