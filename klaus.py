@@ -69,8 +69,7 @@ def timesince(when, now=time.time):
         if break_next:
             break
 
-    n, unit = result[0]
-    if unit == 'month':
+    if len(result) > 1 and result[0][1] == 'month':
         if n == 1:
             # 1 month, 3 weeks --> 7 weeks
             result = [(result[1][0] + 4, 'week')]
