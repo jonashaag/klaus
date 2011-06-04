@@ -3,7 +3,6 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
-import difflib
 import dulwich, dulwich.patch
 
 def pairwise(iterable):

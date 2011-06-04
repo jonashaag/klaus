@@ -37,8 +37,6 @@ class KlausApplication(NanoApplication):
 
 app = KlausApplication(debug=True, default_content_type='text/html')
 
-#pygments_formatter = HtmlFormatter(linenos=True, cssclass='code')
-
 def pygmentize(code, language=None, formatter=HtmlFormatter(linenos=True)):
     if language is None:
         lexer = guess_lexer(code)
@@ -47,7 +45,7 @@ def pygmentize(code, language=None, formatter=HtmlFormatter(linenos=True)):
     return highlight(code, lexer, formatter)
 
 def timesince(when, now=time.time):
-    delta = time.time() - when
+    delta = now() - when
     result = []
     for unit, seconds in [
         ('year', 365*24*60*60),
@@ -105,7 +103,7 @@ def get_tree_or_blob_url(repo, commit_id, tree_entry):
 
 def make_title(repo, branch, path):
     if path:
-        return '%s in %s/%s' %  (path, repo.name, branch)
+        return '%s in %s/%s' % (path, repo.name, branch)
     else:
         return '%s/%s' % (repo.name, branch)
 
@@ -114,20 +112,20 @@ def guess_is_binary(data):
 
 @app.route('/')
 def repo_list(env):
-    return {'repos' : app.repos.items()}
+    return {'repos': app.repos.items()}
 
 @app.route('/:repo:/')
 def view_repo(env, repo):
     redirect_to = app.build_url('view_tree', repo=repo, commit_id='master', path='')
-    return '302 Move On', {'Location' : redirect_to}, ''
+    return '302 Move On', {'Location': redirect_to}, ''
 
 @app.route('/:repo:/tree/:commit_id:/(?P<path>.*)')
 def view_tree(env, repo, commit_id, path):
     repo, commit = get_repo_and_commit(repo, commit_id)
     files = ((name, get_tree_or_blob_url(repo, commit_id, entry))
              for name, entry in repo.listdir(commit, path))
-    return {'repo' : repo, 'files' : files, 'path' : path, 'commit_id' : commit_id,
-            'title' : make_title(repo, commit_id, path)}
+    return {'repo': repo, 'files': files, 'path': path, 'commit_id': commit_id,
+            'title': make_title(repo, commit_id, path)}
 
 @app.route('/:repo:/history/:commit_id:/(?P<path>.*)')
 def history(env, repo, commit_id, path):
@@ -137,10 +135,10 @@ def history(env, repo, commit_id, path):
     except (KeyError, ValueError):
         page = 0
     this_url = app.build_url('history', repo=repo.name, commit_id=commit_id, path=path)
-    urls = {'next' : this_url + '?page=%d' % (page+1),
-            'prev' : this_url + '?page=%d' % (page-1)}
-    return {'repo' : repo, 'path' : path, 'page' : page, 'urls' : urls,
-            'title' : make_title(repo, commit_id, path)}
+    urls = {'next': this_url + '?page=%d' % (page+1),
+            'prev': this_url + '?page=%d' % (page-1)}
+    return {'repo': repo, 'path': path, 'page': page, 'urls': urls,
+            'title': make_title(repo, commit_id, path)}
 
 @app.route('/:repo:/blob/:commit_id:/(?P<path>.*)')
 def view_blob(env, repo, commit_id, path):
@@ -150,10 +148,10 @@ def view_blob(env, repo, commit_id, path):
     if '/raw/' in env['PATH_INFO']:
         raw_data = blob.data
         mime = 'application/octet-stream' if guess_is_binary(filename) else 'text/plain'
-        return '200 yo', {'Content-Type' : mime}, raw_data
+        return '200 yo', {'Content-Type': mime}, raw_data
     else:
-        return {'blob' : blob, 'title' : make_title(repo, commit_id, path),
-                'raw_url' : app.build_url('raw_file', repo=repo.name,
+        return {'blob': blob, 'title': make_title(repo, commit_id, path),
+                'raw_url': app.build_url('raw_file', repo=repo.name,
                                           commit_id=commit_id, path=path)}
 
 @app.route('/:repo:/raw/:commit_id:/(?P<path>.*)')
@@ -163,7 +161,7 @@ def raw_file(*args, **kwargs):
 @app.route('/:repo:/commit/:id:/')
 def view_commit(env, repo, id):
     repo, commit = get_repo_and_commit(repo, id)
-    return {'commit' : commit, 'repo' : repo}
+    return {'commit': commit, 'repo': repo}
 
 
 if app.debug:
