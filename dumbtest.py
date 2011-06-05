@@ -1,14 +1,18 @@
 """ Very dumb testing tool: Ensures all sites respond with HTTP 2xx/3xx """
+from __future__ import print_function
 import sys
 import re
 import httplib
 from collections import defaultdict
+import atexit
 
 AHREF_RE = re.compile('href="([\w/][^"]+)"')
 
 BASE_URL = 'http://localhost:8080'
 
 errors = defaultdict(set)
+atexit.register(lambda: print(errors))
+
 urls = {'/'}
 seen = set()
 while urls:
@@ -22,7 +26,7 @@ while urls:
         continue
     seen.add(url)
     if '-v' in sys.argv:
-        print 'Requesting %r...' % url
+        print('Requesting %r...' % url)
     http_conn.request('GET', BASE_URL + url)
     response = http_conn.getresponse()
     status = str(response.status)
@@ -32,5 +36,3 @@ while urls:
         urls.update(AHREF_RE.findall(response.read()))
     else:
         errors[status].add(url)
-
-print errors
