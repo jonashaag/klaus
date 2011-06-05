@@ -125,10 +125,12 @@ class BaseRepoView(BaseView):
     def __init__(self, env, repo, commit_id, path=None):
         self['repo'] = repo = self.get_repo(repo)
         self['commit_id'] = commit_id
-        self['commit'] = self.get_commit(repo, commit_id)
+        self['commit'], isbranch = self.get_commit(repo, commit_id)
+        self['branch'] = commit_id if isbranch else 'master'
         self['path'] = path
         if path is not None:
             self['subpaths'] = subpaths(path)
+
         super(BaseRepoView, self).__init__(env)
 
     def get_repo(self, name):
@@ -139,12 +141,12 @@ class BaseRepoView(BaseView):
 
     def get_commit(self, repo, id):
         try:
-            commit = repo.get_branch_or_commit(id)
+            commit, isbranch = repo.get_branch_or_commit(id)
             if not isinstance(commit, Commit):
                 raise KeyError
         except KeyError:
             raise HttpError(404, '"%s" has no commit "%s"' % (repo.name, id))
-        return commit
+        return commit, isbranch
 
     def build_url(self, view=None, **kwargs):
         if view is None:
@@ -175,13 +177,9 @@ class TreeView(BaseRepoView):
 class History(BaseRepoView):
     def view(self):
         try:
-            page = int(self['environ']['QUERY_STRING'].replace('page=', ''))
+            self['page'] = int(self['environ']['QUERY_STRING'].replace('page=', ''))
         except (KeyError, ValueError):
-            page = 0
-        this_url = self.build_url()
-        self['urls'] = {'next': this_url + '?page=%d' % (page+1),
-                        'prev': this_url + '?page=%d' % (page-1)}
-        self['page'] = page
+            self['page'] = 0
 
 
 class BaseBlobView(BaseRepoView):

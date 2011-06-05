@@ -1,6 +1,6 @@
-{% macro history(repo, path, max_length, skip=0) %}
+{% macro history(repo, branch, path, max_length, skip=0) %}
 <div class=history>
-  {% set history = repo.history(max_commits=max_length+1, path=path, skip=skip) %}
+  {% set history = repo.history(branch, path, max_length+1, skip) %}
   <ul>
   {% for commit in history %}
   {% if not loop.last or history|length < max_length %}

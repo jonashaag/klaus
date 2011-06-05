@@ -15,9 +15,9 @@ def pairwise(iterable):
 class RepoWrapper(dulwich.repo.Repo):
     def get_branch_or_commit(self, id):
         try:
-            return self[id]
+            return self[id], False
         except KeyError:
-            return self.get_branch(id)
+            return self.get_branch(id), True
 
     def get_branch(self, name):
         return self['refs/heads/'+name]
@@ -26,6 +26,8 @@ class RepoWrapper(dulwich.repo.Repo):
         return self.get_branch('master')
 
     def history(self, commit=None, path=None, max_commits=None, skip=0):
+        if not isinstance(commit, dulwich.objects.Commit):
+            commit, _ = self.get_branch_or_commit(commit)
         commits = self._history(commit)
         path = path.strip('/')
         if path:
