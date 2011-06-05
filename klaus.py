@@ -103,6 +103,7 @@ class Response(Exception):
 
 class BaseView(dict):
     def __init__(self, env):
+        dict.__init__(self)
         self['environ'] = env
         self.view()
 
