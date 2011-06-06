@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<a href="{{ raw_url }}">raw file</a>
-{{ blob.data|pygmentize }}
+{% include 'tree.inc.html' %}
+
+<div class=blobview>
+  <h2>File {{ filename }} <span>(<a href="{{ raw_url }}">raw</a>)</h2>
+  {{ blob.data.decode('utf-8')|pygmentize(filename=filename) }}
+</div>
 
 {% endblock %}

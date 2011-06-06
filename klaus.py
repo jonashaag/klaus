@@ -102,7 +102,6 @@ def subpaths(path):
         seen.append(part)
         yield part, '/'.join(seen)
 
-
 class Response(Exception):
     pass
 

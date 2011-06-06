@@ -15,7 +15,7 @@
     <span class=message>{{ commit.message.decode('utf-8') }}</span>
   </div>
   <div class=changes>
-    {{ repo.commit_diff(commit)|pygmentize('udiff') }}
+    {{ repo.commit_diff(commit)|pygmentize(language='udiff') }}
   </div>
 </div>
 
