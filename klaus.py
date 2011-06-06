@@ -168,36 +168,43 @@ class BaseRepoView(BaseView):
 @route('/:repo:/tree/:commit_id:/(?P<path>.*)', 'view_tree')
 class TreeView(BaseRepoView):
     def view(self):
-        self['files'] = self.listdir()
-
-    def listdir(self):
-        for name, entry in self['repo'].listdir(self['commit'], self['path']):
-            isdir = entry.mode & stat.S_IFDIR
-            view = 'view_tree' if isdir else 'view_blob'
-            yield name, isdir, self.build_url(view, path=entry.path)
-
-@route('/:repo:/history/:commit_id:/(?P<path>.*)')
-class History(BaseRepoView):
-    def view(self):
+        self['tree'] = self.listdir(self['path'])
         try:
             self['page'] = int(self['environ']['QUERY_STRING'].replace('page=', ''))
         except (KeyError, ValueError):
             self['page'] = 0
 
+        if self['page']:
+            self['history_length'] = 30
+            self['skip'] = (self['page']-1) * 30 + 10
+        else:
+            self['history_length'] = 10
+            self['skip'] = 0
+
+    def listdir(self, path):
+        dirs, files = [], []
+        for name, entry in self['repo'].listdir(self['commit'], path):
+            if entry.mode & stat.S_IFDIR:
+                dirs.append((name, entry.path))
+            else:
+                files.append((name, entry.path))
+        dirs.sort()
+        files.sort()
+        return {'dirs' : dirs, 'files' : files}
 
 class BaseBlobView(BaseRepoView):
     def view(self):
         directory, filename = os.path.split(self['path'].strip('/'))
-        repo = self['repo']
-        tree_id = repo.get_tree(self['commit'], directory)[filename][1]
-        blob = repo[tree_id]
-        self['blob'] = blob
+        tree_id = self['repo'].get_tree(self['commit'], directory)[filename][1]
+        self['blob'] = self['repo'][tree_id]
+        self['directory'] = directory
         self['filename'] = filename
 
 @route('/:repo:/blob/:commit_id:/(?P<path>.*)', 'view_blob')
-class BlobView(BaseBlobView):
+class BlobView(BaseBlobView, TreeView):
     def view(self):
         super(BlobView, self).view()
+        self['tree'] = self.listdir(self['directory'])
         self['raw_url'] = self.build_url('raw_blob')
 
 

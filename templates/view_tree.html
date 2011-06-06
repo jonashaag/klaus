@@ -1,26 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div id=treeview>
+{% include 'tree.inc.html' %}
 
-<div class=tree>
-  <h2>Tree @
-    <a href="{{ build_url('view_commit', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_id }}</a></h2>
-<ul>
-{% for name, isdir, url in files %}
-  <li><a href="{{ url }}" {% if isdir %}class=dir{% endif %}>{{ name }}</a></li>
-{% endfor %}
-</ul>
-</div>
-
-{% from 'history.inc.html' import history %}
-{% call(have_more_commits) history(repo, branch, path, max_length=10) %}
-{% if have_more_commits %}
-  <a href="{{ build_url('history', repo=repo.name, commit_id=branch, path=path) }}"
-     class=history-more>more</a>
- {% endif %}
- {% endcall %}
-
+<div>
+  {% from 'history.inc.html' import history %}
+  {% call(have_more_commits) history(repo, branch, path, max_length=history_length, skip=skip) %}
+    <div class=pagination>
+      {% if page %}
+        <a href="?page={{page-1}}">« newer</a>
+      {% else %}
+        <span>« newer</span>
+      {% endif %}
+      {% if have_more_commits %}
+        <a href="?page={{page+1}}">older »</a>
+      {% else %}
+        <span>older »</span>
+      {% endif%}
+    </div>
+  {% endcall %}
  </div>
 
 {% endblock %}
