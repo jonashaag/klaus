@@ -8,7 +8,7 @@ from dulwich.objects import Commit
 from jinja2 import Environment, FileSystemLoader
 
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name, guess_lexer
+from pygments.lexers import get_lexer_for_filename, get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 
 from nano import NanoApplication, HttpError
@@ -40,12 +40,13 @@ class KlausApplication(NanoApplication):
 
 app = KlausApplication(debug=True, default_content_type='text/html')
 
-def pygmentize(code, language=None, formatter=HtmlFormatter(linenos=True)):
-    if language is None:
-        lexer = guess_lexer(code)
+def pygmentize(code, filename=None, language=None):
+    if language:
+        lexer = get_lexer_by_name(language)
     else:
-        lexer = get_lexer_by_name(language, stripall=True, tabsize=4)
-    return highlight(code, lexer, formatter)
+        lexer = get_lexer_for_filename(filename)
+    return highlight(code, lexer, pygments_formatter)
+pygments_formatter = HtmlFormatter(linenos=True)
 
 def timesince(when, now=time.time):
     delta = now() - when
