@@ -34,7 +34,7 @@ class RepoWrapper(dulwich.repo.Repo):
         if path:
             commits = (c1 for c1, c2 in pairwise(commits)
                        if self._path_changed_between(path, c1, c2))
-        return list(islice(commits, skip, max_commits))
+        return list(islice(commits, skip, skip+max_commits))
 
     def _history(self, commit):
         if commit is None:

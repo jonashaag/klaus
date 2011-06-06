@@ -84,7 +84,7 @@ def timesince(when, now=time.time):
                      for n, unit in result[:2])
 
 app.jinja_env.filters['timesince'] = timesince
-app.jinja_env.filters['shorten_id'] = lambda id: id[:7]
+app.jinja_env.filters['shorten_id'] = lambda id: id[:7] if len(id) in {20, 40} else id
 app.jinja_env.filters['shorten_message'] = lambda msg: msg.split('\n')[0]
 app.jinja_env.filters['pygmentize'] = pygmentize
 
@@ -129,7 +129,7 @@ class BaseRepoView(BaseView):
         self['commit'], isbranch = self.get_commit(repo, commit_id)
         self['branch'] = commit_id if isbranch else 'master'
         self['path'] = path
-        if path is not None:
+        if path:
             self['subpaths'] = subpaths(path)
 
         super(BaseRepoView, self).__init__(env)
@@ -163,16 +163,13 @@ class BaseRepoView(BaseView):
 @route('/:repo:/tree/:commit_id:/(?P<path>.*)', 'view_tree')
 class TreeView(BaseRepoView):
     def view(self):
-        self['files'] = ((name, self.get_tree_or_blob_url(entry))
-                         for name, entry in self.listdir())
+        self['files'] = self.listdir()
 
     def listdir(self):
-        return self['repo'].listdir(self['commit'], self['path'])
-
-    def get_tree_or_blob_url(self, tree_entry):
-        view = 'view_tree' if tree_entry.mode & stat.S_IFDIR else 'view_blob'
-        return self.build_url(view, path=tree_entry.path)
-
+        for name, entry in self['repo'].listdir(self['commit'], self['path']):
+            isdir = entry.mode & stat.S_IFDIR
+            view = 'view_tree' if isdir else 'view_blob'
+            yield name, isdir, self.build_url(view, path=entry.path)
 
 @route('/:repo:/history/:commit_id:/(?P<path>.*)')
 class History(BaseRepoView):

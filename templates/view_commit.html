@@ -11,8 +11,8 @@
 <div class=commit>
   <div class=meta>
     <span class=id>{{ commit.id|shorten_id }}</span>
-    <span class=message>{{ commit.message.decode('utf-8') }}</span>
     <span class=datetime>{{ commit.commit_time|timesince }} ago</span>
+    <span class=message>{{ commit.message.decode('utf-8') }}</span>
   </div>
   <div class=changes>
     {{ repo.commit_diff(commit)|pygmentize('udiff') }}

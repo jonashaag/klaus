@@ -1,0 +1,36 @@
+body { margin: 0; padding: 0; font-size: 11pt; }
+pre { font-size: 10pt; }
+a, a:visited { color: blue; text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul { list-style-type: none; padding-left: 0; }
+
+.clearfloat { clear: both; }
+
+header { background-color: #ddd; padding: 10px; }
+header a + a:before { content: " » "; }
+
+#content { padding: 10px 20px; }
+
+#treeview .tree, .history { float: left; }
+#treeview .tree { width: 30%; }
+#treeview .history { width: 70%; }
+
+.history .commit {
+  background-color: #f5f5f5;
+  padding: 8px 10px;
+  margin-bottom: 2px;
+  display: block;
+  border: 1px solid #e0e0e0;
+}
+.history .commit > span { display: block; }
+
+.history .commit { color: black; }
+.history .commit:hover { text-decoration: none; }
+.history .commit:hover .line1 { text-decoration: underline; color: #555; }
+.history .commit:hover .line1 span { color: black; }
+.history .commit .line1 { font-family: monospace; font-size: 10pt; }
+
+.history .commit .line2 { margin-top: 3px; margin-left: 1px; }
+.history .commit .line2 > span:first-child { float: left; }
+.history .commit .line2 > span:nth-child(2) { float: right; }
+.history .commit .line2 { color: #737373; font-size: 12px; }
