@@ -1,12 +1,18 @@
 {% extends 'skeleton.html' %}
 
 {% block breadcrumbs %}
-  <a href="{{ build_url('view_tree', repo=repo.name, commit_id=commit_id, path='') }}">{{ repo.name }}/{{ commit_id }}</a>
+  <span>
+    <a href="{{ build_url('view_tree', repo=repo.name, commit_id=branch, path='') }}">{{ repo.name }}</a>
+    <span class=slash>/</span>
+    <a href="{{ build_url('view_tree', repo=repo.name, commit_id=commit_id, path='') }}">{{ commit_id }}</a>
+  </span>
   {% for name, subpath in subpaths %}
-    {% if loop.last %}
-    <a href="">{{ name }}</a>
-    {% else %}
-    <a href="{{ build_url('view_tree', repo=repo.name, commit_id=commit_id, path=subpath) }}">{{ name }}</a>
-    {% endif %}
+    <span>
+      {% if loop.last %}
+      <a href="">{{ name }}</a>
+      {% else %}
+      <a href="{{ build_url('view_tree', repo=repo.name, commit_id=commit_id, path=subpath) }}">{{ name }}</a>
+      {% endif %}
+    </span>
   {% endfor %}
 {% endblock %}

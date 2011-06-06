@@ -14,8 +14,8 @@
           <span>{{ commit.message.decode('utf-8')|shorten_message }}</span>
         </span>
         <span class=line2>
-          <span>{{ commit.commit_time|timesince }} ago</span>
           <span>{{ commit.author.decode('utf-8') }}</span>
+          <span>{{ commit.commit_time|timesince }} ago</span>
         </span>
         <span class=clearfloat></span>
       </a>

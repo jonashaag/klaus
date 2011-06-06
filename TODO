@@ -2,8 +2,10 @@ definitely
 ----------
 * branch selector
 * file history
-* navigation: repo list, tree breadcrumbs
-* design
+* pagination: replace 'newer' by page numbers.
+* tree: provide a ".." element
+* commit view design
+* repo list design
 
 maybe
 -----

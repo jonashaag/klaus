@@ -5,9 +5,14 @@
 
 <header>
   <a href=/>{{ environ.HTTP_HOST }}</a>
-  {% block breadcrumbs %}{% endblock %}
+  <span class=breadcrumbs>{% block breadcrumbs %}{% endblock %}</span>
 </header>
 
 <div id=content>
 {% block content %}{% endblock %}
 </div>
+
+<footer>
+powered by <a href="https://github.com/jonashaag/klaus">klaus</a>,
+a simple Git viewer by Jonas Haag
+</footer>

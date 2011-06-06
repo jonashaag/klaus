@@ -1,20 +1,44 @@
 body { margin: 0; padding: 0; font-size: 11pt; }
 pre { font-size: 10pt; }
-a, a:visited { color: blue; text-decoration: none; }
+a, a:visited { color: #003278; text-decoration: none; }
 a:hover { text-decoration: underline; }
 ul { list-style-type: none; padding-left: 0; }
 
 .clearfloat { clear: both; }
 
-header { background-color: #ddd; padding: 10px; }
-header a + a:before { content: " » "; }
+/* Header */
+header { padding: 10px; border-bottom: 3px solid #e0e0e0; }
+header a { padding: 10px 0; }
+header .breadcrumbs > span:before { content: ' » '; color: #666; }
+header .slash { color: #666; margin: 0 -3px; }
 
-#content { padding: 10px 20px; }
+/* Footer */
+footer {
+  clear: both;
+  font-size: 10pt;
+  float: right;
+  color: #666;
+  padding: 50px 3px 3px 0;
+}
+footer a { color: inherit; border-bottom: 1px dotted #666; }
+footer a:hover { text-decoration: none; }
 
-#treeview .tree, .history { float: left; }
-#treeview .tree { width: 30%; }
-#treeview .history { width: 70%; }
+/* Container */
+#content { padding: 5px 1.5%; }
+#content > div:nth-of-type(1),
+#content > div:nth-of-type(2) { float: left; }
+#content > div:nth-of-type(1) { width: 24%; }
+#content > div:nth-of-type(2) {
+  width: 73%;
+  padding-left: 1.5%;
+  margin-left: 1.5%;
+  border-left: 1px dotted #ccc;
+}
 
+/* Pagination */
+.pagination span { color: #666; }
+
+/* Tree View */
 .history .commit {
   background-color: #f5f5f5;
   padding: 8px 10px;
@@ -25,12 +49,32 @@ header a + a:before { content: " » "; }
 .history .commit > span { display: block; }
 
 .history .commit { color: black; }
-.history .commit:hover { text-decoration: none; }
-.history .commit:hover .line1 { text-decoration: underline; color: #555; }
+.history .commit:hover { text-decoration: none; background-color: #f9f9f9; }
+.history .commit:hover .line1 { text-decoration: underline; color: #aaa; }
 .history .commit:hover .line1 span { color: black; }
-.history .commit .line1 { font-family: monospace; font-size: 10pt; }
+.history .commit .line1 { font-family: monospace; font-size: 10pt; padding-bottom: 2px; }
 
-.history .commit .line2 { margin-top: 3px; margin-left: 1px; }
+.history .commit .line2 { position: relative; top: 3px; left: 1px; }
 .history .commit .line2 > span:first-child { float: left; }
 .history .commit .line2 > span:nth-child(2) { float: right; }
 .history .commit .line2 { color: #737373; font-size: 12px; }
+
+.tree ul { font-family: monospace; font-size: 10pt; }
+.tree li { background-color: #f5f5f5; border: 1px solid #e0e0e0; }
+.tree li a { padding: 5px 7px; display: block; color: #001533; }
+.tree li a:hover { background-color: #f9f9f9; }
+.tree li a:before {
+  margin-right: 5px;
+  position: relative;
+  top: 2px;
+  opacity: 0.7;
+  content: url(data:iamge/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sGBhMmAbS/QqsAAAAdaVRYdENvbW1lbnQAAAAAAENyZWF0ZWQgd2l0aCBHSU1QZC5lBwAAANBJREFUKM+Vkj2OgzAQhb8HSLupkKiQD8DPWbZMkSMgLsF9IlLmMpiKA9CncraIQGbXIPGqsec9faOx1TTNwxhz5YT6vr8lxphr13Wc1D1Zqnmecc4BIGl1LLUk4jgmTVMA1qBzDmvtxuhLEnVdr+fEb5ZleUj0lfgGn/hXh8SiKAKEF+/3F1EUhYkA4zhumlVVARfgBXzvjxoiSkK6/Bt9Q7TWHi7lM8HOVsNE7RMlMQxDkLRs078LEkPh3XfMsuzUZ1Xbts88z3/OhKZpuv8CNeMsq6Yg8OoAAAAASUVORK5CYII=);
+}
+.tree li a.dir:before {
+  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sGBhMiMxgE1i8AAAAdaVRYdENvbW1lbnQAAAAAAENyZWF0ZWQgd2l0aCBHSU1QZC5lBwAAAYxJREFUKM+l0r1KXEEYxvH/bNS4K2RNCjsRBAlqITESI0QCuqBdWLwACSJaiZILiDcQkDRql8oUIqkkkRTRwiKVyvoRV5HFEFEX/DjomePsmfNauB4xrLAmD1PNML95eBnV0Fj/vjPRMcpfMcYAMP9jYXDzV3qSO1LSmegYfdvbV/DQ8zS+709oVzu7u78/FwQAHOeU9Y31gsjz5hYcx5lqbXsxdb23ld4eW15aGQmBaDRGZfzxXS1JvukBQCmFUoqZL9PDIWCMQWuX76tnpLIxisqjJC39SXmoM5thg1Q2xsd3XXjGFmWUlz1g6MPc0xIArV0A9o89dg7PiwJqqyoAiHieRzRaZPUCibiuGzb4J+B6Bv8F3LeBtQFeznLrH5RGAgQQEZRSiAgiEIhgrZCzAcYXLnxLzgrxirIbQGuXmvgFR2eGP0caRBEg5BciIAgieRjwrdwAB9lDnrW9Yjlzkr909boIBAiCApGwVWvdE+a+fkOvzX5STd0D86XV7a/vOzy7t/hzaXb85SVDycBfkNNgmgAAAABJRU5ErkJggg==);
+}
+
+/* Blob View */
+.blobview h2 span { font-size: 11pt; }
+.blobview table { margin-left: -10px; }
+.blobview .linenos { padding-right: 10px; color: #aaa; }
