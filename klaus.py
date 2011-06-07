@@ -102,6 +102,12 @@ def subpaths(path):
         seen.append(part)
         yield part, '/'.join(seen)
 
+def get_repo(name):
+    try:
+        return Repo(name, app.repos[name])
+    except KeyError:
+        raise HttpError(404, 'No repository named "%s"' % name)
+
 class Response(Exception):
     pass
 
@@ -124,11 +130,21 @@ def route(pattern, name=None):
 @route('/', 'repo_list')
 class RepoList(BaseView):
     def view(self):
-        self['repos'] =  app.repos.items()
+        self['repos'] = repos = []
+        for name in app.repos.iterkeys():
+            repo = get_repo(name)
+            refs = [repo[ref] for ref in repo.get_refs()]
+            refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
+                      reverse=True)
+            repos.append((name, refs[0].commit_time))
+        if 'by-last-update' in self['environ'].get('QUERY_STRING', ''):
+            repos.sort(key=lambda x: x[1], reverse=True)
+        else:
+            repos.sort(key=lambda x: x[0])
 
 class BaseRepoView(BaseView):
     def __init__(self, env, repo, commit_id, path=None):
-        self['repo'] = repo = self.get_repo(repo)
+        self['repo'] = repo = get_repo(repo)
         self['commit_id'] = commit_id
         self['commit'], isbranch = self.get_commit(repo, commit_id)
         self['branch'] = commit_id if isbranch else 'master'
@@ -137,12 +153,6 @@ class BaseRepoView(BaseView):
             self['subpaths'] = list(subpaths(path))
 
         super(BaseRepoView, self).__init__(env)
-
-    def get_repo(self, name):
-        try:
-            return Repo(name, app.repos[name])
-        except KeyError:
-            raise HttpError(404, 'No repository named "%s"' % name)
 
     def get_commit(self, repo, id):
         try:
