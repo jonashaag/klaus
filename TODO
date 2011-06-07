@@ -3,7 +3,6 @@ definitely
 * branch selector
 * file history
 * pagination: replace 'newer' by page numbers.
-* tree: provide a ".." element
 * repo list design
 
 maybe

@@ -134,7 +134,7 @@ class BaseRepoView(BaseView):
         self['branch'] = commit_id if isbranch else 'master'
         self['path'] = path
         if path:
-            self['subpaths'] = subpaths(path)
+            self['subpaths'] = list(subpaths(path))
 
         super(BaseRepoView, self).__init__(env)
 
@@ -187,8 +187,13 @@ class TreeView(BaseRepoView):
                 dirs.append((name, entry.path))
             else:
                 files.append((name, entry.path))
-        dirs.sort()
         files.sort()
+        dirs.sort()
+        if 'subpaths' in self:
+            if '/' in self['path']:
+                dirs.insert(0, ('..', self['path'].rsplit('/', 1)[0]))
+            else:
+                dirs.insert(0, ('..', ''))
         return {'dirs' : dirs, 'files' : files}
 
 class BaseBlobView(BaseRepoView):
