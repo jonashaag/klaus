@@ -4,7 +4,9 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
+
 import dulwich, dulwich.patch
+from diff import prepare_udiff
 
 def pairwise(iterable):
     prev = None
@@ -79,7 +81,8 @@ class RepoWrapper(dulwich.repo.Repo):
         stringio = StringIO()
         dulwich.patch.write_tree_diff(stringio, self.object_store,
                                       parent_tree, commit.tree)
-        return stringio.getvalue()
+        return prepare_udiff(stringio.getvalue().decode('utf-8'),
+                             want_header=False)
 
 def Repo(name, path, _cache={}):
     repo = _cache.get(path)

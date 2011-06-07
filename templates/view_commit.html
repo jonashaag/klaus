@@ -8,14 +8,46 @@
 
 {% block content %}
 
-<div class=commit>
-  <div class=meta>
-    <span class=id>{{ commit.id|shorten_id }}</span>
-    <span class=datetime>{{ commit.commit_time|timesince }} ago</span>
-    <span class=message>{{ commit.message.decode('utf-8') }}</span>
+<div class=full-commit>
+  <div class=commit>
+    <span class=line1>
+      <span>{{ commit.message.decode('utf-8') }}</span>
+    </span>
+    <span class=line2>
+      <span>{{ commit.author.decode('utf-8') }}</span>
+      <span>{{ commit.commit_time|timesince }} ago</span>
+    </span>
+    <span class=clearfloat></span>
   </div>
-  <div class=changes>
-    {{ repo.commit_diff(commit)|pygmentize(language='udiff') }}
+  <div class=diff>
+    {%- for file in repo.commit_diff(commit) %}
+      <div class=filename>
+        {# TODO dulwich doesn't do rename recognition
+        {% if file.old_filename != file.new_filename %}
+          {{ file.old_filename }} →
+        {% endif %}#}
+        <a href="{{ build_url('view_blob', repo=repo.name, commit_id=commit_id, path=file.new_filename) }}">
+          {{ file.new_filename }}
+        </a>
+      </div>
+      <table>
+        {%- for chunk in file.chunks %}
+          {%- for line in chunk %}
+            <tr>
+              <td class=linenos>{{ line.old_lineno }}</td>
+              <td class=linenos>{{ line.new_lineno }}</td>
+              <td class={{line.action}}>{{ line.line }}</td>
+            </tr>
+          {%- endfor %}
+          {% if not loop.last %}
+            <tr class=sep>
+              <td colspan=3></td>
+            </tr>
+          {% endif %}
+        {%- endfor %}
+      </table>
+    {%- endfor %}
+  </div>
   </div>
 </div>
 

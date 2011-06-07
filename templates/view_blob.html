@@ -4,7 +4,13 @@
 {% include 'tree.inc.html' %}
 
 <div class=blobview>
-  <h2>File {{ filename }} <span>(<a href="{{ raw_url }}">raw</a>)</h2>
+  <h2>
+    {{ filename }}
+    <span>
+      @<a href="{{ build_url('view_commit', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_id }}</a>
+      (<a href="{{ raw_url }}">raw</a>)
+    </span>
+  </h2>
   {{ blob.data.decode('utf-8')|pygmentize(filename=filename) }}
 </div>
 
