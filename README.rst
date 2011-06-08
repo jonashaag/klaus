@@ -16,15 +16,32 @@ klaus
 Requirements
 ------------
 * Python 2.7
-* Jinja2_ (``pip install jinja2``)
-* Pygments_ (``pip install pygments``)
-* dulwich_ (``pip install dulwich``)
-* Nano_ (``git submodule update --init``)
+* Jinja2_
+* Pygments_
+* dulwich_
+* Nano_ (shipped as submodule, do a ``git submodule update --init`` to fetch)
 
 .. _Jinja2: http://jinja.pocoo.org/
 .. _Pygments: http://pygments.org/
 .. _dulwich: http://www.samba.org/~jelmer/dulwich/
 .. _Nano: https://github.com/jonashaag/nano
+
+
+Installation
+------------
+*The same procedure as every year, James.* ::
+
+   virtualenv your-env
+   source your-env/bin/activate
+
+   pip install jinja2
+   pip install pygments
+   pip install dulwich
+
+   git clone https://github.com/jonashaag/klaus
+   cd klaus
+   git submodule update --init
+
 
 Usage
 -----
