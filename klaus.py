@@ -204,11 +204,16 @@ class TreeView(BaseRepoView):
         files.sort()
         dirs.sort()
         if 'subpaths' in self:
-            if '/' in self['path']:
-                dirs.insert(0, ('..', self['path'].rsplit('/', 1)[0]))
+            parent = self.get_parent_directory()
+            if '/' in parent:
+                parent = parent.rsplit('/', 1)[0]
             else:
-                dirs.insert(0, ('..', ''))
+                parent = ''
+            dirs.insert(0, ('..', parent))
         return {'dirs' : dirs, 'files' : files}
+
+    def get_parent_directory(self):
+        return self['path']
 
 class BaseBlobView(BaseRepoView):
     def view(self):
@@ -224,6 +229,9 @@ class BlobView(BaseBlobView, TreeView):
         super(BlobView, self).view()
         self['tree'] = self.listdir(self['directory'])
         self['raw_url'] = self.build_url('raw_blob')
+
+    def get_parent_directory(self):
+        return self['directory']
 
 
 @route('/:repo:/raw/:commit_id:/(?P<path>.*)', 'raw_blob')
