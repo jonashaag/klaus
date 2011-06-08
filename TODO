@@ -3,6 +3,7 @@ definitely
 * branch selector
 * file history
 * pagination: replace 'newer' by page numbers.
+* binary file support (commit, blob, ...)
 
 maybe
 -----
