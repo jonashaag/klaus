@@ -2,6 +2,17 @@ klaus
 =====
 *a simple Git web viewer that Just Works™.*
 
+|img1|_ |img2|_ |img3|_
+
+.. |img1| image:: assets/commit-view.thumb.gif
+.. |img2| image:: assets/tree-view.thumb.gif
+.. |img3| image:: assets/blob-view.thumb.gif
+
+.. _img1: assets/commit-view.gif
+.. _img2: assets/tree-view.gif
+.. _img3: assets/blob-view.gif
+
+
 Requirements
 ------------
 * Python 2.7
