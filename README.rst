@@ -1,6 +1,8 @@
 klaus
 =====
-*a simple Git web viewer that Just Works™.*
+*a simple Git web viewer that Just Works™.* (beta quality)
+
+Demo at http://klausdemo.lophus.org
 
 |img1|_ |img2|_ |img3|_
 
