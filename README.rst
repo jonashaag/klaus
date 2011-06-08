@@ -28,7 +28,7 @@ Example::
 
    ./quickstart.py 127.0.0.1 8080 ../klaus ../nano ../bjoern
 
-This will make klaus serve the `klaus`, `nano` and `bjoern` repos at
+This will make klaus serve the *klaus*, *nano* and *bjoern* repos at
 ``127.0.0.1:8080`` using Python's built-in wsgiref_ server (or, if installed,
 the bjoern_ server).
 
