@@ -1,0 +1,3 @@
+[submodule "nano"]
+	path = nano
+	url = https://github.com/jonashaag/Nano
