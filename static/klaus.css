@@ -124,6 +124,7 @@ footer a:hover { text-decoration: none; }
   border-bottom: 0;
   margin-top: 25px;
 }
+.diff .filename del { color: #999; }
 .diff .filename:before { margin-right: 0; opacity: 0.3; }
 .diff table {
   border: 1px solid #e0e0e0;
@@ -139,10 +140,10 @@ footer a:hover { text-decoration: none; }
 .diff tr:hover > td { background-color: #fefed0; }
 .diff tr:first-of-type td { padding-top: 7px; }
 .diff tr:last-of-type td { padding-bottom: 7px; }
-.diff .del { background-color: #ffdddd; }
-.diff .add { background-color: #ddffdd; }
-.diff del { background-color: #ee9999; text-decoration: none; }
-.diff ins { background-color: #99ee99; text-decoration: none; }
+.diff table .del { background-color: #ffdddd; }
+.diff table .add { background-color: #ddffdd; }
+.diff table del { background-color: #ee9999; text-decoration: none; }
+.diff table ins { background-color: #99ee99; text-decoration: none; }
 .diff .linenos {
   padding-left: 5px;
   padding-right: 5px;

@@ -26,9 +26,13 @@
         {% if file.old_filename != file.new_filename %}
           {{ file.old_filename }} →
         {% endif %}#}
-        <a href="{{ build_url('view_blob', repo=repo.name, commit_id=commit_id, path=file.new_filename) }}">
-          {{ file.new_filename }}
-        </a>
+          {% if file.new_filename == 'dev/null' %}
+            <del>{{ file.old_filename }}</del>
+          {% else %}
+            <a href="{{ build_url('view_blob', repo=repo.name, commit_id=commit_id, path=file.new_filename) }}">
+              {{ file.new_filename }}
+            </a>
+          {% endif %}
       </div>
       <table>
         {%- for chunk in file.chunks %}
