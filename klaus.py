@@ -8,7 +8,8 @@ from dulwich.objects import Commit
 from jinja2 import Environment, FileSystemLoader
 
 from pygments import highlight
-from pygments.lexers import get_lexer_for_filename, get_lexer_by_name
+from pygments.lexers import get_lexer_for_filename, get_lexer_by_name, \
+                            guess_lexer, ClassNotFound
 from pygments.formatters import HtmlFormatter
 
 from nano import NanoApplication, HttpError
@@ -44,7 +45,10 @@ def pygmentize(code, filename=None, language=None):
     if language:
         lexer = get_lexer_by_name(language)
     else:
-        lexer = get_lexer_for_filename(filename)
+        try:
+            lexer = get_lexer_for_filename(filename)
+        except ClassNotFound:
+            lexer = guess_lexer(code)
     return highlight(code, lexer, pygments_formatter)
 pygments_formatter = HtmlFormatter(linenos=True)
 
