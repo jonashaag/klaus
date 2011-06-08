@@ -20,10 +20,12 @@ Usage
 Using the ``quickstart.py`` script
 ..................................
 ::
+
    ./quickstart --help
    ./quickstart.py <host> <port> /path/to/repo1 [../path/to/repo2 [...]]
 
 Example::
+
    ./quickstart.py 127.0.0.1 8080 ../klaus ../nano ../bjoern
 
 This will make klaus serve the `klaus`, `nano` and `bjoern` repos at
