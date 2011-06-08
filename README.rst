@@ -4,13 +4,13 @@ klaus
 
 |img1|_ |img2|_ |img3|_
 
-.. |img1| image:: assets/commit-view.thumb.gif
-.. |img2| image:: assets/tree-view.thumb.gif
-.. |img3| image:: assets/blob-view.thumb.gif
+.. |img1| image:: https://github.com/jonashaag/klaus/raw/master/assets/commit-view.thumb.gif
+.. |img2| image:: https://github.com/jonashaag/klaus/raw/master/assets/tree-view.thumb.gif
+.. |img3| image:: https://github.com/jonashaag/klaus/raw/master/assets/blob-view.thumb.gif
 
-.. _img1: assets/commit-view.gif
-.. _img2: assets/tree-view.gif
-.. _img3: assets/blob-view.gif
+.. _img1: https://github.com/jonashaag/klaus/raw/master/assets/commit-view.gif
+.. _img2: https://github.com/jonashaag/klaus/raw/master/assets/tree-view.gif
+.. _img3: https://github.com/jonashaag/klaus/raw/master/assets/blob-view.gif
 
 
 Requirements
