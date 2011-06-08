@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
-import os
-import sys
+import sys, os
 import inspect
+
+sys.path.append('nano')
 
 class ReloadApplicationMiddleware(object):
     def __init__(self, import_func):
