@@ -28,6 +28,22 @@ class RepoWrapper(dulwich.repo.Repo):
     def get_default_branch(self):
         return self.get_branch('master')
 
+    def get_branch_names(self):
+        branches = []
+        for ref in self.get_refs():
+            if ref.startswith('refs/heads/'):
+                branches.append(ref[len('refs/heads/'):])
+        branches.sort()
+        return branches
+
+    def get_tag_names(self):
+        tags = []
+        for ref in self.get_refs():
+            if ref.startswith('refs/tags/'):
+                tags.append(ref[len('refs/tags/'):])
+        tags.sort()
+        return tags
+
     def history(self, commit=None, path=None, max_commits=None, skip=0):
         if not isinstance(commit, dulwich.objects.Commit):
             commit, _ = self.get_branch_or_commit(commit)
