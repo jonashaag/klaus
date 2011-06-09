@@ -103,10 +103,9 @@ class RepoWrapper(dulwich.repo.Repo):
                 if newsha and guess_is_binary(self[newsha].chunked) or \
                    oldsha and guess_is_binary(self[oldsha].chunked):
                     yield {
-                        'is_header': False,
                         'is_binary': True,
-                        'old_filename': oldpath,
-                        'new_filename': newpath,
+                        'old_filename': oldpath or 'dev/null',
+                        'new_filename': newpath or 'dev/null',
                         'chunks': [[{'line' : 'Binary diff not shown'}]]
                     }
                     continue
@@ -121,8 +120,16 @@ class RepoWrapper(dulwich.repo.Repo):
                                             (newpath, newmode, newsha))
             files = prepare_udiff(stringio.getvalue().decode('utf-8'),
                                   want_header=False)
-            assert len(files) == 1
-            yield files[0]
+            if not files:
+                # the diff module doesn't handle deletions/additions
+                # of empty files correctly.
+                yield {
+                    'old_filename': oldpath or 'dev/null',
+                    'new_filename': newpath or 'dev/null',
+                    'chunks': []
+                }
+            else:
+                yield files[0]
 
 
 def Repo(name, path, _cache={}):
