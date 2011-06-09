@@ -5,7 +5,7 @@
 
 <div class=blobview>
   <h2>
-    {{ filename }}
+    {{ filename|u }}
     <span>
       @<a href="{{ build_url('view_commit', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_id }}</a>
       (<a href="{{ raw_url }}">raw</a>)
@@ -18,7 +18,11 @@
       <div class=binary-warning>(Binary data not shown)</div>
     {% endif %}
   {% else %}
-    {{ blob.data.decode('utf-8')|pygmentize(filename=filename) }}
+    {% if too_large %}
+      <div class=too-large-warning>(Large file not shown)</div>
+    {% else %}
+      {{ blob.data|u|pygmentize(filename=filename) }}
+    {% endif %}
   {% endif %}
 </div>
 

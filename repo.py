@@ -90,7 +90,7 @@ class RepoWrapper(dulwich.repo.Repo):
         return ((entry.path, entry.in_path(root)) for entry in tree.iteritems())
 
     def commit_diff(self, commit):
-        from klaus import guess_is_binary
+        from klaus import guess_is_binary, force_unicode
 
         if commit.parents:
             parent_tree = self[commit.parents[0]].tree
@@ -118,7 +118,7 @@ class RepoWrapper(dulwich.repo.Repo):
             dulwich.patch.write_object_diff(stringio, self.object_store,
                                             (oldpath, oldmode, oldsha),
                                             (newpath, newmode, newsha))
-            files = prepare_udiff(stringio.getvalue().decode('utf-8'),
+            files = prepare_udiff(force_unicode(stringio.getvalue()),
                                   want_header=False)
             if not files:
                 # the diff module doesn't handle deletions/additions
