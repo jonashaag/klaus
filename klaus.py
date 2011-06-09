@@ -257,7 +257,10 @@ class RawBlob(BaseBlobView):
         headers = {'Content-Type': mime}
         if encoding:
             headers['Content-Encoding'] = encoding
-        self.direct_response('200 yo', headers, self['blob'].chunked)
+        body = self['blob'].chunked
+        if len(body) == 1 and not body[0]:
+            body = []
+        self.direct_response('200 yo', headers, body)
 
 
     def get_mimetype_and_encoding(self):
