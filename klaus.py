@@ -1,6 +1,8 @@
 import os
 import stat
 import time
+import mimetypes
+from future_builtins import map
 from functools import wraps
 
 from dulwich.objects import Commit
@@ -94,13 +96,24 @@ def timesince(when, now=time.time):
     return ', '.join('%d %s%s' % (n, unit, 's' if n != 1 else '')
                      for n, unit in result[:2])
 
+def guess_is_binary(data):
+    if isinstance(data, basestring):
+        return '\0' in data
+    else:
+        return any(map(guess_is_binary, data))
+
+def guess_is_image(filename):
+    mime, encoding = mimetypes.guess_type(filename)
+    if mime is None:
+        return False
+    return mime.startswith('image/')
+
 app.jinja_env.filters['timesince'] = timesince
 app.jinja_env.filters['shorten_id'] = lambda id: id[:7] if len(id) in {20, 40} else id
 app.jinja_env.filters['shorten_message'] = lambda msg: msg.split('\n')[0]
 app.jinja_env.filters['pygmentize'] = pygmentize
-
-def guess_is_binary(data):
-    return '\0' in data
+app.jinja_env.filters['is_binary'] = guess_is_binary
+app.jinja_env.filters['is_image'] = guess_is_image
 
 def subpaths(path):
     seen = []
@@ -240,9 +253,22 @@ class BlobView(BaseBlobView, TreeView):
 class RawBlob(BaseBlobView):
     def view(self):
         super(RawBlob, self).view()
-        mime = 'application/octet-stream' \
-               if guess_is_binary(self['filename']) else 'text/plain'
-        self.direct_response('200 yo', {'Content-Type': mime}, self['blob'].data)
+        mime, encoding = self.get_mimetype_and_encoding()
+        headers = {'Content-Type': mime}
+        if encoding:
+            headers['Content-Encoding'] = encoding
+        self.direct_response('200 yo', headers, self['blob'].chunked)
+
+
+    def get_mimetype_and_encoding(self):
+        if guess_is_binary(self['blob'].chunked):
+            mime, encoding = mimetypes.guess_type(self['filename'])
+            if mime is None:
+                mime = 'appliication/octet-stream'
+            return mime, encoding
+        else:
+            return 'text/plain', 'utf-8'
+
 
 @route('/:repo:/commit/:commit_id:/', 'view_commit')
 class CommitView(BaseRepoView):
