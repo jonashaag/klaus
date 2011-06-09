@@ -213,9 +213,9 @@ class TreeView(BaseRepoView):
         dirs, files = [], []
         for name, entry in self['repo'].listdir(self['commit'], path):
             if entry.mode & stat.S_IFDIR:
-                dirs.append((name, entry.path))
+                dirs.append((name.lower(), name, entry.path))
             else:
-                files.append((name, entry.path))
+                files.append((name.lower(), name, entry.path))
         files.sort()
         dirs.sort()
         if 'subpaths' in self:
@@ -224,7 +224,7 @@ class TreeView(BaseRepoView):
                 parent = parent.rsplit('/', 1)[0]
             else:
                 parent = ''
-            dirs.insert(0, ('..', parent))
+            dirs.insert(0, (None, '..', parent))
         return {'dirs' : dirs, 'files' : files}
 
     def get_parent_directory(self):
