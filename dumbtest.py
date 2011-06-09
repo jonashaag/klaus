@@ -16,12 +16,12 @@ AHREF_RE = re.compile('href="([\w/][^"]+)"')
 
 BASE_URL = 'http://localhost:8080'
 
+seen = set()
 errors = defaultdict(set)
 durations = defaultdict(list)
 
 def main():
     urls = {'/'}
-    seen = set()
     while urls:
         try:
             http_conn.close()
@@ -32,6 +32,8 @@ def main():
         if url in seen:
             continue
         seen.add(url)
+        if url.startswith('http'):
+            continue
         if '-v' in sys.argv:
             print 'Requesting %r...' % url
         start = time.time()
@@ -47,6 +49,7 @@ def main():
             errors[status].add(url)
 
 def print_stats():
+    print len(seen)
     print errors
     print {url: sum(times)/len(times) for url, times in durations.iteritems()}
 atexit.register(print_stats)
