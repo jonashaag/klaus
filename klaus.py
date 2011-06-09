@@ -28,6 +28,8 @@ class KlausApplication(NanoApplication):
         def decorator(callback):
             @wraps(callback)
             def wrapper(env, **kwargs):
+                if self.custom_host:
+                    env['HTTP_HOST'] = self.custom_host
                 try:
                     return self.render_template(callback.__name__ + '.html',
                                                 **callback(env, **kwargs))
