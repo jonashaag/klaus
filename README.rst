@@ -20,7 +20,7 @@ Requirements
 * Python 2.7
 * Jinja2_
 * Pygments_
-* dulwich_
+* dulwich_ (>= 0.7.1)
 * Nano_ (shipped as submodule, do a ``git submodule update --init`` to fetch)
 
 .. _Jinja2: http://jinja.pocoo.org/

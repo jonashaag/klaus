@@ -94,10 +94,8 @@ footer a:hover { text-decoration: none; }
 
 /* Blob View */
 .blobview h2 span { font-size: 11pt; }
-.blobview table {
-  background-color: #fefefe;
-  border: 1px solid #e0e0e0;
-}
+.blobview img { max-width: 100%; padding: 1px; }
+.blobview table, .blobview img { border: 1px solid #e0e0e0; }
 .blobview .linenos {
   padding: 0 6px 0 6px;
   border: 1px solid #e0e0e0;
@@ -128,7 +126,7 @@ footer a:hover { text-decoration: none; }
 .diff .filename:before { margin-right: 0; opacity: 0.3; }
 .diff table {
   border: 1px solid #e0e0e0;
-  background-color: #fefefe;
+  background-color: #fdfdfd;
   width: 100%;
 }
 .diff td {

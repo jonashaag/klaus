@@ -11,7 +11,15 @@
       (<a href="{{ raw_url }}">raw</a>)
     </span>
   </h2>
-  {{ blob.data.decode('utf-8')|pygmentize(filename=filename) }}
+  {% if blob.chunked|is_binary %}
+    {% if filename|is_image %}
+      <a href="{{ raw_url }}"><img src="{{ raw_url }}"></a>
+    {% else %}
+      <div class=binary-warning>(Binary data not shown)</div>
+    {% endif %}
+  {% else %}
+    {{ blob.data.decode('utf-8')|pygmentize(filename=filename) }}
+  {% endif %}
 </div>
 
 {% endblock %}
