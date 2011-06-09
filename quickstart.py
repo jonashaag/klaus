@@ -33,12 +33,14 @@ def main():
     parser = argparse.ArgumentParser(epilog='Gemüse kaufen!')
     parser.add_argument('host', help='(without http://)')
     parser.add_argument('port', type=int)
+    parser.add_argument('--display-host', dest='custom_host')
     parser.add_argument('repo', nargs='+', type=valid_directory,
                         help='repository directories to serve')
     args = parser.parse_args()
 
     from klaus import app
     app.repos = {repo.rstrip(os.sep).split(os.sep)[-1]: repo for repo in args.repo}
+    app.custom_host = args.custom_host
 
     run(app, args.host, args.port)
 
