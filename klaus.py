@@ -1,4 +1,5 @@
 import os
+import re
 import stat
 import time
 import mimetypes
@@ -129,6 +130,12 @@ def force_unicode(s):
     except (ImportError, UnicodeDecodeError):
         raise exc
 
+def extract_author_name(email):
+    match = re.match('^(.*?)<.*?>$', email)
+    if match:
+        return match.group(1)
+    return email
+
 app.jinja_env.filters['u'] = force_unicode
 app.jinja_env.filters['timesince'] = timesince
 app.jinja_env.filters['shorten_id'] = lambda id: id[:7] if len(id) in {20, 40} else id
@@ -136,6 +143,7 @@ app.jinja_env.filters['shorten_message'] = lambda msg: msg.split('\n')[0]
 app.jinja_env.filters['pygmentize'] = pygmentize
 app.jinja_env.filters['is_binary'] = guess_is_binary
 app.jinja_env.filters['is_image'] = guess_is_image
+app.jinja_env.filters['shorten_author'] = extract_author_name
 
 def subpaths(path):
     seen = []

@@ -14,7 +14,7 @@
       <span>{{ commit.message|u }}</span>
     </span>
     <span class=line2>
-      <span>{{ commit.author|u }}</span>
+      <span>{{ commit.author|u|shorten_author }}</span>
       <span>{{ commit.commit_time|timesince }} ago</span>
     </span>
     <span class=clearfloat></span>
