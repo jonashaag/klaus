@@ -40,7 +40,8 @@ def main():
 
     from klaus import app
     app.repos = {repo.rstrip(os.sep).split(os.sep)[-1]: repo for repo in args.repo}
-    app.custom_host = args.custom_host
+    if args.custom_host:
+        app.custom_host = args.custom_host
 
     run(app, args.host, args.port)
 
