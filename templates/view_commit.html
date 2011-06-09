@@ -40,7 +40,7 @@
             <tr>
               <td class=linenos>{{ line.old_lineno }}</td>
               <td class=linenos>{{ line.new_lineno }}</td>
-              <td class={{line.action}}>{{ line.line|u }}</td>
+              <td class={{line.action}}>{% autoescape off %}{{ line.line|u }}{% endautoescape %}</td>
             </tr>
           {%- endfor %}
           {% if not loop.last %}

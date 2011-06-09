@@ -21,6 +21,7 @@ class KlausApplication(NanoApplication):
     def __init__(self, *args, **kwargs):
         super(KlausApplication, self).__init__(*args, **kwargs)
         self.jinja_env = Environment(loader=FileSystemLoader('templates'),
+                                     extensions=['jinja2.ext.autoescape'],
                                      autoescape=True)
         self.jinja_env.globals['build_url'] = self.build_url
 

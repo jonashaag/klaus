@@ -21,7 +21,9 @@
     {% if too_large %}
       <div class=too-large-warning>(Large file not shown)</div>
     {% else %}
-      {{ blob.data|u|pygmentize(filename=filename) }}
+      {% autoescape off %}
+        {{ blob.data|u|pygmentize(filename=filename) }}
+      {% endautoescape %}
     {% endif %}
   {% endif %}
 </div>
