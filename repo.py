@@ -100,8 +100,8 @@ class RepoWrapper(dulwich.repo.Repo):
         changes = self.object_store.tree_changes(parent_tree, commit.tree)
         for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in changes:
             try:
-                if newsha and guess_is_binary(newsha) or \
-                   oldsha and guess_is_binary(oldsha):
+                if newsha and guess_is_binary(self[newsha].chunked) or \
+                   oldsha and guess_is_binary(self[oldsha].chunked):
                     yield {
                         'is_header': False,
                         'is_binary': True,
