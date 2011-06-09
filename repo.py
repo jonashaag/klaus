@@ -90,15 +90,40 @@ class RepoWrapper(dulwich.repo.Repo):
         return ((entry.path, entry.in_path(root)) for entry in tree.iteritems())
 
     def commit_diff(self, commit):
+        from klaus import guess_is_binary
+
         if commit.parents:
             parent_tree = self[commit.parents[0]].tree
         else:
             parent_tree = None
-        stringio = StringIO()
-        dulwich.patch.write_tree_diff(stringio, self.object_store,
-                                      parent_tree, commit.tree)
-        return prepare_udiff(stringio.getvalue().decode('utf-8'),
-                             want_header=False)
+
+        changes = self.object_store.tree_changes(parent_tree, commit.tree)
+        for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in changes:
+            try:
+                if newsha and guess_is_binary(newsha) or \
+                   oldsha and guess_is_binary(oldsha):
+                    yield {
+                        'is_header': False,
+                        'is_binary': True,
+                        'old_filename': oldpath,
+                        'new_filename': newpath,
+                        'chunks': [[{'line' : 'Binary diff not shown'}]]
+                    }
+                    continue
+            except KeyError:
+                # newsha/oldsha are probably related to submodules.
+                # Dulwich will handle that.
+                pass
+
+            stringio = StringIO()
+            dulwich.patch.write_object_diff(stringio, self.object_store,
+                                            (oldpath, oldmode, oldsha),
+                                            (newpath, newmode, newsha))
+            files = prepare_udiff(stringio.getvalue().decode('utf-8'),
+                                  want_header=False)
+            assert len(files) == 1
+            yield files[0]
+
 
 def Repo(name, path, _cache={}):
     repo = _cache.get(path)
