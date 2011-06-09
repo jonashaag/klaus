@@ -65,11 +65,17 @@ class RepoWrapper(dulwich.repo.Repo):
     def _path_changed_between(self, path, commit1, commit2):
         path, filename = os.path.split(path)
         try:
-            blob1 = self.get_tree(commit1, path)[filename]
+            blob1 = self.get_tree(commit1, path)
+            if not isinstance(blob1, dulwich.objects.Tree):
+                return True
+            blob1 = blob1[filename]
         except KeyError:
             blob1 = None
         try:
-            blob2 = self.get_tree(commit2, path)[filename]
+            blob2 = self.get_tree(commit2, path)
+            if not isinstance(blob2, dulwich.objects.Tree):
+                return True
+            blob2 = blob2[filename]
         except KeyError:
             blob2 = None
         if blob1 is None and blob2 is None:
