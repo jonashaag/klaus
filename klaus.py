@@ -108,6 +108,26 @@ def guess_is_image(filename):
         return False
     return mime.startswith('image/')
 
+def force_unicode(s):
+    if isinstance(s, unicode):
+        return s
+    try:
+        return s.decode('utf-8')
+    except UnicodeDecodeError as exc:
+        pass
+    try:
+        return s.decode('iso-8859-1')
+    except UnicodeDecodeError:
+        pass
+    try:
+        import chardet
+        encoding = chardet.detect(s)['encoding']
+        if encoding is not None:
+            return s.decode(encoding)
+    except (ImportError, UnicodeDecodeError):
+        raise exc
+
+app.jinja_env.filters['u'] = force_unicode
 app.jinja_env.filters['timesince'] = timesince
 app.jinja_env.filters['shorten_id'] = lambda id: id[:7] if len(id) in {20, 40} else id
 app.jinja_env.filters['shorten_message'] = lambda msg: msg.split('\n')[0]
@@ -244,6 +264,7 @@ class BlobView(BaseBlobView, TreeView):
         super(BlobView, self).view()
         self['tree'] = self.listdir(self['directory'])
         self['raw_url'] = self.build_url('raw_blob')
+        self['too_large'] = sum(map(len, self['blob'].chunked)) > 100*1024
 
     def get_parent_directory(self):
         return self['directory']

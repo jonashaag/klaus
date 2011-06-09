@@ -9,9 +9,9 @@
   {% for name, subpath in subpaths %}
     <span>
       {% if loop.last %}
-      <a href="">{{ name }}</a>
+      <a href="">{{ name|u }}</a>
       {% else %}
-      <a href="{{ build_url('view_tree', repo=repo.name, commit_id=commit_id, path=subpath) }}">{{ name }}</a>
+      <a href="{{ build_url('view_tree', repo=repo.name, commit_id=commit_id, path=subpath) }}">{{ name|u }}</a>
       {% endif %}
     </span>
   {% endfor %}
