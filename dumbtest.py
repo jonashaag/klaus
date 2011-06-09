@@ -44,13 +44,20 @@ def main():
         if status[0] == '3':
             urls.add(response.getheader('Location'))
         elif status[0] == '2':
-            urls.update(AHREF_RE.findall(response.read()))
+            if not '/raw/' in url:
+                html = response.read()
+                html = re.sub('<pre>.*?</pre>', '', html)
+                urls.update(AHREF_RE.findall(html))
         else:
+            if '--failfast' in sys.argv:
+                print url, status
+                exit(1)
             errors[status].add(url)
 
 def print_stats():
+    import pprint
     print len(seen)
-    print errors
+    pprint.pprint(dict(errors))
     print {url: sum(times)/len(times) for url, times in durations.iteritems()}
 atexit.register(print_stats)
 
