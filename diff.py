@@ -92,9 +92,9 @@ class DiffRenderer(object):
                 old, new = self._extract_rev(line, lineiter.next())
                 files.append({
                     'is_header':        False,
-                    'old_filename':     old[0].lstrip('a/'),
+                    'old_filename':     old[0][2:],
                     'old_revision':     old[1],
-                    'new_filename':     new[0].lstrip('b/'),
+                    'new_filename':     new[0][2:],
                     'new_revision':     new[1],
                     'chunks':           chunks
                 })
