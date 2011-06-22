@@ -1,4 +1,4 @@
-body { margin: 0; padding: 0; font-size: 11pt; }
+body { margin: 0; padding: 0; font-size: 11pt; font-family: sans; }
 pre { font-size: 10pt; }
 a, a:visited { color: #003278; text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -32,7 +32,7 @@ footer a:hover { text-decoration: none; }
 #content > div:nth-of-type(2) { float: left; }
 #content > div:nth-of-type(1) { width: 24%; }
 #content > div:nth-of-type(2) {
-  width: 73%;
+  width: 72%;
   padding-left: 1.5%;
   margin-left: 1.5%;
   border-left: 1px dotted #ccc;
