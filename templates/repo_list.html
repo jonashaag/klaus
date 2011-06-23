@@ -3,14 +3,14 @@
 
 <h2>
   Repositories
-  <span class=order-by-last-update>
+  <span>
     (<a href=?by-last-update>order by last update</a>)
   </span>
 </h2>
 <ul class=repolist>
   {% for name, head in repos %}
     <li>
-      <a href="{{ build_url('view_tree', repo=name, commit_id='master', path='') }}">
+      <a href="{{ build_url('history', repo=name, commit_id='master', path='') }}">
         <span class=name>{{ name }}</span>
       <span class=last-updated>
         last updated {{ head|timesince }} ago

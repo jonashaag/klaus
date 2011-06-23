@@ -83,17 +83,13 @@ class RepoWrapper(dulwich.repo.Repo):
             return False
         return blob1 != blob2
 
-    def get_tree(self, commit, path):
+    def get_tree(self, commit, path, noblobs=False):
         tree = self[commit.tree]
         if path:
             for directory in path.strip('/').split('/'):
                 if directory:
                     tree = self[tree[directory][1]]
         return tree
-
-    def listdir(self, commit, root=None):
-        tree = self.get_tree(commit, root)
-        return ((entry.path, entry.in_path(root)) for entry in tree.iteritems())
 
     def commit_diff(self, commit):
         from klaus import guess_is_binary, force_unicode
