@@ -106,8 +106,8 @@ class RepoWrapper(dulwich.repo.Repo):
                    oldsha and guess_is_binary(self[oldsha].chunked):
                     yield {
                         'is_binary': True,
-                        'old_filename': oldpath or 'dev/null',
-                        'new_filename': newpath or 'dev/null',
+                        'old_filename': oldpath or '/dev/null',
+                        'new_filename': newpath or '/dev/null',
                         'chunks': [[{'line' : 'Binary diff not shown'}]]
                     }
                     continue
@@ -126,8 +126,8 @@ class RepoWrapper(dulwich.repo.Repo):
                 # the diff module doesn't handle deletions/additions
                 # of empty files correctly.
                 yield {
-                    'old_filename': oldpath or 'dev/null',
-                    'new_filename': newpath or 'dev/null',
+                    'old_filename': oldpath or '/dev/null',
+                    'new_filename': newpath or '/dev/null',
                     'chunks': []
                 }
             else:
