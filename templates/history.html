@@ -5,7 +5,7 @@
 
 <div>
   {% from 'history.inc.html' import history %}
-  {% call(have_more_commits) history(repo, branch, path, max_length=history_length, skip=skip) %}
+  {% call(have_more_commits) history(repo, branch, path, subpaths, max_length=history_length, skip=skip) %}
     <div class=pagination>
       {% if page %}
         <a href="?page={{page-1}}">« newer</a>

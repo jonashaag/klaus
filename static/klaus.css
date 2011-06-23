@@ -7,6 +7,10 @@ a:hover { text-decoration: underline; }
 ul { list-style-type: none; padding-left: 0; }
 table { border-spacing: 0; border-collapse: collapse; }
 
+h2 > span:last-of-type { font-size: 11pt; }
+
+.slash { color: #666; margin: 0 -0.2em; }
+
 .clearfloat { clear: both; }
 
 .linenos { color: #888; background-color: #f9f9f9; text-align: right; }
@@ -15,7 +19,7 @@ table { border-spacing: 0; border-collapse: collapse; }
 header { padding: 10px; border-bottom: 3px solid #e0e0e0; }
 header a { padding: 10px 0; }
 header .breadcrumbs > span:before { content: ' » '; color: #666; }
-header .slash { color: #666; margin: 0 -3px; }
+header .slash { margin: 0 -3px; }
 
 /* Footer */
 footer {
@@ -44,7 +48,6 @@ footer a:hover { text-decoration: none; }
 .pagination span { color: #666; }
 
 /* Repo List */
-.order-by-last-update { font-size: 11pt; }
 .repolist { margin-left: 2em; font-size: 14pt; }
 .repolist li { margin-bottom: 10px; }
 .repolist li a { display: block; }
@@ -57,7 +60,7 @@ footer a:hover { text-decoration: none; }
 .repolist li a:hover { text-decoration: none; }
 .repolist li a:hover .name { text-decoration: underline; }
 
-/* Tree View */
+/* History View */
 .commit {
   background-color: #f5f5f5;
   padding: 8px 10px;
@@ -95,7 +98,6 @@ footer a:hover { text-decoration: none; }
 
 
 /* Blob View */
-.blobview h2 span { font-size: 11pt; }
 .blobview img { max-width: 100%; padding: 1px; }
 .blobview table, .blobview img { border: 1px solid #e0e0e0; }
 .blobview .linenos {

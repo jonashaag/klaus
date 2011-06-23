@@ -6,7 +6,7 @@ import mimetypes
 from future_builtins import map
 from functools import wraps
 
-from dulwich.objects import Commit
+from dulwich.objects import Commit, Blob
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -223,10 +223,37 @@ class BaseRepoView(BaseView):
         return app.build_url(view, **dict(default_kwargs, **kwargs))
 
 
-@route('/:repo:/tree/:commit_id:/(?P<path>.*)', 'view_tree')
-class TreeView(BaseRepoView):
+class TreeViewMixin(object):
     def view(self):
-        self['tree'] = self.listdir(self['path'])
+        self['tree'] = self.listdir()
+
+    def listdir(self):
+        dirs, files = [], []
+        tree, root = self.get_tree()
+        for entry in tree.iteritems():
+            name, entry = entry.path, entry.in_path(root)
+            if entry.mode & stat.S_IFDIR:
+                dirs.append((name.lower(), name, entry.path))
+            else:
+                files.append((name.lower(), name, entry.path))
+        files.sort()
+        dirs.sort()
+        if root:
+            dirs.insert(0, (None, '..', os.path.split(root)[0]))
+        return {'dirs' : dirs, 'files' : files}
+
+    def get_tree(self):
+        root = self['path']
+        tree = self['repo'].get_tree(self['commit'], root)
+        if isinstance(tree, Blob):
+            root = os.path.split(root)[0]
+            tree = self['repo'].get_tree(self['commit'], root)
+        return tree, root
+
+@route('/:repo:/tree/:commit_id:/(?P<path>.*)', 'history')
+class TreeView(TreeViewMixin, BaseRepoView):
+    def view(self):
+        super(TreeView, self).view()
         try:
             self['page'] = int(self['environ']['QUERY_STRING'].replace('page=', ''))
         except (KeyError, ValueError):
@@ -239,45 +266,18 @@ class TreeView(BaseRepoView):
             self['history_length'] = 10
             self['skip'] = 0
 
-    def listdir(self, path):
-        dirs, files = [], []
-        for name, entry in self['repo'].listdir(self['commit'], path):
-            if entry.mode & stat.S_IFDIR:
-                dirs.append((name.lower(), name, entry.path))
-            else:
-                files.append((name.lower(), name, entry.path))
-        files.sort()
-        dirs.sort()
-        if 'subpaths' in self:
-            parent = self.get_parent_directory()
-            if '/' in parent:
-                parent = parent.rsplit('/', 1)[0]
-            else:
-                parent = ''
-            dirs.insert(0, (None, '..', parent))
-        return {'dirs' : dirs, 'files' : files}
-
-    def get_parent_directory(self):
-        return self['path']
-
 class BaseBlobView(BaseRepoView):
     def view(self):
-        directory, filename = os.path.split(self['path'].strip('/'))
-        tree_id = self['repo'].get_tree(self['commit'], directory)[filename][1]
-        self['blob'] = self['repo'][tree_id]
-        self['directory'] = directory
-        self['filename'] = filename
+        self['blob'] = self['repo'].get_tree(self['commit'], self['path'])
+        self['directory'], self['filename'] = os.path.split(self['path'].strip('/'))
 
 @route('/:repo:/blob/:commit_id:/(?P<path>.*)', 'view_blob')
-class BlobView(BaseBlobView, TreeView):
+class BlobView(BaseBlobView, TreeViewMixin):
     def view(self):
-        super(BlobView, self).view()
-        self['tree'] = self.listdir(self['directory'])
+        BaseBlobView.view(self)
+        TreeViewMixin.view(self)
         self['raw_url'] = self.build_url('raw_blob')
         self['too_large'] = sum(map(len, self['blob'].chunked)) > 100*1024
-
-    def get_parent_directory(self):
-        return self['directory']
 
 
 @route('/:repo:/raw/:commit_id:/(?P<path>.*)', 'raw_blob')

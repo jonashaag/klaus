@@ -1,8 +1,20 @@
-{% macro history(repo, branch, path, max_length, skip=0) %}
+{% macro history(repo, branch, path, subpaths, max_length, skip=0) %}
 <div class=history>
-  <h2>History of
-    <a href="{{ build_url('view_tree', repo=repo.name, commit_id=branch, path='') }}">
-      {{ repo.name }}/{{ branch }}</a>
+  <h2>
+    {% if subpaths %}
+      History for
+      {% for name, subpath in subpaths %}
+        {{ name }}
+        {% if not loop.last %}
+          <span class=slash>/</span>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      Commit History
+    {% endif %}
+    <span>
+      @<a href="{{ build_url('history', repo=repo.name, commit_id=branch, path='') }}">{{ branch }}</a>
+    </span>
   </h2>
   {% set history = repo.history(branch, path, max_length+1, skip) %}
   <ul>
