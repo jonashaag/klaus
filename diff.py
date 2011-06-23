@@ -30,6 +30,8 @@ class DiffRenderer(object):
     def _extract_rev(self, line1, line2):
         def _extract(line):
             parts = line.split(None, 1)
+            if parts[0].startswith(('a/', 'b/')):
+                parts[0] = parts[0][2:]
             return parts[0], (len(parts) == 2 and parts[1] or None)
         try:
             if line1.startswith('--- ') and line2.startswith('+++ '):
@@ -92,9 +94,9 @@ class DiffRenderer(object):
                 old, new = self._extract_rev(line, lineiter.next())
                 files.append({
                     'is_header':        False,
-                    'old_filename':     old[0][2:],
+                    'old_filename':     old[0],
                     'old_revision':     old[1],
-                    'new_filename':     new[0][2:],
+                    'new_filename':     new[0],
                     'new_revision':     new[1],
                     'chunks':           chunks
                 })
