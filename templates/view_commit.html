@@ -26,7 +26,7 @@
         {% if file.old_filename != file.new_filename %}
           {{ file.old_filename }} →
         {% endif %}#}
-          {% if file.new_filename == 'dev/null' %}
+          {% if file.new_filename == '/dev/null' %}
             <del>{{ file.old_filename|u }}</del>
           {% else %}
             <a href="{{ build_url('view_blob', repo=repo.name, commit_id=commit_id, path=file.new_filename) }}">
