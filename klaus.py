@@ -205,6 +205,7 @@ class BaseRepoView(BaseView):
         self['path'] = path
         if path:
             self['subpaths'] = list(subpaths(path))
+        self['build_url'] = self.build_url
         super(BaseRepoView, self).__init__(env)
 
     def get_commit(self, repo, id):
@@ -220,9 +221,8 @@ class BaseRepoView(BaseView):
         if view is None:
             view = self.__class__.__name__
         default_kwargs = {
-            'repo' : self['repo'].name,
-            'commit_id' : self['commit_id'],
-            'path' : self['path']
+            'repo': self['repo'].name,
+            'commit_id': self['commit_id']
         }
         return app.build_url(view, **dict(default_kwargs, **kwargs))
 
@@ -286,7 +286,7 @@ class BlobView(BaseBlobView, TreeViewMixin):
     def view(self):
         BaseBlobView.view(self)
         TreeViewMixin.view(self)
-        self['raw_url'] = self.build_url('raw_blob')
+        self['raw_url'] = self.build_url('raw_blob', path=self['path'])
         self['too_large'] = sum(map(len, self['blob'].chunked)) > 100*1024
 
 

@@ -2,9 +2,9 @@
 
 {% block breadcrumbs %}
   <span>
-    <a href="{{ build_url('history', repo=repo.name, commit_id=branch, path='') }}">{{ repo.name }}</a>
+    <a href="{{ build_url('history', commit_id=branch, path='') }}">{{ repo.name }}</a>
     <span class=slash>/</span>
-    <a href="{{ build_url('history', repo=repo.name, commit_id=commit_id, path='') }}">{{ commit_id }}</a>
+    <a href="{{ build_url('history', path='') }}">{{ commit_id }}</a>
   </span>
 
   {% if subpaths %}
@@ -13,7 +13,7 @@
       {% if loop.last %}
       <a href="">{{ name|u }}</a>
       {% else %}
-      <a href="{{ build_url('history', repo=repo.name, commit_id=commit_id, path=subpath) }}">{{ name|u }}</a>
+      <a href="{{ build_url('history', path=subpath) }}">{{ name|u }}</a>
       <span class=slash>/</span>
       {% endif %}
     {% endfor %}
