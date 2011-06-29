@@ -2,6 +2,7 @@ import os
 import re
 import stat
 import time
+import urlparse
 import mimetypes
 from future_builtins import map
 from functools import wraps
@@ -17,6 +18,9 @@ from pygments.formatters import HtmlFormatter
 
 from nano import NanoApplication, HttpError
 from repo import Repo
+
+def query_string_to_dict(query_string):
+    return {k: v[0] for k, v in urlparse.parse_qs(query_string).iteritems()}
 
 class KlausApplication(NanoApplication):
     def __init__(self, *args, **kwargs):
@@ -164,6 +168,7 @@ class BaseView(dict):
     def __init__(self, env):
         dict.__init__(self)
         self['environ'] = env
+        self.GET = query_string_to_dict(env.get('QUERY_STRING', ''))
         self.view()
 
     def direct_response(self, *args):
@@ -186,7 +191,7 @@ class RepoList(BaseView):
             refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
                       reverse=True)
             repos.append((name, refs[0].commit_time))
-        if 'by-last-update' in self['environ'].get('QUERY_STRING', ''):
+        if 'by-last-update' in self.GET:
             repos.sort(key=lambda x: x[1], reverse=True)
         else:
             repos.sort(key=lambda x: x[0])
@@ -200,7 +205,6 @@ class BaseRepoView(BaseView):
         self['path'] = path
         if path:
             self['subpaths'] = list(subpaths(path))
-
         super(BaseRepoView, self).__init__(env)
 
     def get_commit(self, repo, id):
@@ -255,8 +259,8 @@ class TreeView(TreeViewMixin, BaseRepoView):
     def view(self):
         super(TreeView, self).view()
         try:
-            self['page'] = int(self['environ']['QUERY_STRING'].replace('page=', ''))
-        except (KeyError, ValueError):
+            self['page'] = int(self.GET.get('page'))
+        except (TypeError, ValueError):
             self['page'] = 0
 
         if self['page']:
