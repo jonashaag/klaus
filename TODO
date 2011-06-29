@@ -1,7 +1,6 @@
 definitely
 ----------
 * branch selector
-* pagination: replace 'newer' by page numbers.
 * cleanup: build_url shortcut
 
 maybe

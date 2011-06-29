@@ -259,13 +259,19 @@ class TreeView(TreeViewMixin, BaseRepoView):
     def view(self):
         super(TreeView, self).view()
         try:
-            self['page'] = int(self.GET.get('page'))
+            page = int(self.GET.get('page'))
         except (TypeError, ValueError):
-            self['page'] = 0
+            page = 0
 
-        if self['page']:
+        self['page'] = page
+
+        if page:
             self['history_length'] = 30
             self['skip'] = (self['page']-1) * 30 + 10
+            if page > 7:
+                self['previous_pages'] = [0, 1, 2, None] + range(page)[-3:]
+            else:
+                self['previous_pages'] = xrange(page)
         else:
             self['history_length'] = 10
             self['skip'] = 0

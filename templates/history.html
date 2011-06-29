@@ -3,22 +3,72 @@
 
 {% include 'tree.inc.html' %}
 
+{% set history = repo.history(branch, path, history_length+1, skip) %}
+{% set has_more_commits = history|length == history_length+1 %}
+
+{% macro pagination() %}
+  <div class=pagination>
+    {% if page %}
+      {% for n in previous_pages %}
+        {% if n is none %}
+          <span class=n>...</span>
+        {% else %}
+          <a href="?page={{n}}" class=n>{{ n }}</a>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if has_more_commits %}
+      <a href="?page={{page+1}}">»»</a>
+    {% else %}
+      <span>»»</span>
+    {% endif%}
+  </div>
+  <div class=clearfloat></div>
+{% endmacro %}
+
 <div>
-  {% from 'history.inc.html' import history %}
-  {% call(have_more_commits) history(repo, branch, path, subpaths, max_length=history_length, skip=skip) %}
-    <div class=pagination>
-      {% if page %}
-        <a href="?page={{page-1}}">« newer</a>
+  <div class=history>
+    <h2>
+      {% if subpaths %}
+        History for
+        {% for name, subpath in subpaths %}
+          {{ name }}
+          {% if not loop.last %}
+            <span class=slash>/</span>
+          {% endif %}
+        {% endfor %}
       {% else %}
-        <span>« newer</span>
+        Commit History
       {% endif %}
-      {% if have_more_commits %}
-        <a href="?page={{page+1}}">older »</a>
-      {% else %}
-        <span>older »</span>
-      {% endif%}
-    </div>
-  {% endcall %}
- </div>
+      <span>
+        @<a href="{{ build_url('history', repo=repo.name, commit_id=branch, path='') }}">{{ branch }}</a>
+      </span>
+    </h2>
+
+    {{ pagination() }}
+
+    <ul>
+    {% for commit in history %}
+    {% if not loop.last or history|length < history_length %}
+      <li>
+        <a class=commit href="{{ build_url('view_commit', repo=repo.name, commit_id=commit.id) }}">
+          <span class=line1>
+            <span>{{ commit.message|u|shorten_message }}</span>
+          </span>
+          <span class=line2>
+            <span>{{ commit.author|u|shorten_author }}</span>
+            <span>{{ commit.commit_time|timesince }} ago</span>
+          </span>
+          <span class=clearfloat></span>
+        </a>
+      </li>
+      {% endif %}
+    {% endfor %}
+    </ul>
+  </div>
+
+  {{ pagination() }}
+
+</div>
 
 {% endblock %}
