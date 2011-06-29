@@ -1,11 +1,6 @@
 {% set title = 'Commit %s to %s' % (commit.id, repo.name) %}
 {% extends 'base.html' %}
 
-{% block h1 %}
-  Commit "{{commit.message|u|shorten_message}}" to
-  <a href="{{ build_url('view_repo', repo=repo.name) }}">{{ repo.name }}</a>
-{% endblock %}
-
 {% block content %}
 
 <div class=full-commit>
@@ -29,7 +24,7 @@
           {% if file.new_filename == '/dev/null' %}
             <del>{{ file.old_filename|u }}</del>
           {% else %}
-            <a href="{{ build_url('view_blob', repo=repo.name, commit_id=commit_id, path=file.new_filename) }}">
+            <a href="{{ build_url('view_blob', path=file.new_filename) }}">
               {{ file.new_filename|u }}
             </a>
           {% endif %}

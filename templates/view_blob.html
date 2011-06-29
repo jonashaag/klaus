@@ -7,9 +7,9 @@
   <h2>
     {{ filename|u }}
     <span>
-      @<a href="{{ build_url('view_commit', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_id }}</a>
+      @<a href="{{ build_url('view_commit') }}">{{ commit_id|shorten_id }}</a>
       (<a href="{{ raw_url }}">raw</a>
-      &middot; <a href="{{ build_url('history', repo=repo.name, commit_id=commit_id, path=path) }}">history</a>)
+      &middot; <a href="{{ build_url('history', path=path) }}">history</a>)
     </span>
   </h2>
   {% if blob.chunked|is_binary %}
