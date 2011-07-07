@@ -19,6 +19,11 @@ from pygments.formatters import HtmlFormatter
 from nano import NanoApplication, HttpError
 from repo import Repo
 
+try:
+    KLAUS_VERSION = ' ' + open('.git/refs/heads/master').read()[:7]
+except IOError:
+    KLAUS_VERSION = ''
+
 def query_string_to_dict(query_string):
     return {k: v[0] for k, v in urlparse.parse_qs(query_string).iteritems()}
 
@@ -29,6 +34,7 @@ class KlausApplication(NanoApplication):
                                      extensions=['jinja2.ext.autoescape'],
                                      autoescape=True)
         self.jinja_env.globals['build_url'] = self.build_url
+        self.jinja_env.globals['KLAUS_VERSION'] = KLAUS_VERSION
 
     def route(self, pattern):
         super_decorator = super(KlausApplication, self).route(pattern)
