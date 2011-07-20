@@ -51,7 +51,7 @@ footer a:hover { text-decoration: none; }
   padding: 2px 10px;
   text-align: center;
 }
-.pagination .n { font-size: 12px; padding: 1px 5px; position: relative; top: 2px; }
+.pagination .n { font-size: 12px; padding: 1px 5px; position: relative; top: 1px; }
 .pagination > a { opacity: 0.6; border-color: #6491bf; }
 .pagination > a:hover { opacity: 1; text-decoration: none; border-color: #4D6FA0; }
 .pagination span { color: #999; border-color: #ccc; }
