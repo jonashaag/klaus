@@ -20,10 +20,15 @@ from pygments.formatters import HtmlFormatter
 from nano import NanoApplication, HttpError
 from repo import Repo
 
+
+KLAUS_ROOT = os.path.join(os.path.dirname(__file__))
+TEMPLATE_DIR = os.path.join(KLAUS_ROOT, 'templates')
+
 try:
-    KLAUS_VERSION = ' ' + open('.git/refs/heads/master').read()[:7]
+    KLAUS_VERSION = ' ' + open(os.path.join(KLAUS_ROOT, '.git/refs/heads/master')).read()[:7]
 except IOError:
     KLAUS_VERSION = ''
+
 
 def query_string_to_dict(query_string):
     return {k: v[0] for k, v in urlparse.parse_qs(query_string).iteritems()}
@@ -31,7 +36,7 @@ def query_string_to_dict(query_string):
 class KlausApplication(NanoApplication):
     def __init__(self, *args, **kwargs):
         super(KlausApplication, self).__init__(*args, **kwargs)
-        self.jinja_env = Environment(loader=FileSystemLoader('templates'),
+        self.jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_DIR),
                                      extensions=['jinja2.ext.autoescape'],
                                      autoescape=True)
         self.jinja_env.globals['build_url'] = self.build_url
@@ -337,7 +342,7 @@ class StaticFilesView(BaseView):
 
     def view(self):
         path = './static/' + self['path']
-        relpath = os.path.join(os.getcwd(), path)
+        relpath = os.path.join(KLAUS_ROOT, path)
         if os.path.isfile(relpath):
             self.direct_response(open(relpath))
         else:

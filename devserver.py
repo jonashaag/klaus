@@ -2,7 +2,7 @@
 import sys, os
 import inspect
 
-sys.path.append('nano')
+sys.path.append(os.path.join(os.path.dirname(__file__), 'nano'))
 
 class ReloadApplicationMiddleware(object):
     def __init__(self, import_func):
