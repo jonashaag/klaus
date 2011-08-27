@@ -1,3 +1,4 @@
+import sys
 import os
 import re
 import stat
@@ -56,7 +57,9 @@ class KlausApplication(NanoApplication):
     def render_template(self, template_name, **kwargs):
         return self.jinja_env.get_template(template_name).render(**kwargs)
 
-app = KlausApplication(debug=True, default_content_type='text/html')
+app = application = KlausApplication(debug=True, default_content_type='text/html')
+app.repos = {repo.rstrip(os.sep).split(os.sep)[-1]: repo for repo in
+             sys.argv[1:] or os.environ.get('KLAUS_REPOS', '').split()}
 
 def pygmentize(code, filename=None, language=None):
     if language:
