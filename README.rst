@@ -67,4 +67,9 @@ the bjoern_ server).
 
 Using a real server
 ...................
-The ``klaus.py`` module contains an ``app`` object that is a WSGI application.
+The ``klaus.py`` module contains a WSGI ``application`` object. The repo list
+is read from the ``KLAUS_REPOS`` environment variable (space-separated paths).
+
+UWSGI example::
+
+   uwsgi ... -m klaus --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." ...
