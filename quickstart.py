@@ -36,6 +36,7 @@ def main():
     parser.add_argument('repo', nargs='+', type=valid_directory,
                         help='repository directories to serve')
     args = parser.parse_args()
+    sys.argv = ['this is a hack'] + args.repo
 
     from klaus import app
     if args.custom_host:
