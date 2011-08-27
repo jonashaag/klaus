@@ -69,8 +69,7 @@ footer a:hover { text-decoration: none; }
 .repolist li a:hover { text-decoration: none; }
 .repolist li a:hover .name { text-decoration: underline; }
 
-/* History View */
-.history .pagination { margin-top: -2em; }
+/* Base styles for history and commit views */
 .commit {
   background-color: #f5f5f5;
   padding: 8px 10px;
@@ -78,18 +77,23 @@ footer a:hover { text-decoration: none; }
   display: block;
   border: 1px solid #e0e0e0;
 }
+.commit:hover { text-decoration: none; background-color: #f9f9f9; }
+
 .commit > span { display: block; }
 
-.commit { color: black !important; }
-.commit:hover { text-decoration: none; background-color: #f9f9f9; }
+.commit .line1 { font-family: monospace; font-size: 10pt; padding-bottom: 2px; }
+.commit .line1 span { white-space: pre; }
 .commit:hover .line1 { text-decoration: underline; color: #aaa; }
 .commit:hover .line1 span { color: black; }
-.commit .line1 { font-family: monospace; font-size: 10pt; padding-bottom: 2px; }
 
 .commit .line2 { position: relative; top: 3px; left: 1px; }
 .commit .line2 > span:first-child { float: left; }
 .commit .line2 > span:nth-child(2) { float: right; }
 .commit .line2 { color: #737373; font-size: 12px; }
+
+/* History View */
+.history .pagination { margin-top: -2em; }
+a.commit { color: black !important; }
 
 .tree ul { font-family: monospace; font-size: 10pt; }
 .tree li { background-color: #f5f5f5; border: 1px solid #e0e0e0; }
