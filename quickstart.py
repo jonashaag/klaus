@@ -23,7 +23,6 @@ except ImportError:
     def run(app, host, port):
         make_server(host, port, app).serve_forever()
 
-
 def valid_directory(path):
     if not os.path.exists(path):
         raise argparse.ArgumentTypeError('%r: No such directory' % path)
@@ -39,7 +38,6 @@ def main():
     args = parser.parse_args()
 
     from klaus import app
-    app.repos = {repo.rstrip(os.sep).split(os.sep)[-1]: repo for repo in args.repo}
     if args.custom_host:
         app.custom_host = args.custom_host
 
