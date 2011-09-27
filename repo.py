@@ -1,14 +1,17 @@
 import os
-from itertools import islice
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+import itertools
+import cStringIO
 
 import dulwich, dulwich.patch
 from diff import prepare_udiff
 
 def pairwise(iterable):
+    """
+    Yields the items in `iterable` pairwise:
+
+    >>> list(pairwise(['a', 'b', 'c', 'd']))
+    [('a', 'b'), ('b', 'c'), ('c', 'd')]
+    """
     prev = None
     for item in iterable:
         if prev is not None:
@@ -17,18 +20,24 @@ def pairwise(iterable):
 
 class RepoWrapper(dulwich.repo.Repo):
     def get_branch_or_commit(self, id):
+        """
+        Returns a `(commit_object, is_branch)` tuple for the commit or branch
+        identified by `id`.
+        """
         try:
             return self[id], False
         except KeyError:
             return self.get_branch(id), True
 
     def get_branch(self, name):
+        """ Returns the commit object pointed to by the branch `name`. """
         return self['refs/heads/'+name]
 
     def get_default_branch(self):
         return self.get_branch('master')
 
     def get_branch_names(self):
+        """ Returns a sorted list of branch names. """
         branches = []
         for ref in self.get_refs():
             if ref.startswith('refs/heads/'):
@@ -37,6 +46,7 @@ class RepoWrapper(dulwich.repo.Repo):
         return branches
 
     def get_tag_names(self):
+        """ Returns a sorted list of tag names. """
         tags = []
         for ref in self.get_refs():
             if ref.startswith('refs/tags/'):
@@ -45,6 +55,13 @@ class RepoWrapper(dulwich.repo.Repo):
         return tags
 
     def history(self, commit=None, path=None, max_commits=None, skip=0):
+        """
+        Returns a list of all commits that infected `path`, starting at branch
+        or commit `commit`. `skip` can be used for pagination, `max_commits`
+        to limit the number of commits returned.
+
+        Similar to `git log [branch/commit] [--skip skip] [-n max_commits]`.
+        """
         if not isinstance(commit, dulwich.objects.Commit):
             commit, _ = self.get_branch_or_commit(commit)
         commits = self._history(commit)
@@ -52,9 +69,10 @@ class RepoWrapper(dulwich.repo.Repo):
         if path:
             commits = (c1 for c1, c2 in pairwise(commits)
                        if self._path_changed_between(path, c1, c2))
-        return list(islice(commits, skip, skip+max_commits))
+        return list(itertools.islice(commits, skip, skip+max_commits))
 
     def _history(self, commit):
+        """ Yields all commits that lead to `commit`. """
         if commit is None:
             commit = self.get_default_branch()
         while commit.parents:
@@ -63,6 +81,10 @@ class RepoWrapper(dulwich.repo.Repo):
         yield commit
 
     def _path_changed_between(self, path, commit1, commit2):
+        """
+        Returns `True` if `path` changed between `commit1` and `commit2`,
+        including the case that the file was added or deleted in `commit2`.
+        """
         path, filename = os.path.split(path)
         try:
             blob1 = self.get_tree(commit1, path)
@@ -84,6 +106,7 @@ class RepoWrapper(dulwich.repo.Repo):
         return blob1 != blob2
 
     def get_tree(self, commit, path, noblobs=False):
+        """ Returns the Git tree object for `path` at `commit`. """
         tree = self[commit.tree]
         if path:
             for directory in path.strip('/').split('/'):
@@ -116,7 +139,7 @@ class RepoWrapper(dulwich.repo.Repo):
                 # Dulwich will handle that.
                 pass
 
-            stringio = StringIO()
+            stringio = cStringIO.StringIO()
             dulwich.patch.write_object_diff(stringio, self.object_store,
                                             (oldpath, oldmode, oldsha),
                                             (newpath, newmode, newsha))
