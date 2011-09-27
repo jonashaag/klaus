@@ -31,6 +31,7 @@ except IOError:
 
 
 def query_string_to_dict(query_string):
+    """ Transforms a POST/GET string into a Python dict """
     return {k: v[0] for k, v in urlparse.parse_qs(query_string).iteritems()}
 
 class KlausApplication(NanoApplication):
@@ -43,6 +44,15 @@ class KlausApplication(NanoApplication):
         self.jinja_env.globals['KLAUS_VERSION'] = KLAUS_VERSION
 
     def route(self, pattern):
+        """
+        Extends `NanoApplication.route` by multiple features:
+
+        - Overrides the WSGI `HTTP_HOST` by `self.custom_host` (if set)
+        - Tries to use the keyword arguments returned by the view function
+          to render the template called `<class>.html` (<class> being the
+          name of `self`'s class). Raising `Response` can be used to skip
+          this behaviour, directly returning information to Nano.
+        """
         super_decorator = super(KlausApplication, self).route(pattern)
         def decorator(callback):
             @wraps(callback)
@@ -63,6 +73,7 @@ class KlausApplication(NanoApplication):
         return self.jinja_env.get_template(template_name).render(**kwargs)
 
 app = application = KlausApplication(debug=True, default_content_type='text/html')
+# KLAUS_REPOS=/foo/bar/,/spam/ --> {'bar': '/foo/bar/', 'spam': '/spam/'}
 app.repos = {repo.rstrip(os.sep).split(os.sep)[-1]: repo for repo in
              sys.argv[1:] or os.environ.get('KLAUS_REPOS', '').split()}
 
@@ -78,6 +89,7 @@ def pygmentize(code, filename=None, language=None):
 pygments_formatter = HtmlFormatter(linenos=True)
 
 def timesince(when, now=time.time):
+    """ Returns the difference between `when` and `now` in human readable form. """
     delta = now() - when
     result = []
     break_next = False
@@ -130,6 +142,7 @@ def guess_is_image(filename):
     return mime.startswith('image/')
 
 def force_unicode(s):
+    """ Does all kind of magic to turn `s` into unicode """
     if isinstance(s, unicode):
         return s
     try:
@@ -149,9 +162,18 @@ def force_unicode(s):
         raise exc
 
 def extract_author_name(email):
+    """
+    Extracts the name from an email address...
+    >>> extract_author_name("John <john@example.com>")
+    "John"
+
+    ... or returns the address if none is given.
+    >>> extract_author_name("noname@example.com")
+    "noname@example.com"
+    """
     match = re.match('^(.*?)<.*?>$', email)
     if match:
-        return match.group(1)
+        return match.group(1).strip()
     return email
 
 app.jinja_env.filters['u'] = force_unicode
@@ -164,6 +186,12 @@ app.jinja_env.filters['is_image'] = guess_is_image
 app.jinja_env.filters['shorten_author'] = extract_author_name
 
 def subpaths(path):
+    """
+    Yields a `(last part, subpath)` tuple for all possible sub-paths of `path`.
+
+    >>> list(subpaths("foo/bar/spam"))
+    [('foo', 'foo'), ('bar', 'foo/bar'), ('spam', 'foo/bar/spam')]
+    """
     seen = []
     for part in path.split('/'):
         seen.append(part)
@@ -197,6 +225,7 @@ def route(pattern, name=None):
 
 @route('/', 'repo_list')
 class RepoList(BaseView):
+    """ Shows a list of all repos and can be sorted by last update. """
     def view(self):
         self['repos'] = repos = []
         for name in app.repos.iterkeys():
@@ -232,6 +261,7 @@ class BaseRepoView(BaseView):
         return commit, isbranch
 
     def build_url(self, view=None, **kwargs):
+        """ Builds url relative to the current repo + commit """
         if view is None:
             view = self.__class__.__name__
         default_kwargs = {
@@ -246,6 +276,10 @@ class TreeViewMixin(object):
         self['tree'] = self.listdir()
 
     def listdir(self):
+        """
+        Returns a list of directories and files in the current path of the
+        selected commit
+        """
         dirs, files = [], []
         tree, root = self.get_tree()
         for entry in tree.iteritems():
@@ -261,6 +295,7 @@ class TreeViewMixin(object):
         return {'dirs' : dirs, 'files' : files}
 
     def get_tree(self):
+        """ Gets the Git tree of the selected commit and path """
         root = self['path']
         tree = self['repo'].get_tree(self['commit'], root)
         if isinstance(tree, Blob):
@@ -270,6 +305,10 @@ class TreeViewMixin(object):
 
 @route('/:repo:/tree/:commit_id:/(?P<path>.*)', 'history')
 class TreeView(TreeViewMixin, BaseRepoView):
+    """
+    Shows a list of files/directories for the current path as well as all
+    commit history for that path in a paginated form.
+    """
     def view(self):
         super(TreeView, self).view()
         try:
@@ -297,6 +336,7 @@ class BaseBlobView(BaseRepoView):
 
 @route('/:repo:/blob/:commit_id:/(?P<path>.*)', 'view_blob')
 class BlobView(BaseBlobView, TreeViewMixin):
+    """ Shows a single file, syntax highlighted """
     def view(self):
         BaseBlobView.view(self)
         TreeViewMixin.view(self)
@@ -306,6 +346,10 @@ class BlobView(BaseBlobView, TreeViewMixin):
 
 @route('/:repo:/raw/:commit_id:/(?P<path>.*)', 'raw_blob')
 class RawBlob(BaseBlobView):
+    """
+    Shows a single file in raw form
+    (as if it were a normal filesystem file served through a static file server)
+    """
     def view(self):
         super(RawBlob, self).view()
         mime, encoding = self.get_mimetype_and_encoding()
@@ -330,12 +374,18 @@ class RawBlob(BaseBlobView):
 
 @route('/:repo:/commit/:commit_id:/', 'view_commit')
 class CommitView(BaseRepoView):
+    """ Shows a single commit diff """
     def view(self):
         pass
 
 
 @route('/static/(?P<path>.+)', 'static')
 class StaticFilesView(BaseView):
+    """
+    Serves assets (everything under /static/).
+
+    Don't use this in production! Use a static file server instead.
+    """
     def __init__(self, env, path):
         self['path'] = path
         super(StaticFilesView, self).__init__(env)
