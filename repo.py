@@ -1,6 +1,7 @@
 import os
 import itertools
 import cStringIO
+import subprocess
 
 import dulwich, dulwich.patch
 from diff import prepare_udiff
@@ -56,7 +57,7 @@ class RepoWrapper(dulwich.repo.Repo):
         tags.sort()
         return tags
 
-    def history(self, commit=None, path=None, max_commits=None, skip=0):
+    def history(self, commit, path=None, max_commits=None, skip=0):
         """
         Returns a list of all commits that infected `path`, starting at branch
         or commit `commit`. `skip` can be used for pagination, `max_commits`
@@ -64,48 +65,67 @@ class RepoWrapper(dulwich.repo.Repo):
 
         Similar to `git log [branch/commit] [--skip skip] [-n max_commits]`.
         """
-        if not isinstance(commit, dulwich.objects.Commit):
-            commit, _ = self.get_branch_or_commit(commit)
-        commits = self._history(commit)
+    # XXX The pure-Python/dulwich code is very slow compared to `git log`
+    #     at the time of this writing (Oct 2011).
+    #     For instance, try `git log .tx` in the Django root directory takes
+    #     about 0.15s on my machine whereas the history() method needs 5s.
+    #     Therefore we use `git log` here unless dulwich gets faster.
+
+        cmd = ['git', 'log', '--format=%H']
+        if skip:
+            cmd.append('--skip=%d' % skip)
+        if max_commits:
+            cmd.append('--max-count=%d' % max_commits)
+        cmd.append(commit)
         path = path.strip('/')
         if path:
-            commits = (c1 for c1, c2 in pairwise(commits)
-                       if self._path_changed_between(path, c1, c2))
-        return list(itertools.islice(commits, skip, skip+max_commits))
+            cmd.extend(['--', path])
 
-    def _history(self, commit):
-        """ Yields all commits that lead to `commit`. """
-        if commit is None:
-            commit = self.get_default_branch()
-        while commit.parents:
-            yield commit
-            commit = self[commit.parents[0]]
-        yield commit
+        sha1_sums = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
+        return [self[sha1] for sha1 in sha1_sums.strip().split('\n')]
+    #
+    #     if not isinstance(commit, dulwich.objects.Commit):
+    #         commit, _ = self.get_branch_or_commit(commit)
+    #     commits = self._history(commit)
+    #     path = path.strip('/')
+    #     if path:
+    #         commits = (c1 for c1, c2 in pairwise(commits)
+    #                    if self._path_changed_between(path, c1, c2))
+    #     return list(itertools.islice(commits, skip, skip+max_commits))
 
-    def _path_changed_between(self, path, commit1, commit2):
-        """
-        Returns `True` if `path` changed between `commit1` and `commit2`,
-        including the case that the file was added or deleted in `commit2`.
-        """
-        path, filename = os.path.split(path)
-        try:
-            blob1 = self.get_tree(commit1, path)
-            if not isinstance(blob1, dulwich.objects.Tree):
-                return True
-            blob1 = blob1[filename]
-        except KeyError:
-            blob1 = None
-        try:
-            blob2 = self.get_tree(commit2, path)
-            if not isinstance(blob2, dulwich.objects.Tree):
-                return True
-            blob2 = blob2[filename]
-        except KeyError:
-            blob2 = None
-        if blob1 is None and blob2 is None:
-            # file present in neither tree
-            return False
-        return blob1 != blob2
+    # def _history(self, commit):
+    #     """ Yields all commits that lead to `commit`. """
+    #     if commit is None:
+    #         commit = self.get_default_branch()
+    #     while commit.parents:
+    #         yield commit
+    #         commit = self[commit.parents[0]]
+    #     yield commit
+
+    # def _path_changed_between(self, path, commit1, commit2):
+    #     """
+    #     Returns `True` if `path` changed between `commit1` and `commit2`,
+    #     including the case that the file was added or deleted in `commit2`.
+    #     """
+    #     path, filename = os.path.split(path)
+    #     try:
+    #         blob1 = self.get_tree(commit1, path)
+    #         if not isinstance(blob1, dulwich.objects.Tree):
+    #             return True
+    #         blob1 = blob1[filename]
+    #     except KeyError:
+    #         blob1 = None
+    #     try:
+    #         blob2 = self.get_tree(commit2, path)
+    #         if not isinstance(blob2, dulwich.objects.Tree):
+    #             return True
+    #         blob2 = blob2[filename]
+    #     except KeyError:
+    #         blob2 = None
+    #     if blob1 is None and blob2 is None:
+    #         # file present in neither tree
+    #         return False
+    #     return blob1 != blob2
 
     def get_tree(self, commit, path, noblobs=False):
         """ Returns the Git tree object for `path` at `commit`. """
