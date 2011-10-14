@@ -176,9 +176,14 @@ def extract_author_name(email):
         return match.group(1).strip()
     return email
 
+def shorten_sha1(sha1):
+    if re.match('[a-z\d]{20,40}', sha1):
+        sha1 = sha1[:10]
+    return sha1
+
 app.jinja_env.filters['u'] = force_unicode
 app.jinja_env.filters['timesince'] = timesince
-app.jinja_env.filters['shorten_id'] = lambda id: id[:7] if len(id) in {20, 40} else id
+app.jinja_env.filters['shorten_sha1'] = shorten_sha1
 app.jinja_env.filters['shorten_message'] = lambda msg: msg.split('\n')[0]
 app.jinja_env.filters['pygmentize'] = pygmentize
 app.jinja_env.filters['is_binary'] = guess_is_binary
