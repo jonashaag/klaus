@@ -4,7 +4,7 @@
   <span>
     <a href="{{ build_url('history', commit_id='master') }}">{{ repo.name }}</a>
     <span class=slash>/</span>
-    <a href="{{ build_url('history') }}">{{ commit_id }}</a>
+    <a href="{{ build_url('history') }}">{{ commit_id|shorten_sha1 }}</a>
   </span>
 
   {% if subpaths %}
@@ -23,7 +23,7 @@
 
 {% block extra_header %}
 <div class=branch-selector>
-  <span>{{ commit_id }}</span>
+  <span>{{ commit_id|shorten_sha1 }}</span>
   <ul>
     {% for branch in branches %}
     <li><a href="{{ build_url(commit_id=branch, path=path) }}">{{ branch }}</a></li>
