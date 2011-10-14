@@ -53,7 +53,7 @@ header .slash { margin: 0 -3px; }
   border-bottom: 1px solid #f1f1f1;
 }
 .branch-selector li a:hover { background-color: #fefefe; }
-.branch-selector li:last-child a { border: 0; padding-top: 4px; }
+.branch-selector li:last-child a { border: 0; padding-bottom: 4px; }
 .branch-selector:hover span { border-color: #ccc; border-bottom-color: #f1f1f1; }
 .branch-selector:hover ul { display: block; }
 
@@ -122,7 +122,7 @@ footer a:hover { text-decoration: none; }
 .commit > span { display: block; }
 
 .commit .line1 { font-family: monospace; font-size: 10pt; padding-bottom: 2px; }
-.commit .line1 span { white-space: pre; }
+.commit .line1 span { white-space: pre-wrap; text-overflow: hidden; }
 .commit:hover .line1 { text-decoration: underline; color: #aaa; }
 .commit:hover .line1 span { color: black; }
 
