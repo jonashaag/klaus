@@ -15,11 +15,47 @@ h2 > span:last-of-type { font-size: 11pt; }
 
 .linenos { color: #888; background-color: #f9f9f9; text-align: right; }
 
+
 /* Header */
-header { padding: 10px; border-bottom: 3px solid #e0e0e0; }
-header a { padding: 10px 0; }
+header { padding: 8px 10px; border-bottom: 3px solid #e0e0e0; }
+header > a { padding: 10px 0; }
 header .breadcrumbs > span:before { content: ' » '; color: #666; }
 header .slash { margin: 0 -3px; }
+
+.branch-selector {
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  font-size: 13px;
+}
+.branch-selector > * {
+  background-color: #fcfcfc;
+  position: relative;
+}
+.branch-selector span {
+  z-index: 2;
+  border: 1px solid #f1f1f1;
+  padding: 3px 5px;
+  float: right;
+}
+.branch-selector span:after { content: "☟"; margin-left: 5px; }
+.branch-selector span:hover { background-color: #fefefe; cursor: pointer; }
+.branch-selector ul {
+  z-index: 1;
+  top: -1px;
+  clear: both;
+  border: 1px solid #ccc;
+  display: none;
+}
+.branch-selector li a {
+  display: block;
+  padding: 5px 5px 3px 5px;
+  border-bottom: 1px solid #f1f1f1;
+}
+.branch-selector li a:hover { background-color: #fefefe; }
+.branch-selector li:last-child a { border: 0; padding-top: 4px; }
+.branch-selector:hover span { border-color: #ccc; border-bottom-color: #f1f1f1; }
+.branch-selector:hover ul { display: block; }
 
 /* Footer */
 footer {
@@ -31,6 +67,7 @@ footer {
 }
 footer a { color: inherit; border-bottom: 1px dotted #666; }
 footer a:hover { text-decoration: none; }
+
 
 /* Container */
 #content { padding: 5px 1.5%; }
@@ -44,6 +81,7 @@ footer a:hover { text-decoration: none; }
   border-left: 1px dotted #ccc;
 }
 
+
 /* Pagination */
 .pagination { float: right; margin: 0; font-size: 14px; }
 .pagination > * {
@@ -55,6 +93,7 @@ footer a:hover { text-decoration: none; }
 .pagination > a { opacity: 0.6; border-color: #6491bf; }
 .pagination > a:hover { opacity: 1; text-decoration: none; border-color: #4D6FA0; }
 .pagination span { color: #999; border-color: #ccc; }
+
 
 /* Repo List */
 .repolist { margin-left: 2em; font-size: 14pt; }
@@ -68,6 +107,7 @@ footer a:hover { text-decoration: none; }
 }
 .repolist li a:hover { text-decoration: none; }
 .repolist li a:hover .name { text-decoration: underline; }
+
 
 /* Base styles for history and commit views */
 .commit {
@@ -90,6 +130,7 @@ footer a:hover { text-decoration: none; }
 .commit .line2 > span:first-child { float: left; }
 .commit .line2 > span:nth-child(2) { float: right; }
 .commit .line2 { color: #737373; font-size: 12px; }
+
 
 /* History View */
 .history .pagination { margin-top: -2em; }

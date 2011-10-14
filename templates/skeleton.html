@@ -6,6 +6,7 @@
 <header>
   <a href=/>{{ environ.HTTP_HOST }}</a>
   <span class=breadcrumbs>{% block breadcrumbs %}{% endblock %}</span>
+  {% block extra_header %}{% endblock %}
 </header>
 
 <div id=content>
@@ -13,6 +14,6 @@
 </div>
 
 <footer>
-powered by <a href="https://github.com/jonashaag/klaus">klaus</a>{{ KLAUS_VERSION }},
-a simple Git viewer by Jonas Haag
+  powered by <a href="https://github.com/jonashaag/klaus">klaus</a>{{ KLAUS_VERSION }},
+  a simple Git viewer by Jonas Haag
 </footer>
