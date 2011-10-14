@@ -36,12 +36,14 @@ class RepoWrapper(dulwich.repo.Repo):
     def get_default_branch(self):
         return self.get_branch('master')
 
-    def get_branch_names(self):
+    def get_branch_names(self, exclude=()):
         """ Returns a sorted list of branch names. """
         branches = []
         for ref in self.get_refs():
             if ref.startswith('refs/heads/'):
-                branches.append(ref[len('refs/heads/'):])
+                name = ref[len('refs/heads/'):]
+                if name not in exclude:
+                    branches.append(name)
         branches.sort()
         return branches
 

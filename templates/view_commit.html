@@ -1,6 +1,8 @@
 {% set title = 'Commit %s to %s' % (commit.id, repo.name) %}
 {% extends 'base.html' %}
 
+{% block extra_header %}{% endblock %} {# no branch selector on commits #}
+
 {% block content %}
 
 <div class=full-commit>

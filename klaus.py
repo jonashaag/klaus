@@ -245,6 +245,7 @@ class BaseRepoView(BaseView):
         self['commit_id'] = commit_id
         self['commit'], isbranch = self.get_commit(repo, commit_id)
         self['branch'] = commit_id if isbranch else 'master'
+        self['branches'] = repo.get_branch_names(exclude=[commit_id])
         self['path'] = path
         if path:
             self['subpaths'] = list(subpaths(path))
@@ -268,6 +269,8 @@ class BaseRepoView(BaseView):
             'repo': self['repo'].name,
             'commit_id': self['commit_id']
         }
+        if view == 'history' and kwargs.get('path') is None:
+            kwargs['path'] = ''
         return app.build_url(view, **dict(default_kwargs, **kwargs))
 
 
