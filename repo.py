@@ -67,7 +67,7 @@ class RepoWrapper(dulwich.repo.Repo):
         """
     # XXX The pure-Python/dulwich code is very slow compared to `git log`
     #     at the time of this writing (Oct 2011).
-    #     For instance, try `git log .tx` in the Django root directory takes
+    #     For instance, `git log .tx` in the Django root directory takes
     #     about 0.15s on my machine whereas the history() method needs 5s.
     #     Therefore we use `git log` here unless dulwich gets faster.
 
