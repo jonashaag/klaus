@@ -32,7 +32,7 @@ except IOError:
 
 def query_string_to_dict(query_string):
     """ Transforms a POST/GET string into a Python dict """
-    return {k: v[0] for k, v in urlparse.parse_qs(query_string).iteritems()}
+    return dict((k, v[0]) for k, v in urlparse.parse_qs(query_string).iteritems())
 
 class KlausApplication(NanoApplication):
     def __init__(self, *args, **kwargs):
@@ -74,8 +74,10 @@ class KlausApplication(NanoApplication):
 
 app = application = KlausApplication(debug=True, default_content_type='text/html')
 # KLAUS_REPOS=/foo/bar/,/spam/ --> {'bar': '/foo/bar/', 'spam': '/spam/'}
-app.repos = {repo.rstrip(os.sep).split(os.sep)[-1]: repo for repo in
-             sys.argv[1:] or os.environ.get('KLAUS_REPOS', '').split()}
+app.repos = dict(
+    (repo.rstrip(os.sep).split(os.sep)[-1], repo)
+    for repo in (sys.argv[1:] or os.environ.get('KLAUS_REPOS', '').split())
+)
 
 def pygmentize(code, filename=None, language=None):
     if language:
