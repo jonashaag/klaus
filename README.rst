@@ -51,8 +51,8 @@ Using the ``quickstart.py`` script
 ..................................
 ::
 
-   ./quickstart --help
-   ./quickstart.py <host> <port> /path/to/repo1 [../path/to/repo2 [...]]
+   tools/quickstart --help
+   tools/quickstart.py <host> <port> /path/to/repo1 [../path/to/repo2 [...]]
 
 Example::
 
