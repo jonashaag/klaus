@@ -80,7 +80,10 @@ class RepoWrapper(dulwich.repo.Repo):
         if path:
             cmd.extend(['--', path])
 
-        sha1_sums = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
+        # sha1_sums = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
+        # Can't use 'check_output' for Python 2.6 compatibility reasons
+        sha1_sums = subprocess.Popen(cmd, cwd=os.path.abspath(self.path),
+                                     stdout=subprocess.PIPE).communicate()[0]
         return [self[sha1] for sha1 in sha1_sums.strip().split('\n')]
     #
     #     if not isinstance(commit, dulwich.objects.Commit):
