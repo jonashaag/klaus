@@ -77,7 +77,6 @@ class RepoWrapper(dulwich.repo.Repo):
         if max_commits:
             cmd.append('--max-count=%d' % max_commits)
         cmd.append(commit)
-        path = path.strip('/')
         if path:
             cmd.extend(['--', path])
 
