@@ -6,7 +6,7 @@ import argparse
 try:
     import nano
 except ImportError:
-    sys.path.append(os.path.join(os.path.dirname(__file__), 'nano'))
+    sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'nano'))
     try:
         import nano
     except ImportError:
