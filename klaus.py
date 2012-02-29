@@ -240,7 +240,10 @@ class RepoList(BaseView):
             refs = [repo[ref] for ref in repo.get_refs()]
             refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
                       reverse=True)
-            repos.append((name, refs[0].commit_time))
+            last_updated_at = None
+            if refs:
+                last_updated_at = refs[0].commit_time
+            repos.append((name, last_updated_at))
         if 'by-last-update' in self.GET:
             repos.sort(key=lambda x: x[1], reverse=True)
         else:
