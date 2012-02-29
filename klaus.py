@@ -237,7 +237,7 @@ class RepoList(BaseView):
         self['repos'] = repos = []
         for name in app.repos.iterkeys():
             repo = get_repo(name)
-            refs = [repo[ref] for ref in repo.get_refs()]
+            refs = [repo[ref_hash] for ref_hash in repo.get_refs().itervalues()]
             refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
                       reverse=True)
             last_updated_at = None
