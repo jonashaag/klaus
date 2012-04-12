@@ -21,6 +21,7 @@ Requirements
 * Jinja2_
 * Pygments_
 * dulwich_ (>= 0.7.1)
+* argparse (only for Python 2.6)
 * Nano_ (shipped as submodule, do a ``git submodule update --init`` to fetch)
 
 .. _Jinja2: http://jinja.pocoo.org/
@@ -39,6 +40,7 @@ Installation
    pip install jinja2
    pip install pygments
    pip install dulwich
+   pip install argparse # 2.6 only
 
    git clone https://github.com/jonashaag/klaus
    cd klaus
