@@ -34,17 +34,19 @@ Installation
 ------------
 *The same procedure as every year, James.* ::
 
-   virtualenv your-env
-   source your-env/bin/activate
-
-   pip install jinja2
-   pip install pygments
-   pip install dulwich
-   pip install argparse # 2.6 only
+   mkdir klaus-site/
+   cd klaus-site
 
    git clone https://github.com/jonashaag/klaus
    cd klaus
    git submodule update --init
+
+   cd ..
+
+   virtualenv your-env
+   source your-env/bin/activate
+
+   pip install -r klaus/requirements.txt
 
 
 Usage
