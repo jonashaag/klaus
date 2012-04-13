@@ -73,9 +73,9 @@ class KlausApplication(NanoApplication):
         return self.jinja_env.get_template(template_name).render(**kwargs)
 
 app = application = KlausApplication(debug=True, default_content_type='text/html')
-# KLAUS_REPOS=/foo/bar/,/spam/ --> {'bar': '/foo/bar/', 'spam': '/spam/'}
+# KLAUS_REPOS=/foo/bar/,/spam.git/ --> {'bar': '/foo/bar/', 'spam': '/spam/'}
 app.repos = dict(
-    (repo.rstrip(os.sep).split(os.sep)[-1], repo)
+    (repo.rstrip(os.sep).split(os.sep)[-1].replace('.git', ''), repo)
     for repo in (sys.argv[1:] or os.environ.get('KLAUS_REPOS', '').split())
 )
 
