@@ -6,6 +6,7 @@
 {% block content %}
 
 <div class=full-commit>
+
   <div class=commit>
     <span class=line1>
       <span>{{ commit.message|u }}</span>
@@ -16,8 +17,9 @@
     </span>
     <span class=clearfloat></span>
   </div>
+
   <div class=diff>
-    {%- for file in repo.commit_diff(commit) %}
+    {% for file in repo.commit_diff(commit) %}
       <div class=filename>
         {# TODO dulwich doesn't do rename recognition
         {% if file.old_filename != file.new_filename %}
@@ -31,25 +33,74 @@
             </a>
           {% endif %}
       </div>
+
       <table>
-        {%- for chunk in file.chunks %}
-          {%- for line in chunk %}
+        {% for chunk in file.chunks %}
+
+          {%- for line in chunk -%}
             <tr>
-              <td class=linenos>{{ line.old_lineno }}</td>
-              <td class=linenos>{{ line.new_lineno }}</td>
-              <td class={{line.action}}>{% autoescape off %}{{ line.line|u }}{% endautoescape %}</td>
+
+              {#- left column: linenos -#}
+              {%- if line.old_lineno -%}
+                <td class=linenos><a href="#O-{{line.old_lineno}}">{{ line.old_lineno }}</a></td>
+                {%- if line.new_lineno -%}
+                  <td class=linenos><a href="#O-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
+                {%- else -%}
+                  <td class=linenos></td>
+                {%- endif -%}
+              {%- else %}
+                {%- if line.old_lineno -%}
+                  <td class=linenos><a href="#O-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
+                {%- else -%}
+                  <td class=linenos></td>
+                {%- endif -%}
+                <td class=linenos><a href="#N-{{line.new_lineno}}">{{ line.new_lineno }}</a></td>
+              {% endif %}
+
+              {#- right column: code -#}
+              <td class={{line.action}}>
+                {#- lineno anchors -#}
+                {%- if line.old_lineno -%}
+                  <a name="O-{{line.old_lineno}}"></a>
+                {%- else -%}
+                  <a name="N-{{line.new_lineno}}"></a>
+                {%- endif -%}
+
+                {#- the actual line of code -#}
+                <span class=line>{% autoescape off %}{{ line.line|u }}{% endautoescape %}</span>
+              </td>
+
             </tr>
-          {%- endfor %}
+          {%- endfor -%} {# lines #}
+
           {% if not loop.last %}
             <tr class=sep>
               <td colspan=3></td>
             </tr>
           {% endif %}
-        {%- endfor %}
+
+        {%- endfor -%} {# chunks #}
       </table>
-    {%- endfor %}
+
+    {% endfor %}
   </div>
-  </div>
+
 </div>
+
+<script>
+  highlight_linenos({
+    linksSelector: '.linenos a',
+    getLineFromAnchor: function(anchor) {
+      /* If we got the first (old_lineno) anchor, the span we're looking for is
+         the second-next sibling, otherwise it's the next. */
+      console.log(anchor.nextSibling)
+      console.log(anchor.nextSibling.nextSibling);
+      if (anchor.nextSibling instanceof HTMLSpanElement)
+        return anchor.nextSibling;
+      else
+        return anchor.nextSibling.nextSibling;
+    }
+  });
+</script>
 
 {% endblock %}
