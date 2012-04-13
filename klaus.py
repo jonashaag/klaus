@@ -379,7 +379,7 @@ class RawBlob(BaseBlobView):
         if guess_is_binary(self['blob'].chunked):
             mime, encoding = mimetypes.guess_type(self['filename'])
             if mime is None:
-                mime = 'appliication/octet-stream'
+                mime = 'application/octet-stream'
             return mime, encoding
         else:
             return 'text/plain', 'utf-8'
