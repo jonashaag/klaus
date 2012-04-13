@@ -111,13 +111,13 @@ footer a:hover { text-decoration: none; }
 
 /* Base styles for history and commit views */
 .commit {
-  background-color: #f5f5f5;
+  background-color: #f9f9f9;
   padding: 8px 10px;
   margin-bottom: 2px;
   display: block;
   border: 1px solid #e0e0e0;
 }
-.commit:hover { text-decoration: none; background-color: #f9f9f9; }
+.commit:hover { text-decoration: none; }
 
 .commit > span { display: block; }
 
@@ -136,10 +136,9 @@ footer a:hover { text-decoration: none; }
 .history .pagination { margin-top: -2em; }
 a.commit { color: black !important; }
 
-.tree ul { font-family: monospace; font-size: 10pt; }
-.tree li { background-color: #f5f5f5; border: 1px solid #e0e0e0; }
+.tree ul { font-family: monospace; font-size: 10pt; border-top: 1px solid #e0e0e0; }
+.tree li { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-top: 0; }
 .tree li a { padding: 5px 7px; display: block; color: #001533; }
-.tree li a:hover { background-color: #f9f9f9; }
 .tree li a:before, .diff .filename:before {
   margin-right: 5px;
   position: relative;
@@ -159,6 +158,9 @@ a.commit { color: black !important; }
   padding: 0 6px 0 6px;
   border: 1px solid #e0e0e0;
 }
+.blobview .linenos:hover {
+  background-color: #fefed0;
+}
 .blobview .code { padding: 0 5px 0 10px; }
 
 
@@ -167,7 +169,6 @@ a.commit { color: black !important; }
 
 .full-commit .commit { padding: 15px 20px; }
 .full-commit .commit .line1 { padding-bottom: 5px; }
-.full-commit .commit:hover { background-color: #f5f5f5; }
 .full-commit .commit:hover .line1 { text-decoration: none; }
 .full-commit .commit .line2 > span:nth-child(2) { float: left; }
 .full-commit .commit .line2 > span:nth-child(2):before { content: '·'; margin: 0 3px 0 5px; }
@@ -176,7 +177,6 @@ a.commit { color: black !important; }
 .diff .filename {
   background-color: #f9f9f9;
   padding: 8px 10px;
-  font-size: 14px;
   border: 1px solid #e0e0e0;
   border-bottom: 0;
   margin-top: 25px;
