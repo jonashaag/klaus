@@ -87,8 +87,22 @@ def pygmentize(code, filename=None, language=None):
             lexer = get_lexer_for_filename(filename)
         except ClassNotFound:
             lexer = guess_lexer(code)
-    return highlight(code, lexer, pygments_formatter)
-pygments_formatter = HtmlFormatter(linenos=True)
+
+    return highlight(code, lexer, KlausFormatter())
+
+
+class KlausFormatter(HtmlFormatter):
+    def __init__(self):
+        HtmlFormatter.__init__(self, linenos='table', lineanchors='L',
+                               anchorlinenos=True)
+
+    def _format_lines(self, tokensource):
+        for tag, line in HtmlFormatter._format_lines(self, tokensource):
+            if tag == 1:
+                # sourcecode line
+                line = '<span class=line>%s</span>' % line
+            yield tag, line
+
 
 def timesince(when, now=time.time):
     """ Returns the difference between `when` and `now` in human readable form. """

@@ -13,8 +13,6 @@ h2 > span:last-of-type { font-size: 60%; }
 
 .clearfloat { clear: both; }
 
-.linenos { color: #888; background-color: #f9f9f9; text-align: right; }
-
 
 /* Header */
 header { font-size: 90%; padding: 8px 10px; border-bottom: 3px solid #e0e0e0; }
@@ -151,17 +149,21 @@ a.commit { color: black !important; }
 }
 
 
+/* Common for diff and blob view */
+.line { display: block; }
+.linenos { background-color: #f9f9f9; text-align: right; }
+.linenos a { color: #888; }
+.linenos a:hover { text-decoration: none; }
+.highlight-line { background-color: #fefed0; }
+.linenos a { padding: 0 6px 0 6px; }
+
+
 /* Blob View */
 .blobview img { max-width: 100%; padding: 1px; }
 .blobview table, .blobview img { border: 1px solid #e0e0e0; }
-.blobview .linenos {
-  padding: 0 6px 0 6px;
-  border: 1px solid #e0e0e0;
-}
-.blobview .linenos:hover {
-  background-color: #fefed0;
-}
-.blobview .code { padding: 0 5px 0 10px; }
+.blobview .linenos { border: 1px solid #e0e0e0; padding: 0; }
+.blobview .code { padding: 0; }
+.blobview .code .line { padding: 0 5px 0 10px; }
 
 
 /* Commit View */
@@ -189,23 +191,20 @@ a.commit { color: black !important; }
   width: 100%;
 }
 .diff td {
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 0;
+  padding-right: 0;
   border-left: 1px solid #e0e0e0;
 }
-.diff td + td + td { width: 100%; white-space: pre; }
-.diff tr:hover > td { background-color: #fefed0; }
+.diff .linenos { font-size: 85%; padding: 0; }
+.diff .linenos a { display: block; padding-top: 1px; padding-bottom: 1px; }
+.diff td + td + td { width: 100%; }
+.diff td + td + td > span { white-space: pre; }
 .diff tr:first-of-type td { padding-top: 7px; }
 .diff tr:last-of-type td { padding-bottom: 7px; }
 .diff table .del { background-color: #ffdddd; }
 .diff table .add { background-color: #ddffdd; }
 .diff table del { background-color: #ee9999; text-decoration: none; }
 .diff table ins { background-color: #99ee99; text-decoration: none; }
-.diff .linenos {
-  padding-left: 5px;
-  padding-right: 5px;
-  font-size: 11px;
-}
 .diff .sep > td {
   height: 1.2em;
   background-color: #f9f9f9;

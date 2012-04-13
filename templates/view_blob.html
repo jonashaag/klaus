@@ -29,4 +29,11 @@
   {% endif %}
 </div>
 
+<script>
+  highlight_linenos({
+    linksSelector: '.highlighttable .linenos a',
+    getLineFromAnchor: function(anchor) { return anchor.nextSibling }
+  })
+</script>
+
 {% endblock %}
