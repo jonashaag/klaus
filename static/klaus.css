@@ -1,13 +1,13 @@
 @charset "utf-8";
 
-body { margin: 0; padding: 0; font-size: 11pt; font-family: sans-serif; }
-pre { font-size: 10pt; }
+body { margin: 0; padding: 0; font-family: sans-serif; }
+pre { line-height: 125%; }
 a, a:visited { color: #003278; text-decoration: none; }
 a:hover { text-decoration: underline; }
 ul { list-style-type: none; padding-left: 0; }
 table { border-spacing: 0; border-collapse: collapse; }
 
-h2 > span:last-of-type { font-size: 11pt; }
+h2 > span:last-of-type { font-size: 60%; }
 
 .slash { color: #666; margin: 0 -0.2em; }
 
@@ -17,7 +17,7 @@ h2 > span:last-of-type { font-size: 11pt; }
 
 
 /* Header */
-header { padding: 8px 10px; border-bottom: 3px solid #e0e0e0; }
+header { font-size: 90%; padding: 8px 10px; border-bottom: 3px solid #e0e0e0; }
 header > a { padding: 10px 0; }
 header .breadcrumbs > span:before { content: ' » '; color: #666; }
 header .slash { margin: 0 -3px; }
@@ -26,7 +26,7 @@ header .slash { margin: 0 -3px; }
   position: absolute;
   top: 5px;
   right: 4px;
-  font-size: 13px;
+  font-size: 90%;
 }
 .branch-selector > * {
   background-color: #fcfcfc;
@@ -49,7 +49,7 @@ header .slash { margin: 0 -3px; }
 }
 .branch-selector li a {
   display: block;
-  padding: 5px 5px 3px 5px;
+  padding: 5px;
   border-bottom: 1px solid #f1f1f1;
 }
 .branch-selector li a:hover { background-color: #fefefe; }
@@ -60,7 +60,7 @@ header .slash { margin: 0 -3px; }
 /* Footer */
 footer {
   clear: both;
-  font-size: 10pt;
+  font-size: 80%;
   float: right;
   color: #666;
   padding: 50px 3px 3px 0;
@@ -83,26 +83,26 @@ footer a:hover { text-decoration: none; }
 
 
 /* Pagination */
-.pagination { float: right; margin: 0; font-size: 14px; }
+.pagination { float: right; margin: 0; font-size: 90%; }
 .pagination > * {
   border: 1px solid;
   padding: 2px 10px;
   text-align: center;
 }
-.pagination .n { font-size: 12px; padding: 1px 5px; position: relative; top: 1px; }
+.pagination .n { font-size: 90%; padding: 1px 5px; position: relative; top: 1px; }
 .pagination > a { opacity: 0.6; border-color: #6491bf; }
 .pagination > a:hover { opacity: 1; text-decoration: none; border-color: #4D6FA0; }
 .pagination span { color: #999; border-color: #ccc; }
 
 
 /* Repo List */
-.repolist { margin-left: 2em; font-size: 14pt; }
+.repolist { margin-left: 2em; font-size: 120%; }
 .repolist li { margin-bottom: 10px; }
 .repolist li a { display: block; }
 .repolist li a .last-updated {
   display: block;
   color: #737373;
-  font-size: 10pt;
+  font-size: 60%;
   margin-left: 1px;
 }
 .repolist li a:hover { text-decoration: none; }
@@ -121,7 +121,7 @@ footer a:hover { text-decoration: none; }
 
 .commit > span { display: block; }
 
-.commit .line1 { font-family: monospace; font-size: 10pt; padding-bottom: 2px; }
+.commit .line1 { font-family: monospace; padding-bottom: 2px; }
 .commit .line1 span { white-space: pre-wrap; text-overflow: hidden; }
 .commit:hover .line1 { text-decoration: underline; color: #aaa; }
 .commit:hover .line1 span { color: black; }
@@ -129,16 +129,16 @@ footer a:hover { text-decoration: none; }
 .commit .line2 { position: relative; top: 3px; left: 1px; }
 .commit .line2 > span:first-child { float: left; }
 .commit .line2 > span:nth-child(2) { float: right; }
-.commit .line2 { color: #737373; font-size: 12px; }
+.commit .line2 { color: #737373; font-size: 80%; }
 
 
 /* History View */
 .history .pagination { margin-top: -2em; }
 a.commit { color: black !important; }
 
-.tree ul { font-family: monospace; font-size: 10pt; border-top: 1px solid #e0e0e0; }
+.tree ul { font-family: monospace; border-top: 1px solid #e0e0e0; }
 .tree li { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-top: 0; }
-.tree li a { padding: 5px 7px; display: block; color: #001533; }
+.tree li a { padding: 5px 7px 6px 7px; display: block; color: #001533; }
 .tree li a:before, .diff .filename:before {
   margin-right: 5px;
   position: relative;
@@ -173,7 +173,7 @@ a.commit { color: black !important; }
 .full-commit .commit .line2 > span:nth-child(2) { float: left; }
 .full-commit .commit .line2 > span:nth-child(2):before { content: '·'; margin: 0 3px 0 5px; }
 
-.diff { font-family: monospace; font-size: 10pt; }
+.diff { font-family: monospace; }
 .diff .filename {
   background-color: #f9f9f9;
   padding: 8px 10px;
