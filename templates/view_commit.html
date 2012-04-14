@@ -96,8 +96,6 @@
     getLineFromAnchor: function(anchor) {
       /* If we got the first (old_lineno) anchor, the span we're looking for is
          the second-next sibling, otherwise it's the next. */
-      console.log(anchor.nextSibling)
-      console.log(anchor.nextSibling.nextSibling);
       if (anchor.nextSibling instanceof HTMLSpanElement)
         return anchor.nextSibling;
       else

@@ -191,10 +191,10 @@ a.commit { color: black !important; }
   width: 100%;
 }
 .diff td {
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0;
   border-left: 1px solid #e0e0e0;
 }
+.diff td .line { padding: 1px 10px; display: block; height: 1.2em; }
 .diff .linenos { font-size: 85%; padding: 0; }
 .diff .linenos a { display: block; padding-top: 1px; padding-bottom: 1px; }
 .diff td + td + td { width: 100%; }
