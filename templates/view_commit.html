@@ -20,6 +20,9 @@
 
   <div class=diff>
     {% for file in repo.commit_diff(commit) %}
+
+      {% set fileno = loop.index0 %}
+
       <div class=filename>
         {# TODO dulwich doesn't do rename recognition
         {% if file.old_filename != file.new_filename %}
@@ -42,28 +45,28 @@
 
               {#- left column: linenos -#}
               {%- if line.old_lineno -%}
-                <td class=linenos><a href="#O-{{line.old_lineno}}">{{ line.old_lineno }}</a></td>
+                <td class=linenos><a href="#{{fileno}}-L-{{line.old_lineno}}">{{ line.old_lineno }}</a></td>
                 {%- if line.new_lineno -%}
-                  <td class=linenos><a href="#O-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
+                  <td class=linenos><a href="#{{fileno}}-L-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
                 {%- else -%}
                   <td class=linenos></td>
                 {%- endif -%}
               {%- else %}
                 {%- if line.old_lineno -%}
-                  <td class=linenos><a href="#O-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
+                  <td class=linenos><a href="#{{fileno}}-R-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
                 {%- else -%}
                   <td class=linenos></td>
                 {%- endif -%}
-                <td class=linenos><a href="#N-{{line.new_lineno}}">{{ line.new_lineno }}</a></td>
+                <td class=linenos><a href="#{{fileno}}-R-{{line.new_lineno}}">{{ line.new_lineno }}</a></td>
               {% endif %}
 
               {#- right column: code -#}
               <td class={{line.action}}>
                 {#- lineno anchors -#}
                 {%- if line.old_lineno -%}
-                  <a name="O-{{line.old_lineno}}"></a>
+                  <a name="{{fileno}}-L-{{line.old_lineno}}"></a>
                 {%- else -%}
-                  <a name="N-{{line.new_lineno}}"></a>
+                  <a name="{{fileno}}-R-{{line.new_lineno}}"></a>
                 {%- endif -%}
 
                 {#- the actual line of code -#}
