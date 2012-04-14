@@ -38,8 +38,10 @@ var highlight_linenos = function(opts) {
       forEach(document.querySelectorAll('a[href="' + currentHash + '"]'),
               function(e) { e.onmouseout() })
     }
-    forEach(document.querySelectorAll('a[href="' + location.hash + '"]'),
-            function(e) { e.onmouseover() });
-    currentHash = location.hash;
+    if (location.hash) {
+      forEach(document.querySelectorAll('a[href="' + location.hash + '"]'),
+              function(e) { e.onmouseover() });
+      currentHash = location.hash;
+    }
   };
 }
