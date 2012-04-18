@@ -37,14 +37,10 @@ Installation
    virtualenv your-env
    source your-env/bin/activate
 
-   pip install jinja2
-   pip install pygments
-   pip install dulwich
-   pip install argparse # 2.6 only
-
    git clone https://github.com/jonashaag/klaus
    cd klaus
    git submodule update --init
+   pip install -r requirements.txt
 
 
 Usage
