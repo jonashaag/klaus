@@ -2,9 +2,6 @@
 
 import sys
 import os
-import mimetypes
-from future_builtins import map
-# from functools import wraps
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -55,8 +52,7 @@ class Klaus(object):
 
     def dispatch(self, request, start_response):
         adapter = urlmap.bind_to_environ(request.environ)
-        response = {'environ': request.environ, 'adapter': adapter,
-                    'build': lambda k, **x: adapter.build(k, values=x)}
+        request.adapter = adapter
 
         try:
             endpoint, values = adapter.match()
@@ -64,7 +60,7 @@ class Klaus(object):
                 handler = endpoint
             else:
                 handler = getattr(views, endpoint)
-            return handler(self, request, response, **values)
+            return handler(self, request, **values)
         except NotFound, e:
             return Response('Not Found', 404)
         except HTTPException, e:
