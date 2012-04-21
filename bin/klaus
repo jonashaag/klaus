@@ -13,8 +13,10 @@ if __name__ == '__main__':
     usage = "usage: %prog [options] dir [dirs]"
 
     options = [
+        make_option("-i", default="127.0.0.1", dest="interface",
+                    help="bind to host/address (default: 127.0.0.1)"),
         make_option("-p", "--port", type=int, default=8080, dest="port",
-                    help="webserver port"),
+                    help="webserver port (default: 8080)"),
         make_option("-r", "--use-reloader", action="store_true", dest="reloader",
                     help=SUPPRESS_HELP, default=False),
     ]
@@ -22,7 +24,7 @@ if __name__ == '__main__':
     parser = OptionParser(option_list=options, usage=usage, epilog="klaus, a simple Git viewer")
     (options, args) = parser.parse_args()
 
-    if len(args) == 1:
+    if len(args) == 0:
         parser.print_usage()
         exit(2)
 
@@ -31,4 +33,4 @@ if __name__ == '__main__':
         exit(1)
 
     app = make_app(args)
-    run_simple('127.0.0.1', options.port, app, use_reloader=options.reloader)
+    run_simple(options.interface, options.port, app, use_reloader=options.reloader)
