@@ -10,6 +10,16 @@ from pygments.lexers import get_lexer_for_filename, get_lexer_by_name, \
                             guess_lexer, ClassNotFound
 from pygments.formatters import HtmlFormatter
 
+try:
+    from markdown import markdown
+except ImportError:
+    markdown = None
+
+# try:
+#     from docutils.core import publish_parts as rst
+# except ImportError:
+#     rst = None
+
 
 def query_string_to_dict(query_string):
     """ Transforms a POST/GET string into a Python dict """
@@ -30,6 +40,15 @@ class KlausFormatter(HtmlFormatter):
 
 
 def pygmentize(code, filename=None, language=None):
+
+    if markdown and any(filter(lambda ext: filename.endswith(ext), ['.md', '.mkdown'])):
+        return markdown(code)
+
+    # if rst and any(filter(lambda ext: filename.endswith(ext), ['.rst', '.rest'])):
+    #     settings = {'initial_header_level': 1, 'doctitle_xform': 0 }
+    #     parts = rst(code, writer_name='html', settings_overrides=settings)
+    #     return parts['body']
+
     if language:
         lexer = get_lexer_by_name(language)
     else:
