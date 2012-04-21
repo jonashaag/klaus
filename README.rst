@@ -17,17 +17,16 @@ Demo at http://klausdemo.lophus.org
 
 Requirements
 ------------
-* Python 2.7
+* Python 2.6 (2.5 should work, too)
+* Werkzeug_
 * Jinja2_
 * Pygments_
 * dulwich_ (>= 0.7.1)
-* argparse (only for Python 2.6)
-* Nano_ (shipped as submodule, do a ``git submodule update --init`` to fetch)
 
+.. _Werkzeug: http://werkzeug.pocoo.org/
 .. _Jinja2: http://jinja.pocoo.org/
 .. _Pygments: http://pygments.org/
 .. _dulwich: http://www.samba.org/~jelmer/dulwich/
-.. _Nano: https://github.com/jonashaag/nano
 
 
 Installation
@@ -62,9 +61,11 @@ This will make klaus serve the *klaus* and *bjoern* repos at
 .. _wsgiref: http://docs.python.org/library/wsgiref.html
 .. _bjoern: https://github.com/jonashaag/bjoern
 
-Using a real server ................... The ``klaus/__init__.py`` module
-contains a WSGI ``make_app`` function which returns the app. The repo list is
-read from the ``KLAUS_REPOS`` environment variable (space-separated paths).
+Using a real server ...................
+
+The ``klaus/__init__.py`` module contains a WSGI ``make_app`` function which
+returns the app. The repo list is read from the ``KLAUS_REPOS`` environment
+variable (space-separated paths).
 
 UWSGI example::
 
