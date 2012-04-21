@@ -187,3 +187,7 @@ def Repo(name, path, _cache={}):
         repo = _cache[path] = RepoWrapper(path)
         repo.name = name
     return repo
+
+def get_repo(klaus, name):
+    return Repo(name, klaus.repos[name])
+

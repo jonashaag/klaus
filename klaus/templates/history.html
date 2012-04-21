@@ -41,7 +41,7 @@
         Commit History
       {% endif %}
       <span>
-        @<a href="{{ build_url(commit_id=branch) }}">{{ branch }}</a>
+        @<a href="{{ build(view, commit_id=branch) }}">{{ branch }}</a>
       </span>
     </h2>
 
@@ -51,7 +51,7 @@
     {% for commit in history %}
     {% if not loop.last or history|length < history_length %}
       <li>
-        <a class=commit href="{{ build_url('view_commit', commit_id=commit.id) }}">
+        <a class=commit href="{{ build('commit', commit_id=commit.id) }}">
           <span class=line1>
             <span>{{ commit.message|u|shorten_message }}</span>
           </span>

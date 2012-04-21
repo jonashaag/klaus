@@ -10,7 +10,7 @@
 <ul class=repolist>
   {% for name, last_update_at in repos %}
     <li>
-      <a href="{{ build_url('history', repo=name, commit_id='master', path='') }}">
+      <a href="{{ build('history', repo=name, commit_id='master', path='') }}">
         <span class=name>{{ name }}</span>
       <span class=last-updated>
         {% if last_update_at is not none %}
