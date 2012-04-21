@@ -1,15 +1,34 @@
 #!/usr/bin/env python
 
-from sys import argv, exit
+from sys import exit
+from os.path import isdir
+from optparse import make_option, OptionParser, SUPPRESS_HELP
+
 from klaus import make_app
 
 from werkzeug.serving import run_simple
 
 if __name__ == '__main__':
 
-    if len(argv) < 1:
-        print "%s REPO 1 [REPO 2, REPO 3]"
+    usage = "usage: %prog [options] dir [dirs]"
+
+    options = [
+        make_option("-p", "--port", type=int, default=8080, dest="port",
+                    help="webserver port"),
+        make_option("-r", "--use-reloader", action="store_true", dest="reloader",
+                    help=SUPPRESS_HELP, default=False),
+    ]
+
+    parser = OptionParser(option_list=options, usage=usage, epilog="klaus, a simple Git viewer")
+    (options, args) = parser.parse_args()
+
+    if len(args) == 1:
+        parser.print_usage()
         exit(2)
 
-    app = make_app(argv[1:])
-    run_simple('127.0.0.1', 5000, app, use_reloader=True)
+    for path in [path for path in args if not isdir(path)]:
+        print '%r: No such directory' % path
+        exit(1)
+
+    app = make_app(args)
+    run_simple('127.0.0.1', options.port, app, use_reloader=options.reloader)
