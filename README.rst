@@ -39,34 +39,32 @@ Installation
 
    git clone https://github.com/jonashaag/klaus
    cd klaus
-   git submodule update --init
    pip install -r requirements.txt
 
 
 Usage
 -----
-Using the ``quickstart.py`` script
+Using the ``klaus`` script
 ..................................
+
 ::
 
-   tools/quickstart --help
-   tools/quickstart.py <host> <port> /path/to/repo1 [../path/to/repo2 [...]]
+   $ klaus --help
+   $ klaus -i <host> -p <port> /path/to/repo1 [../path/to/repo2 [...]]
 
 Example::
 
-   tools/quickstart.py 127.0.0.1 8080 ../klaus ../nano ../bjoern
+   $ klaus ../klaus ../bjoern
 
-This will make klaus serve the *klaus*, *nano* and *bjoern* repos at
-``127.0.0.1:8080`` using Python's built-in wsgiref_ server (or, if installed,
-the bjoern_ server).
+This will make klaus serve the *klaus* and *bjoern* repos at
+``127.0.0.1:8080`` using werkzeug's builtin run_simple server.
 
 .. _wsgiref: http://docs.python.org/library/wsgiref.html
 .. _bjoern: https://github.com/jonashaag/bjoern
 
-Using a real server
-...................
-The ``klaus.py`` module contains a WSGI ``application`` object. The repo list
-is read from the ``KLAUS_REPOS`` environment variable (space-separated paths).
+Using a real server ................... The ``klaus/__init__.py`` module
+contains a WSGI ``make_app`` function which returns the app. The repo list is
+read from the ``KLAUS_REPOS`` environment variable (space-separated paths).
 
 UWSGI example::
 
