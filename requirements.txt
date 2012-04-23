@@ -2,4 +2,3 @@ werkzeug
 jinja2
 pygments
 dulwich
-argparse
