@@ -37,6 +37,32 @@ urlmap = Map([
 ])
 
 
+class SubUri(object):
+    """Wrap the application in this middleware to let you quietly bind
+    this to a URL other than / and to an HTTP scheme that is different
+    than what is used locally. If you don't send HTTP_X_SCRIPT_NAME,
+    you can optionally use ``klaus --prefix=/myprefix/``.
+
+    -- via http://flask.pocoo.org/snippets/35/
+    """
+    def __init__(self, app, prefix):
+        self.app = app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+        script_name = environ.get('HTTP_X_SCRIPT_NAME', self.prefix)
+        if script_name:
+            environ['SCRIPT_NAME'] = script_name
+            path_info = environ['PATH_INFO']
+            if path_info.startswith(script_name):
+                environ['PATH_INFO'] = path_info[len(script_name):]
+
+        scheme = environ.get('HTTP_X_SCHEME', '')
+        if scheme:
+            environ['wsgi.url_scheme'] = scheme
+        return self.app(environ, start_response)
+
+
 class Klaus(object):
 
     def __init__(self, repos):
@@ -79,7 +105,7 @@ class Klaus(object):
         return self.wsgi_app(environ, start_response)
 
 
-def make_app(repos):
+def make_app(repos, prefix='/'):
 
     repos = dict(
         (repo.rstrip(os.sep).split(os.sep)[-1].replace('.git', ''), repo)
@@ -97,6 +123,7 @@ def make_app(repos):
     app.jinja_env.filters['is_image'] = guess_is_image
     app.jinja_env.filters['shorten_author'] = extract_author_name
 
+    app.wsgi_app = SubUri(app.wsgi_app, prefix=prefix)
     app = SharedDataMiddleware(app, {
         '/static/': os.path.join(os.path.dirname(__file__), 'static/')
     })
