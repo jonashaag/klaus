@@ -22,6 +22,8 @@ if __name__ == '__main__':
                     help="bind to host/address (default: 127.0.0.1)"),
         make_option("-p", "--port", type=int, default=8080, dest="port",
                     help="webserver port (default: 8080)"),
+        make_option("--prefix", type=str, default='/', dest="prefix",
+                    help="serve on given sub uri"),
         make_option("-r", "--use-reloader", action="store_true", dest="reloader",
                     help=SUPPRESS_HELP, default=False),
     ]
@@ -40,7 +42,7 @@ if __name__ == '__main__':
             print '%r: Not a git repository' % path
             args.remove(path)
 
-    app = make_app(args)
+    app = make_app(args, options.prefix)
 
     if bjoern and not options.use_reloader:
         run(app, options.interface, options.port)

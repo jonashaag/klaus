@@ -5,7 +5,9 @@
 <script src=/static/line-highlighter.js></script>
 
 <header>
-  <a href=/>{{ environ.HTTP_HOST }}</a>
+  <a href={{ environ.SCRIPT_NAME }}>
+    {{ environ.HTTP_HOST ~ environ.SCRIPT_NAME.rstrip('/') }}
+  </a>
   <span class=breadcrumbs>{% block breadcrumbs %}{% endblock %}</span>
   {% block extra_header %}{% endblock %}
 </header>
