@@ -18,11 +18,11 @@ setup(
     description='The first Git web viewer that Just Works™.',
     long_description=__doc__,
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Topic :: Internet",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary",
-        "Environment :: Console",
-        "Intended Audience :: End Users/Desktop",
+        "Development Status :: 4 - Beta",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application"
+        "Environment :: Web Environment",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
     ],
