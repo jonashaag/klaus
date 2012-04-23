@@ -4,6 +4,8 @@ from sys import exit
 from os.path import isdir
 from optparse import make_option, OptionParser, SUPPRESS_HELP
 
+from dulwich.repo import Repo
+from dulwich.errors import NotGitRepository
 from klaus import make_app
 
 from werkzeug.serving import run_simple
@@ -28,9 +30,12 @@ if __name__ == '__main__':
         parser.print_usage()
         exit(2)
 
-    for path in [path for path in args if not isdir(path)]:
-        print '%r: No such directory' % path
-        exit(1)
+    for path in args[:]:
+        try:
+            Repo(path)
+        except NotGitRepository:
+            print '%r: Not a git repository' % path
+            args.remove(path)
 
     app = make_app(args)
     run_simple(options.interface, options.port, app, use_reloader=options.reloader)
