@@ -8,7 +8,10 @@ from dulwich.repo import Repo
 from dulwich.errors import NotGitRepository
 from klaus import make_app
 
-from werkzeug.serving import run_simple
+try:
+    from bjoern import run
+except ImportError:
+    bjoern = None
 
 if __name__ == '__main__':
 
@@ -38,4 +41,9 @@ if __name__ == '__main__':
             args.remove(path)
 
     app = make_app(args)
-    run_simple(options.interface, options.port, app, use_reloader=options.reloader)
+
+    if bjoern and not options.use_reloader:
+        run(app, options.interface, options.port)
+    else:
+        from werkzeug.serving import run_simple
+        run_simple(options.interface, options.port, app, use_reloader=options.reloader)
