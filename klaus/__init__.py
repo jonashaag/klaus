@@ -83,7 +83,7 @@ def make_app(repos):
 
     repos = dict(
         (repo.rstrip(os.sep).split(os.sep)[-1].replace('.git', ''), repo)
-        for repo in (sys.argv[1:] or os.environ.get('KLAUS_REPOS', '').split())
+        for repo in (repos or os.environ.get('KLAUS_REPOS', '').split())
     )
 
     app = Klaus(repos)
