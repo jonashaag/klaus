@@ -42,7 +42,7 @@ class Klaus(object):
     def __init__(self, repos):
 
         self.repos = repos
-        self.jinja_env = Environment(loader=FileSystemLoader('klaus/templates/'),
+        self.jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_DIR),
                                      extensions=['jinja2.ext.autoescape'],
                                      autoescape=True)
         self.jinja_env.globals['KLAUS_VERSION'] = KLAUS_VERSION
