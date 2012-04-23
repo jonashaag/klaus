@@ -17,6 +17,7 @@ Demo at http://klausdemo.lophus.org
 
 Requirements
 ------------
+
 * Python 2.6 (2.5 should work, too)
 * Werkzeug_
 * Jinja2_
@@ -31,7 +32,14 @@ Requirements
 
 Installation
 ------------
-*The same procedure as every year, James.* ::
+
+If you just want to test it with a simple WSGI server, type::
+
+   pip install klaus
+
+You can optionally install `bjoern <https://github.com/jonashaag/bjoern>`_ and
+klaus automatically use this backend. To use klaus with a custom WSGI server,
+it's *the same procedure as every year, James.* ::
 
    virtualenv your-env
    source your-env/bin/activate
@@ -43,8 +51,9 @@ Installation
 
 Usage
 -----
+
 Using the ``klaus`` script
-..................................
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ::
 
@@ -61,7 +70,8 @@ This will make klaus serve the *klaus* and *bjoern* repos at
 .. _wsgiref: http://docs.python.org/library/wsgiref.html
 .. _bjoern: https://github.com/jonashaag/bjoern
 
-Using a real server ...................
+Using a real server
+^^^^^^^^^^^^^^^^^^^
 
 The ``klaus/__init__.py`` module contains a WSGI ``make_app`` function which
 returns the app. The repo list is read from the ``KLAUS_REPOS`` environment
