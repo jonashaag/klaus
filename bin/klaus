@@ -24,6 +24,8 @@ if __name__ == '__main__':
                     help="webserver port (default: 8080)"),
         make_option("--prefix", type=str, default='/', dest="prefix",
                     help="serve on given sub uri"),
+        make_option("-s", "--smarthttp", action="store_true", dest="smarthttp",
+                    help="serve git repositories the smart way", default=False),
         make_option("-r", "--use-reloader", action="store_true", dest="reloader",
                     help=SUPPRESS_HELP, default=False),
         make_option("--debug", action="store_true", dest="debug",
@@ -44,7 +46,7 @@ if __name__ == '__main__':
             print '%r: Not a git repository' % path
             args.remove(path)
 
-    app = make_app(args, options.prefix)
+    app = make_app(args, options.prefix, options.smarthttp)
 
     if options.debug:
         from werkzeug.debug import DebuggedApplication
