@@ -105,7 +105,7 @@ class Klaus(object):
         return self.wsgi_app(environ, start_response)
 
 
-def make_app(repos, prefix='/', smartgit=False):
+def make_app(repos, prefix='/', smartgit=False, htpasswd=None):
 
     repos = dict(
         (repo.rstrip(os.sep).split(os.sep)[-1].replace('.git', ''), repo)
@@ -124,7 +124,7 @@ def make_app(repos, prefix='/', smartgit=False):
     app.jinja_env.filters['shorten_author'] = extract_author_name
 
     if smartgit:
-        app = http.make_app(app, repos)
+        app = http.make_app(app, repos, htpasswd=htpasswd)
 
     app.wsgi_app = SubUri(app.wsgi_app, prefix=prefix)
     app = SharedDataMiddleware(app, {
