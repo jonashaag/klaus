@@ -45,17 +45,18 @@ class SubUri(object):
 
     -- via http://flask.pocoo.org/snippets/35/
     """
-    def __init__(self, app, prefix):
+    def __init__(self, app, prefix='/'):
         self.app = app
         self.prefix = prefix
 
     def __call__(self, environ, start_response):
-        script_name = environ.get('HTTP_X_SCRIPT_NAME', self.prefix)
-        if script_name:
-            environ['SCRIPT_NAME'] = script_name
-            path_info = environ['PATH_INFO']
-            if path_info.startswith(script_name):
-                environ['PATH_INFO'] = path_info[len(script_name):]
+        # script_name has always a trailing slash
+        script_name = environ.get('HTTP_X_SCRIPT_NAME', self.prefix).rstrip('/') + '/'
+
+        environ['SCRIPT_NAME'] = script_name
+        path_info = environ['PATH_INFO']
+        if path_info.startswith(script_name):
+            environ['PATH_INFO'] = path_info[len(script_name):]
 
         scheme = environ.get('HTTP_X_SCHEME', '')
         if scheme:
@@ -126,9 +127,9 @@ def make_app(repos, prefix='/', smartgit=False, htpasswd=None):
     if smartgit:
         app = http.make_app(app, repos, htpasswd=htpasswd)
 
-    app.wsgi_app = SubUri(app.wsgi_app, prefix=prefix)
     app = SharedDataMiddleware(app, {
         '/static/': os.path.join(os.path.dirname(__file__), 'static/')
     })
 
+    app = SubUri(app, prefix=prefix)
     return app
