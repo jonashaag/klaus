@@ -66,13 +66,14 @@ class SubUri(object):
 
 class Klaus(object):
 
-    def __init__(self, repos):
+    def __init__(self, repos, smartgit=False):
 
         self.repos = repos
         self.jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_DIR),
                                      extensions=['jinja2.ext.autoescape'],
                                      autoescape=True)
         self.jinja_env.globals['KLAUS_VERSION'] = KLAUS_VERSION
+        self.jinja_env.globals['SMARTHTTP'] = smartgit
 
     def render_template(self, template_name, **kwargs):
         return self.jinja_env.get_template(template_name).render(**kwargs)
@@ -113,7 +114,7 @@ def make_app(repos, prefix='/', smartgit=False, htpasswd=None):
         for repo in (repos or os.environ.get('KLAUS_REPOS', '').split())
     )
 
-    app = Klaus(repos)
+    app = Klaus(repos, smartgit)
 
     app.jinja_env.filters['u'] = force_unicode
     app.jinja_env.filters['timesince'] = timesince
