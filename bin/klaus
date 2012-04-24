@@ -26,6 +26,8 @@ if __name__ == '__main__':
                     help="serve on given sub uri"),
         make_option("-r", "--use-reloader", action="store_true", dest="reloader",
                     help=SUPPRESS_HELP, default=False),
+        make_option("--debug", action="store_true", dest="debug",
+                    help=SUPPRESS_HELP, default=False)
     ]
 
     parser = OptionParser(option_list=options, usage=usage, epilog="klaus, a simple Git viewer")
@@ -43,6 +45,10 @@ if __name__ == '__main__':
             args.remove(path)
 
     app = make_app(args, options.prefix)
+
+    if options.debug:
+        from werkzeug.debug import DebuggedApplication
+        app = DebuggedApplication(app, evalex=True)
 
     if bjoern and not options.use_reloader:
         run(app, options.interface, options.port)
