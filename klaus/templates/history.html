@@ -43,6 +43,10 @@
       <span>
         @<a href="{{ build(view, commit_id=branch) }}">{{ branch }}</a>
       </span>
+      {% if SMARTHTTP %}
+          <code>> git clone {{ environ['wsgi.url_scheme'] ~ '://' ~ environ.HTTP_HOST
+                               ~ environ.SCRIPT_NAME ~ repo.name ~ '/' }}</code>
+      {% endif %}
     </h2>
 
     {{ pagination() }}
