@@ -20,7 +20,7 @@ KLAUS_ROOT = os.path.join(os.path.dirname(__file__))
 TEMPLATE_DIR = os.path.join(KLAUS_ROOT, 'templates')
 
 try:
-    KLAUS_VERSION = ' ' + open(os.path.join(KLAUS_ROOT, '.git/refs/heads/master')).read()[:7]
+    KLAUS_VERSION = ' ' + open(os.path.join(KLAUS_ROOT, '../.git/refs/heads/master')).read()[:7]
 except IOError:
     KLAUS_VERSION = ''
 
