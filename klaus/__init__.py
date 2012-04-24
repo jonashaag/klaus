@@ -10,7 +10,7 @@ from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound, InternalServerError
 from werkzeug.wsgi import SharedDataMiddleware
 
-from klaus import views
+from klaus import views, http
 from klaus.utils import query_string_to_dict
 from klaus.utils import force_unicode, timesince, shorten_sha1, pygmentize, \
                         guess_is_binary, guess_is_image, extract_author_name
@@ -105,7 +105,7 @@ class Klaus(object):
         return self.wsgi_app(environ, start_response)
 
 
-def make_app(repos, prefix='/'):
+def make_app(repos, prefix='/', smartgit=False):
 
     repos = dict(
         (repo.rstrip(os.sep).split(os.sep)[-1].replace('.git', ''), repo)
@@ -122,6 +122,9 @@ def make_app(repos, prefix='/'):
     app.jinja_env.filters['is_binary'] = guess_is_binary
     app.jinja_env.filters['is_image'] = guess_is_image
     app.jinja_env.filters['shorten_author'] = extract_author_name
+
+    if smartgit:
+        app = http.make_app(app, repos)
 
     app.wsgi_app = SubUri(app.wsgi_app, prefix=prefix)
     app = SharedDataMiddleware(app, {
