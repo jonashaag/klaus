@@ -17,56 +17,65 @@ Demo at http://klausdemo.lophus.org
 
 Requirements
 ------------
-* Python 2.7
+
+* Python 2.6 (2.5 should work, too)
+* Werkzeug_
 * Jinja2_
 * Pygments_
 * dulwich_ (>= 0.7.1)
-* argparse (only for Python 2.6)
-* Nano_ (shipped as submodule, do a ``git submodule update --init`` to fetch)
 
+.. _Werkzeug: http://werkzeug.pocoo.org/
 .. _Jinja2: http://jinja.pocoo.org/
 .. _Pygments: http://pygments.org/
 .. _dulwich: http://www.samba.org/~jelmer/dulwich/
-.. _Nano: https://github.com/jonashaag/nano
 
 
 Installation
 ------------
-*The same procedure as every year, James.* ::
+
+If you just want to test it with a simple WSGI server, type::
+
+   pip install klaus
+
+You can optionally install `bjoern <https://github.com/jonashaag/bjoern>`_ and
+klaus automatically use this backend. To use klaus with a custom WSGI server,
+it's *the same procedure as every year, James.* ::
 
    virtualenv your-env
    source your-env/bin/activate
 
    git clone https://github.com/jonashaag/klaus
    cd klaus
-   git submodule update --init
    pip install -r requirements.txt
 
 
 Usage
 -----
-Using the ``quickstart.py`` script
-..................................
+
+Using the ``klaus`` script
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 ::
 
-   tools/quickstart --help
-   tools/quickstart.py <host> <port> /path/to/repo1 [../path/to/repo2 [...]]
+   $ klaus --help
+   $ klaus -i <host> -p <port> /path/to/repo1 [../path/to/repo2 [...]]
 
 Example::
 
-   tools/quickstart.py 127.0.0.1 8080 ../klaus ../nano ../bjoern
+   $ klaus ../klaus ../bjoern
 
-This will make klaus serve the *klaus*, *nano* and *bjoern* repos at
-``127.0.0.1:8080`` using Python's built-in wsgiref_ server (or, if installed,
-the bjoern_ server).
+This will make klaus serve the *klaus* and *bjoern* repos at
+``127.0.0.1:8080`` using werkzeug's builtin run_simple server.
 
 .. _wsgiref: http://docs.python.org/library/wsgiref.html
 .. _bjoern: https://github.com/jonashaag/bjoern
 
 Using a real server
-...................
-The ``klaus.py`` module contains a WSGI ``application`` object. The repo list
-is read from the ``KLAUS_REPOS`` environment variable (space-separated paths).
+^^^^^^^^^^^^^^^^^^^
+
+The ``klaus/__init__.py`` module contains a WSGI ``make_app`` function which
+returns the app. The repo list is read from the ``KLAUS_REPOS`` environment
+variable (space-separated paths).
 
 UWSGI example::
 

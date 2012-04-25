@@ -31,7 +31,7 @@
           {% if file.new_filename == '/dev/null' %}
             <del>{{ file.old_filename|u }}</del>
           {% else %}
-            <a href="{{ build_url('view_blob', path=file.new_filename) }}">
+            <a href="{{ build('blob', path=file.new_filename) }}">
               {{ file.new_filename|u }}
             </a>
           {% endif %}

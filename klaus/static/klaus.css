@@ -8,6 +8,12 @@ ul { list-style-type: none; padding-left: 0; }
 table { border-spacing: 0; border-collapse: collapse; }
 
 h2 > span:last-of-type { font-size: 60%; }
+h2 > code:last-of-type {
+  font-size: 60%;
+  border-bottom: 1px solid #E0E0E0;
+  padding: 4px 5px;
+  margin-left: 12px;
+}
 
 .slash { color: #666; margin: 0 -0.2em; }
 
