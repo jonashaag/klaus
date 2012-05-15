@@ -3,10 +3,16 @@
 import sys, os
 import argparse
 
+
+PROJECT_ROOT = os.path.join(os.path.dirname(__file__), os.pardir)
+
+sys.path.append(PROJECT_ROOT)
+
+
 try:
     import nano
 except ImportError:
-    sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, 'nano'))
+    sys.path.append(os.path.join(PROJECT_ROOT, 'nano'))
     try:
         import nano
     except ImportError:
@@ -16,6 +22,7 @@ except ImportError:
             "or copy the 'nano.py' into the klaus root directory by hand."
         )
 
+
 try:
     from bjoern import run
 except ImportError:
@@ -23,10 +30,12 @@ except ImportError:
     def run(app, host, port):
         make_server(host, port, app).serve_forever()
 
+
 def valid_directory(path):
     if not os.path.exists(path):
         raise argparse.ArgumentTypeError('%r: No such directory' % path)
     return path
+
 
 def main():
     parser = argparse.ArgumentParser(epilog='Gemüse kaufen!')
@@ -43,6 +52,7 @@ def main():
         app.custom_host = args.custom_host
 
     run(app, args.host, args.port)
+
 
 if __name__ == '__main__':
     main()
