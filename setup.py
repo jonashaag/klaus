@@ -3,8 +3,6 @@
 import glob
 from distutils.core import setup
 
-from klaus import KLAUS_VERSION
-
 
 def install_data_files_hack():
     # This is a clever hack to circumvent distutil's data_files
@@ -20,7 +18,7 @@ install_data_files_hack()
 
 setup(
     name='klaus',
-    version=KLAUS_VERSION,
+    version='0.2',
     author='Jonas Haag',
     author_email='jonas@lophus.org',
     packages=['klaus'],
@@ -42,11 +40,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
     ],
-    install_requires=[
-        'werkzeug',
-        'Jinja2',
-        'Pygments',
-        'dulwich>=0.7.1' # FIXME
-    ],
+    requires=map(str.strip, open('requirements.txt').readlines()),
 )
 
