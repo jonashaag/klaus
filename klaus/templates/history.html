@@ -41,12 +41,12 @@
         Commit History
       {% endif %}
       <span>
-        @<a href="{{ build(view, commit_id=branch) }}">{{ branch }}</a>
+        @<a href="{{ url_for(view, repo=repo.name, commit_id=branch) }}">{{ branch }}</a>
       </span>
-      {% if SMARTHTTP %}
-          <code>> git clone {{ environ['wsgi.url_scheme'] ~ '://' ~ environ.HTTP_HOST
-                               ~ environ.SCRIPT_NAME ~ repo.name ~ '/' }}</code>
-      {% endif %}
+      {#{% if SMARTHTTP %}#}
+          {#<code> git clone {{ environ['wsgi.url_scheme'] ~ '://' ~ environ.HTTP_HOST#}
+                              {#~ environ.SCRIPT_NAME ~ repo.name ~ '/' }}</code>#}
+      {#{% endif %}#}
     </h2>
 
     {{ pagination() }}
@@ -55,12 +55,12 @@
     {% for commit in history %}
     {% if not loop.last or history|length < history_length %}
       <li>
-        <a class=commit href="{{ build('commit', commit_id=commit.id) }}">
+        <a class=commit href="{{ url_for('commit', repo=repo.name, commit_id=commit.id) }}">
           <span class=line1>
-            <span>{{ commit.message|u|shorten_message }}</span>
+            <span>{{ commit.message|force_unicode|shorten_message }}</span>
           </span>
           <span class=line2>
-            <span>{{ commit.author|u|shorten_author }}</span>
+            <span>{{ commit.author|force_unicode|extract_author_name }}</span>
             <span>{{ commit.commit_time|timesince }} ago</span>
           </span>
           <span class=clearfloat></span>

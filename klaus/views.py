@@ -1,157 +1,87 @@
-# -*- encoding: utf-8 -*-
-
-from werkzeug.wrappers import Response
-from werkzeug.exceptions import InternalServerError
-
 import os
 import stat
-import mimetypes
 
-from dulwich.objects import Commit, Blob
+from flask import request, render_template
+from flask.views import View
 
-from klaus.repo import get_repo
-from klaus.utils import subpaths, guess_is_binary
+from werkzeug.wrappers import Response
+from werkzeug.exceptions import NotFound
 
+import markup
 
-def prepare(func):
-    """This prepares repo, commit_id and path (if available) into a single
-    dictionary and builds the url builder function."""
-
-    def get_commit(repo, id):
-        commit, isbranch = repo.get_branch_or_commit(id)
-        if not isinstance(commit, Commit):
-            raise KeyError('"%s" has no commit "%s"' % (repo.name, id))
-        return commit, isbranch
+from klaus.utils import subpaths, get_mimetype_and_encoding
 
 
-    def dec(app, request, repo, commit_id, path=None):
+def repo_list(app):
+    """Shows a list of all repos and can be sorted by last update. """
+    if 'by-last-update' in request.args:
+        repos = sorted(app.repos, key=lambda repo: repo.get_last_updated_at(),
+                       reverse=True)
+    else:
+        repos = sorted(app.repos, key=lambda repo: repo.name)
 
-        defaults = {'repo': repo, 'commit_id': commit_id, 'path': path}
-        repo = get_repo(app, repo)
+    return render_template('repo_list.html', repos=repos)
 
+
+class BaseRepoView(View):
+    def __init__(self, view_name, template_name=None):
+        self.view_name = view_name
+        self.template_name = template_name
+        self.context = {}
+
+    def dispatch_request(self, app, repo, commit_id, path=''):
+        self.make_context(app, repo, commit_id, path)
+        return self.get_response()
+
+    def get_response(self):
+        return render_template(self.template_name, **self.context)
+
+    def make_context(self, app, repo, commit_id, path):
         try:
-            commit, isbranch = get_commit(repo, commit_id)
-        except KeyError as e:
-            return Response(e, 404)
+            repo = app.repo_map[repo]
+            commit, isbranch = repo.get_branch_or_commit(commit_id)
+        except KeyError:
+            raise NotFound
 
-        response = {
-            'environ': request.environ,
+        self.context = {
+            'view': self.view_name,
             'repo': repo,
             'commit_id': commit_id,
             'commit': commit,
             'branch': commit_id if isbranch else 'master',
             'branches': repo.get_branch_names(exclude=[commit_id]),
-            'path': path }
-
-        if path:
-            defaults['path'] = ''
-            response['subpaths'] = list(subpaths(path))
-
-        response['build'] = lambda v, **kw: request.adapter.build(v, dict(defaults, **kw))
-
-        return func(app, request, response, repo, commit_id, path)
-    return dec
+            'path': path,
+            'subpaths': subpaths(path) if path else None
+        }
 
 
-def repo_list(app, request):
-    """Shows a list of all repos and can be sorted by last update. """
+class TreeView(BaseRepoView):
+    """
+    Shows a list of files/directories for the current path as well as all
+    commit history for that path in a paginated form.
+    """
+    def make_context(self, *args):
+        super(TreeView, self).make_context(*args)
 
-    response = {'environ': request.environ, 'build': lambda v, **kw: request.adapter.build(v, kw)}
-    response['repos'] = repos = []
-
-    for name in app.repos.iterkeys():
+        self.context['tree'] = self.listdir()
 
         try:
-            repo = get_repo(app, name)
-        except KeyError:
-            raise InternalServerError
+            page = int(request.args.get('page'))
+        except (TypeError, ValueError):
+            page = 0
 
-        refs = [repo[ref_hash] for ref_hash in repo.get_refs().itervalues()]
-        refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
-                  reverse=True)
-        last_updated_at = None
-        if refs:
-            last_updated_at = refs[0].commit_time
-        repos.append((name, last_updated_at))
-    if 'by-last-update' in request.GET:
-        repos.sort(key=lambda x: x[1], reverse=True)
-    else:
-        repos.sort(key=lambda x: x[0])
+        self.context['page'] = page
 
-    return Response(app.render_template('repo_list.html', **response), 200,
-                    content_type='text/html')
-
-@prepare
-def history(app, request, response, repo, commit_id, path):
-
-    response = TreeView(request, response)
-    response['view'] = 'history'
-
-    return Response(app.render_template('history.html', **response), 200,
-                    content_type='text/html')
-
-
-@prepare
-def commit(app, request, response, repo, commit_id, path=None):
-
-    response = CommitView(request, response)
-    response['view'] = 'commit'
-
-    return Response(app.render_template('view_commit.html', **response), 200,
-                    content_type='text/html')
-
-
-@prepare
-def blob(app, request, response, repo, commit_id, path):
-
-    response = BlobView(request, response)
-    response['view'] = 'blob'
-
-    return Response(app.render_template('view_blob.html', **response), 200,
-                    content_type='text/html')
-
-@prepare
-def raw(app, request, response, repo, commit_id, path):
-    """ Shows a single file in raw for (as if it were a normal filesystem file
-        served through a static file server)"""
-
-    def get_mimetype_and_encoding(blob, filename):
-        if guess_is_binary(blob):
-            mime, encoding = mimetypes.guess_type(filename)
-            if mime is None:
-                mime = 'application/octet-stream'
-            return mime, encoding
+        if page:
+            self.context['history_length'] = 30
+            self.context['skip'] = (self.context['page']-1) * 30 + 10
+            if page > 7:
+                self.context['previous_pages'] = [0, 1, 2, None] + range(page)[-3:]
+            else:
+                self.context['previous_pages'] = xrange(page)
         else:
-            return 'text/plain', 'utf-8'
-
-    filename = os.path.basename(path)
-    body = response['repo'].get_tree(response['commit'], path).chunked
-
-    if len(body) == 1 and not body[0]:
-        body = []
-
-    mime, encoding = get_mimetype_and_encoding(body, filename)
-    headers = {'Content-Type': mime}
-
-    if encoding:
-        headers['Content-Encoding'] = encoding
-
-    return Response(body, 200, headers=headers)
-
-
-class BaseView(dict):
-    def __init__(self, request, response):
-        dict.__init__(self)
-
-        self.GET = request.GET
-        self.update(response)
-        self.view()
-
-
-class TreeViewMixin(object):
-
-    def view(self):
-        self['tree'] = self.listdir()
+            self.context['history_length'] = 10
+            self.context['skip'] = 0
 
     def listdir(self):
         """
@@ -159,72 +89,76 @@ class TreeViewMixin(object):
         selected commit
         """
         dirs, files = [], []
-        tree, root = self.get_tree()
+        root = self.get_directory()
+        try:
+            tree = self.context['repo'].get_tree(self.context['commit'], root)
+        except KeyError:
+            raise NotFound
+
         for entry in tree.iteritems():
             name, entry = entry.path, entry.in_path(root)
             if entry.mode & stat.S_IFDIR:
                 dirs.append((name.lower(), name, entry.path))
             else:
                 files.append((name.lower(), name, entry.path))
+
         files.sort()
         dirs.sort()
+
         if root:
             dirs.insert(0, (None, '..', os.path.split(root)[0]))
+
         return {'dirs' : dirs, 'files' : files}
 
-    def get_tree(self):
-        """ Gets the Git tree of the selected commit and path """
-        root = self['path']
-        tree = self['repo'].get_tree(self['commit'], root)
-        if isinstance(tree, Blob):
-            root = os.path.split(root)[0]
-            tree = self['repo'].get_tree(self['commit'], root)
-        return tree, root
+    def get_directory(self):
+        return self.context['path']
 
 
-class TreeView(TreeViewMixin, BaseView):
+class BlobView(TreeView):
+    def make_context(self, *args):
+        super(BlobView, self).make_context(*args)
+
+        blob = self.context['repo'].get_tree(self.context['commit'],
+                                             self.context['path'])
+        filename = os.path.basename(self.context['path'])
+
+        self.context.update({
+            'blob': blob,
+            'filename': filename,
+            'too_large': sum(map(len, blob.chunked)) > 100*1024,
+            'is_markup': markup.can_render(filename),
+            'render_markup': 'markup' not in request.args,
+        })
+
+    def get_directory(self):
+        return os.path.split(self.context['path'])[0]
+
+
+class RawView(BlobView):
     """
-    Shows a list of files/directories for the current path as well as all
-    commit history for that path in a paginated form.
+    Shows a single file in raw for (as if it were a normal filesystem file
+    served through a static file server)
     """
-    def view(self):
-        super(TreeView, self).view()
-        try:
-            page = int(self.GET.get('page'))
-        except (TypeError, ValueError):
-            page = 0
+    def get_response(self):
+        chunks = self.context['blob'].chunked
 
-        self['page'] = page
-
-        if page:
-            self['history_length'] = 30
-            self['skip'] = (self['page']-1) * 30 + 10
-            if page > 7:
-                self['previous_pages'] = [0, 1, 2, None] + range(page)[-3:]
-            else:
-                self['previous_pages'] = xrange(page)
+        if len(chunks) == 1 and not chunks[0]:
+            # empty file
+            chunks = []
+            mime = 'text/plain'
+            encoding = 'utf-8'
         else:
-            self['history_length'] = 10
-            self['skip'] = 0
+            mime, encoding = get_mimetype_and_encoding(chunks, self.context['filename'])
+
+        headers = {'Content-Type': mime}
+        if encoding:
+            headers['Content-Encoding'] = encoding
+
+        return Response(chunks, headers=headers)
 
 
-class BaseBlobView(BaseView):
-    def view(self):
-        self['blob'] = self['repo'].get_tree(self['commit'], self['path'])
-        self['directory'], self['filename'] = os.path.split(self['path'].strip('/'))
-
-
-class BlobView(BaseBlobView, TreeViewMixin):
-    """ Shows a single file, syntax highlighted """
-    def view(self):
-        BaseBlobView.view(self)
-        TreeViewMixin.view(self)
-        self['raw_url'] = self['build']('raw', path=self['path'], repo=self['repo'].name,
-                                        commit_id=self['commit_id'])
-        self['too_large'] = sum(map(len, self['blob'].chunked)) > 100*1024
-
-
-class CommitView(BaseView):
-    """ Shows a single commit diff """
-    def view(self):
-        pass
+#                                     TODO v
+history = TreeView.as_view('history', 'history', 'history.html')
+commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
+blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
+raw = RawView.as_view('raw', 'raw')

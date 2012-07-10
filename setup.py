@@ -1,33 +1,36 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+# encoding: utf-8
 
-# this is a clever hack to circumvent distutil's data_files
-# policy "install once, find never". Definitely a TODO!
-# -- https://groups.google.com/group/comp.lang.python/msg/2105ee4d9e8042cb
-from distutils.command.install import INSTALL_SCHEMES
-for scheme in INSTALL_SCHEMES.values():
-    scheme['data'] = scheme['purelib']
-
+import glob
 from distutils.core import setup
-from os.path import join
 
-templates = ['base.html', 'history.html', 'repo_list.html', 'skeleton.html',
-             'tree.inc.html', 'view_blob.html', 'view_commit.html']
-static = ['klaus.css', 'line-highlighter.js', 'pygments.css']
+from klaus import KLAUS_VERSION
+
+
+def install_data_files_hack():
+    # This is a clever hack to circumvent distutil's data_files
+    # policy "install once, find never". Definitely a TODO!
+    # -- https://groups.google.com/group/comp.lang.python/msg/2105ee4d9e8042cb
+    from distutils.command.install import INSTALL_SCHEMES
+    for scheme in INSTALL_SCHEMES.values():
+        scheme['data'] = scheme['purelib']
+
+
+install_data_files_hack()
+
 
 setup(
     name='klaus',
-    version='1.0.1',
+    version=KLAUS_VERSION,
     author='Jonas Haag',
     author_email='jonas@lophus.org',
     packages=['klaus'],
     scripts=['bin/klaus'],
     data_files=[
-        ('klaus/templates', [join('klaus/templates', path) for path in templates]),
-        ('klaus/static', [join('klaus/static', path) for path in static])
+        ['klaus/templates', glob.glob('klaus/templates/*')],
+        ['klaus/static',    glob.glob('klaus/static/*')],
     ],
     url='https://github.com/jonashaag/klaus',
-    license='BSD style',
+    license='2-clause BSD',
     description='The first Git web viewer that Just Works™.',
     long_description=__doc__,
     classifiers=[
@@ -43,6 +46,7 @@ setup(
         'werkzeug',
         'Jinja2',
         'Pygments',
-        'dulwich>=0.7.1'
+        'dulwich>=0.7.1' # FIXME
     ],
 )
+

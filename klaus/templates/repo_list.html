@@ -8,13 +8,14 @@
   </span>
 </h2>
 <ul class=repolist>
-  {% for name, last_update_at in repos %}
+  {% for repo in repos %}
     <li>
-      <a href="{{ build('history', repo=name, commit_id='master', path='') }}">
-        <span class=name>{{ name }}</span>
+      <a href="{{ url_for('history', repo=repo.name, commit_id=repo.get_default_branch(), path='') }}">
+        <span class=name>{{ repo.name }}</span>
       <span class=last-updated>
-        {% if last_update_at is not none %}
-        last updated {{ last_update_at|timesince }} ago
+        {% set last_updated_at = repo.get_last_updated_at() %}
+        {% if last_updated_at is not none %}
+        last updated {{ last_updated_at|timesince }} ago
         {% else %}
         no commits yet
         {% endif %}

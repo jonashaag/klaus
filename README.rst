@@ -15,38 +15,11 @@ Demo at http://klausdemo.lophus.org
 .. _img3: https://github.com/jonashaag/klaus/raw/master/assets/blob-view.gif
 
 
-Requirements
-------------
-
-* Python 2.6 (2.5 should work, too)
-* Werkzeug_
-* Jinja2_
-* Pygments_
-* dulwich_ (>= 0.7.1)
-
-.. _Werkzeug: http://werkzeug.pocoo.org/
-.. _Jinja2: http://jinja.pocoo.org/
-.. _Pygments: http://pygments.org/
-.. _dulwich: http://www.samba.org/~jelmer/dulwich/
-
-
 Installation
 ------------
-
-If you just want to test it with a simple WSGI server, type::
+::
 
    pip install klaus
-
-You can optionally install `bjoern <https://github.com/jonashaag/bjoern>`_ and
-klaus automatically use this backend. To use klaus with a custom WSGI server,
-it's *the same procedure as every year, James.* ::
-
-   virtualenv your-env
-   source your-env/bin/activate
-
-   git clone https://github.com/jonashaag/klaus
-   cd klaus
-   pip install -r requirements.txt
 
 
 Usage
@@ -54,29 +27,23 @@ Usage
 
 Using the ``klaus`` script
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+To run klaus using the default options::
 
-::
+   $ klaus [repo1 [repo2 ...]]
+
+For more options, see::
 
    $ klaus --help
-   $ klaus -i <host> -p <port> /path/to/repo1 [../path/to/repo2 [...]]
 
-Example::
-
-   $ klaus ../klaus ../bjoern
-
-This will make klaus serve the *klaus* and *bjoern* repos at
-``127.0.0.1:8080`` using werkzeug's builtin run_simple server.
-
-.. _wsgiref: http://docs.python.org/library/wsgiref.html
-.. _bjoern: https://github.com/jonashaag/bjoern
 
 Using a real server
 ^^^^^^^^^^^^^^^^^^^
+The ``klaus`` module contains a ``make_app`` function which returns a WSGI app.
 
-The ``klaus/__init__.py`` module contains a WSGI ``make_app`` function which
-returns the app. The repo list is read from the ``KLAUS_REPOS`` environment
-variable (space-separated paths).
+An example WSGI helper script is provided with klaus (see ``klaus/wsgi.py``),
+configuration being read from environment variables. Use it like this (uWSGI example)::
 
-UWSGI example::
-
-   uwsgi ... -m klaus --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." ...
+   uwsgi -w klaus.wsgi \
+         --env KLAUS_SITE_TITLE="Klaus Demo" \
+         --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." \
+         ...

@@ -1,63 +1,57 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
+# coding: utf-8
 
-from sys import exit
-from os.path import isfile
-from optparse import make_option, OptionParser, SUPPRESS_HELP, OptionGroup
-
-from dulwich.repo import Repo
+import os
+import argparse
 from dulwich.errors import NotGitRepository
-from klaus import make_app
+from dulwich.repo import Repo
+import klaus
+
+
+def git_repository(path):
+    if not os.path.exists(path):
+        raise argparse.ArgumentTypeError('%r: No such directory' % path)
+    try:
+        Repo(path)
+    except NotGitRepository:
+        raise argparse.ArgumentTypeError('%r: Not a Git repository' % path)
+    return path
+
+
+def make_parser():
+    parser = argparse.ArgumentParser(epilog="Gemüse kaufen!")
+    parser.add_argument('--host',  help="default: 127.0.0.1", default='127.0.0.1')
+    parser.add_argument('--port',  help="default: 8080", default=8080, type=int)
+    parser.add_argument('--site-title', help="Site title showed in header. default: your hostname")
+
+    parser.add_argument('repos', help='repositories to serve',
+                        metavar='DIR', nargs='*', type=git_repository)
+
+    grp = parser.add_argument_group("Git Smart HTTP")
+    grp.add_argument('--smarthttp', help="enable Git Smart HTTP serving",
+                     action='store_true')
+    grp.add_argument('--htdigest', help="use credentials from FILE",
+                     metavar="FILE", type=argparse.FileType('r'))
+
+    grp = parser.add_argument_group("Development flags", "DO NOT USE IN PRODUCTION!")
+    grp.add_argument('--debug', help="Enable Werkzeug debugger and reloader", action='store_true')
+
+    return parser
+
+
+def main():
+    args = make_parser().parse_args()
+
+    if not args.site_title:
+        args.site_title = '%s:%d' % (args.host, args.port)
+
+    app = klaus.make_app(args.repos,
+                         args.site_title or args.host,
+                         args.smarthttp,
+                         args.htdigest)
+
+    app.run(args.host, args.port, args.debug)
 
 
 if __name__ == '__main__':
-
-    usage = "usage: %prog [options] dir [dirs]"
-
-    options = [
-        make_option("-i", default="127.0.0.1", dest="interface",
-                    help="bind to host/address (default: 127.0.0.1)"),
-        make_option("-p", type=int, default=8080, dest="port",
-                    help="webserver port (default: 8080)"),
-        make_option("--prefix", type=str, default='/', dest="prefix",
-                    help="serve on given sub uri"),
-        make_option("-r", "--use-reloader", action="store_true", dest="reloader",
-                    help=SUPPRESS_HELP, default=False),
-        make_option("--debug", action="store_true", dest="debug",
-                    help=SUPPRESS_HELP, default=False)
-    ]
-
-    parser = OptionParser(option_list=options, usage=usage, epilog="klaus, a simple Git viewer")
-
-    # smart HTTP
-    grp = OptionGroup(parser, "Git Smart HTTP")
-    grp.add_option("-s", "--smarthttp", action="store_true", dest="smarthttp",
-                    help="enable smart HTTP serving", default=False)
-    grp.add_option("--htpasswd", dest="htpasswd", metavar="FILE",
-                    help="use credentials from FILE")
-
-    parser.add_option_group(grp)
-    (options, args) = parser.parse_args()
-
-    if len(args) == 0:
-        parser.print_usage()
-        exit(2)
-
-    for path in args[:]:
-        try:
-            Repo(path)
-        except NotGitRepository:
-            print '%r: Not a git repository' % path
-            args.remove(path)
-
-    if options.htpasswd and not isfile(options.htpasswd):
-        print '%r: No such file' % options.htpasswd
-        exit(1)
-
-    app = make_app(args, options.prefix, options.smarthttp, options.htpasswd)
-
-    if options.debug:
-        from werkzeug.debug import DebuggedApplication
-        app = DebuggedApplication(app, evalex=True)
-
-    from werkzeug.serving import run_simple
-    run_simple(options.interface, options.port, app, use_reloader=options.reloader)
+    main()

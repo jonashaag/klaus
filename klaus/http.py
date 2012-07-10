@@ -1,9 +1,7 @@
-# -*- encoding: utf-8 -*-
-
 import re
 from crypt import crypt
 
-from werkzeug.wrappers import Request, Response
+from werkzeug.wrappers import Request
 
 from dulwich.repo import Repo
 from dulwich.server import DictBackend

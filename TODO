@@ -1,5 +1,12 @@
+refactor
+--------
+* auth urls fixen (jelmer)
+* serve under sub-uri - posativ
+
+
 definitely
 ----------
+* tests
 * tag selector
 
 maybe
@@ -7,3 +14,5 @@ maybe
 * file blame
 * search function
 * (p)ajax
+* pygments css cmd flag
+* font
