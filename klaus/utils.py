@@ -1,29 +1,28 @@
-# -*- encoding: utf-8 -*-
+# encoding: utf-8
 
 import re
 import time
 import mimetypes
-import urlparse
 
 from pygments import highlight
 from pygments.lexers import get_lexer_for_filename, get_lexer_by_name, \
                             guess_lexer, ClassNotFound
 from pygments.formatters import HtmlFormatter
 
-try:
-    from markdown import markdown
-except ImportError:
-    markdown = None
-
-# try:
-#     from docutils.core import publish_parts as rst
-# except ImportError:
-#     rst = None
+import markup
 
 
-def query_string_to_dict(query_string):
-    """ Transforms a POST/GET string into a Python dict """
-    return dict((k, v[0]) for k, v in urlparse.parse_qs(query_string).iteritems())
+class AccessDeniedMiddleware(object):
+    def __init__(self, url_pattern, wsgi_app):
+        self.url_pattern = url_pattern
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        if re.match(self.url_pattern, environ['PATH_INFO']):
+            start_response('403 Access Denied', [])
+            return []
+        else:
+            return self.wsgi_app(environ, start_response)
 
 
 class KlausFormatter(HtmlFormatter):
@@ -39,15 +38,9 @@ class KlausFormatter(HtmlFormatter):
             yield tag, line
 
 
-def pygmentize(code, filename=None, language=None):
-
-    if markdown and any(filter(lambda ext: filename.endswith(ext), ['.md', '.mkdown'])):
-        return markdown(code)
-
-    # if rst and any(filter(lambda ext: filename.endswith(ext), ['.rst', '.rest'])):
-    #     settings = {'initial_header_level': 1, 'doctitle_xform': 0 }
-    #     parts = rst(code, writer_name='html', settings_overrides=settings)
-    #     return parts['body']
+def pygmentize(code, filename=None, language=None, render_markup=True):
+    if render_markup and markup.can_render(filename):
+        return markup.render(filename, code)
 
     if language:
         lexer = get_lexer_by_name(language)
@@ -62,6 +55,7 @@ def pygmentize(code, filename=None, language=None):
 
 def timesince(when, now=time.time):
     """ Returns the difference between `when` and `now` in human readable form. """
+    # TODO: rewrite this mess
     delta = now() - when
     result = []
     break_next = False
@@ -102,11 +96,8 @@ def timesince(when, now=time.time):
                      for n, unit in result[:2])
 
 
-def guess_is_binary(data):
-    if isinstance(data, basestring):
-        return '\0' in data
-    else:
-        return any(map(guess_is_binary, data))
+def guess_is_binary(dulwich_blob):
+    return any('\0' in chunk for chunk in dulwich_blob.chunked)
 
 
 def guess_is_image(filename):
@@ -170,3 +161,33 @@ def subpaths(path):
     for part in path.split('/'):
         seen.append(part)
         yield part, '/'.join(seen)
+
+
+def shorten_message(msg):
+    return msg.split('\n')[0]
+
+
+def get_mimetype_and_encoding(blob, filename):
+    mime, encoding = mimetypes.guess_type(filename)
+    if mime and mime.startswith('text/'):
+        mime = 'text/plain'
+    return mime, encoding
+
+
+try:
+    from subprocess import check_output
+except ImportError:
+    # Python < 2.7 fallback, stolen from the 2.7 stdlib
+    def check_output(*popenargs, **kwargs):
+        from subprocess import Popen, PIPE, CalledProcessError
+        if 'stdout' in kwargs:
+            raise ValueError('stdout argument not allowed, it will be overridden.')
+        process = Popen(stdout=PIPE, *popenargs, **kwargs)
+        output, unused_err = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            cmd = kwargs.get("args")
+            if cmd is None:
+                cmd = popenargs[0]
+            raise CalledProcessError(retcode, cmd, output=output)
+        return output

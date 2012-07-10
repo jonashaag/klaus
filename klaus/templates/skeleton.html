@@ -1,12 +1,12 @@
 <!doctype html>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-<link rel="stylesheet" href="{{ environ.SCRIPT_NAME }}static/pygments.css">
-<link rel="stylesheet" href="{{ environ.SCRIPT_NAME }}static/klaus.css">
-<script src={{ environ.SCRIPT_NAME }}static/line-highlighter.js></script>
+<link rel="stylesheet" href={{ url_for('static', filename='pygments.css') }}>
+<link rel="stylesheet" href={{ url_for('static', filename='klaus.css') }}>
+<script src={{ url_for('static', filename='line-highlighter.js') }}></script>
 
 <header>
-  <a href={{ environ.SCRIPT_NAME }}>
-    {{ environ.HTTP_HOST ~ environ.SCRIPT_NAME.rstrip('/') }}
+  <a href={{ url_for('repo_list') }}>
+    {{ SITE_TITLE }}
   </a>
   <span class=breadcrumbs>{% block breadcrumbs %}{% endblock %}</span>
   {% block extra_header %}{% endblock %}
@@ -17,6 +17,6 @@
 </div>
 
 <footer>
-  powered by <a href="https://github.com/jonashaag/klaus">klaus</a>{{ KLAUS_VERSION }},
+  powered by <a href="https://github.com/jonashaag/klaus">klaus</a> {{ KLAUS_VERSION }},
   a simple Git viewer by Jonas Haag
 </footer>

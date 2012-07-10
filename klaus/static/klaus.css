@@ -31,34 +31,35 @@ header .slash { margin: 0 -3px; }
   top: 5px;
   right: 4px;
   font-size: 90%;
+  background-color: #fefefe;
 }
 .branch-selector > * {
   background-color: #fcfcfc;
   position: relative;
 }
 .branch-selector span {
-  z-index: 2;
   border: 1px solid #f1f1f1;
-  padding: 3px 5px;
+  padding: 4px 5px;
   float: right;
 }
 .branch-selector span:after { content: "☟"; margin-left: 5px; }
 .branch-selector span:hover { background-color: #fefefe; cursor: pointer; }
 .branch-selector ul {
   z-index: 1;
-  top: -1px;
   clear: both;
-  border: 1px solid #ccc;
   display: none;
+  margin: 0;
 }
 .branch-selector li a {
   display: block;
-  padding: 5px;
+  padding: 4px 5px;
   border-bottom: 1px solid #f1f1f1;
 }
+.branch-selector li:first-child a { border-top: 1px solid #f1f1f1; }
 .branch-selector li a:hover { background-color: #fefefe; }
-.branch-selector li:last-child a { border: 0; padding-bottom: 4px; }
-.branch-selector:hover span { border-color: #ccc; border-bottom-color: #f1f1f1; }
+.branch-selector li:last-child a { border: 0; }
+.branch-selector:hover { border: 1px solid #ccc; }
+.branch-selector:hover span { border: 0; background-color: inherit; }
 .branch-selector:hover ul { display: block; }
 
 /* Footer */
@@ -191,10 +192,13 @@ a.commit { color: black !important; }
 }
 .diff .filename del { color: #999; }
 .diff .filename:before { margin-right: 0; opacity: 0.3; }
-.diff table {
+.diff table, .diff .binarydiff {
   border: 1px solid #e0e0e0;
   background-color: #fdfdfd;
   width: 100%;
+}
+.diff .binarydiff {
+  padding: 7px 10px;
 }
 .diff td {
   padding: 0;

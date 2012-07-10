@@ -3,17 +3,28 @@
 
 {% include 'tree.inc.html' %}
 
+{% set raw_url = url_for('raw', repo=repo.name, commit_id=commit_id, path=path) %}
+
 <div class=blobview>
   <h2>
-    {{ filename|u }}
+    {{ filename|force_unicode }}
     <span>
-      @<a href="{{ build('commit') }}">{{ commit_id|shorten_sha1 }}</a>
-      (<a href="{{ raw_url }}">raw</a>
-      &middot; <a href="{{ build('history', path=path) }}">history</a>)
+      @<a href="{{ url_for('commit', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_sha1 }}</a>
+      &mdash;
+      {% if is_markup %}
+        {% if render_markup %}
+          <a href="?markup">view markup</a>
+        {% else %}
+          <a href="?">view rendered</a>
+        {% endif %}
+        &middot;
+      {% endif %}
+      <a href="{{ raw_url }}">raw</a>
+      &middot; <a href="{{ url_for('history', repo=repo.name, commit_id=commit_id, path=path) }}">history</a>
     </span>
   </h2>
-  {% if blob.chunked|is_binary %}
-    {% if filename|is_image %}
+  {% if blob|guess_is_binary %}
+    {% if filename|guess_is_image %}
       <a href="{{ raw_url }}"><img src="{{ raw_url }}"></a>
     {% else %}
       <div class=binary-warning>(Binary data not shown)</div>
@@ -22,8 +33,8 @@
     {% if too_large %}
       <div class=too-large-warning>(Large file not shown)</div>
     {% else %}
-      {% autoescape off %}
-        {{ blob.data|u|pygmentize(filename=filename) }}
+      {% autoescape false %}
+        {{ blob.data|force_unicode|pygmentize(filename=filename, render_markup=render_markup) }}
       {% endautoescape %}
     {% endif %}
   {% endif %}
