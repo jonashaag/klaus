@@ -15,6 +15,13 @@ def install_data_files_hack():
 
 install_data_files_hack()
 
+requires = ['flask', 'pygments', 'dulwich', 'httpauth']
+
+try:
+    import argparse  # not available for Python 2.6
+except ImportError:
+    requires.append('argparse')
+
 
 setup(
     name='klaus',
@@ -40,6 +47,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
     ],
-    requires=map(str.strip, open('requirements.txt').readlines()),
+    install_requires=requires,
 )
 
