@@ -175,7 +175,7 @@ def get_mimetype_and_encoding(blob, filename):
 
 
 try:
-    from subprocess import check_output
+    from subprocess import check_output, CalledProcessError
 except ImportError:
     # Python < 2.7 fallback, stolen from the 2.7 stdlib
     def check_output(*popenargs, **kwargs):
