@@ -91,7 +91,7 @@ class FancyRepo(dulwich.repo.Repo):
         sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
         return [self[sha1] for sha1 in sha1_sums.strip().split('\n')]
 
-    def get_tree(self, commit, path, noblobs=False):
+    def get_tree(self, commit, path):
         """ Returns the Git tree object for `path` at `commit`. """
         tree = self[commit.tree]
         if path:

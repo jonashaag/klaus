@@ -1,11 +1,9 @@
 import os
-from functools import partial, wraps
-
-import dulwich.web
-from jinja2 import StrictUndefined
-from flask import Flask
+import subprocess
+import jinja2
+import flask
 import httpauth
-
+import dulwich.web
 from klaus import views, utils
 from klaus.repo import FancyRepo
 
@@ -14,14 +12,14 @@ KLAUS_ROOT = os.path.dirname(__file__)
 
 try:
     KLAUS_VERSION = utils.check_output(['git', 'log', '--format=%h', '-n', '1'])
-except utils.CalledProcessError:
+except subprocess.CalledProcessError:
     KLAUS_VERSION = '0.2'
 
 
-class Klaus(Flask):
+class Klaus(flask.Flask):
     jinja_options = {
         'extensions': ['jinja2.ext.autoescape', 'jinja2.ext.with_'],
-        'undefined': StrictUndefined
+        'undefined': jinja2.StrictUndefined
     }
 
     def __init__(self, repos, site_title, use_smarthttp):
@@ -30,7 +28,7 @@ class Klaus(Flask):
         self.site_title = site_title
         self.use_smarthttp = use_smarthttp
 
-        Flask.__init__(self, __name__)
+        flask.Flask.__init__(self, __name__)
 
         self.setup_routes()
 
@@ -66,10 +64,7 @@ class Klaus(Flask):
             ('history',     '/<repo>/tree/<commit_id>/'),
             ('history',     '/<repo>/tree/<commit_id>/<path:path>'),
         ]:
-            view_func = getattr(views, endpoint)
-            bound_view_func = wraps(view_func)(partial(view_func, self))
-            self.add_url_rule(rule, view_func=bound_view_func)
-
+            self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
 
 def make_app(repos, site_title, use_smarthttp=False, htdigest_file=None):

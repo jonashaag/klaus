@@ -1,7 +1,7 @@
 import os
 import stat
 
-from flask import request, render_template
+from flask import request, render_template, current_app
 from flask.views import View
 
 from werkzeug.wrappers import Response
@@ -11,15 +11,15 @@ import markup
 
 from klaus.utils import subpaths, get_mimetype_and_encoding
 
-
-def repo_list(app):
+def repo_list():
     """Shows a list of all repos and can be sorted by last update. """
     if 'by-last-update' in request.args:
-        repos = sorted(app.repos, key=lambda repo: repo.get_last_updated_at(),
-                       reverse=True)
+        sort_key = lambda repo: repo.get_last_updated_at()
+        reverse = True
     else:
-        repos = sorted(app.repos, key=lambda repo: repo.name)
-
+        sort_key = lambda repo: repo.name
+        reverse = False
+    repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
 
@@ -29,14 +29,14 @@ class BaseRepoView(View):
         self.template_name = template_name
         self.context = {}
 
-    def dispatch_request(self, app, repo, commit_id, path=''):
-        self.make_context(app, repo, commit_id, path)
+    def dispatch_request(self, repo, commit_id, path=''):
+        self.make_context(repo, commit_id, path)
         return self.get_response()
 
     def get_response(self):
         return render_template(self.template_name, **self.context)
 
-    def make_context(self, app, repo, commit_id, path):
+    def make_context(self, repo, commit_id, path):
         try:
             repo = app.repo_map[repo]
             commit, isbranch = repo.get_branch_or_commit(commit_id)
@@ -51,7 +51,7 @@ class BaseRepoView(View):
             'branch': commit_id if isbranch else 'master',
             'branches': repo.get_branch_names(exclude=[commit_id]),
             'path': path,
-            'subpaths': subpaths(path) if path else None
+            'subpaths': subpaths(path) if path else None,
         }
 
 
