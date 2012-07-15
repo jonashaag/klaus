@@ -23,8 +23,8 @@
       &middot; <a href="{{ url_for('history', repo=repo.name, commit_id=commit_id, path=path) }}">history</a>
     </span>
   </h2>
-  {% if blob|guess_is_binary %}
-    {% if filename|guess_is_image %}
+  {% if is_binary %}
+    {% if is_image %}
       <a href="{{ raw_url }}"><img src="{{ raw_url }}"></a>
     {% else %}
       <div class=binary-warning>(Binary data not shown)</div>
@@ -34,7 +34,11 @@
       <div class=too-large-warning>(Large file not shown)</div>
     {% else %}
       {% autoescape false %}
-        {{ blob.data|force_unicode|pygmentize(filename=filename, render_markup=render_markup) }}
+        {% if render_markup %}
+          <div class=markup>{{ rendered_code }}</div>
+        {% else %}
+          {{ rendered_code }}
+        {% endif %}
       {% endautoescape %}
     {% endif %}
   {% endif %}

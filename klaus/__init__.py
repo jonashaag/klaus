@@ -40,9 +40,6 @@ class Klaus(flask.Flask):
             'timesince',
             'shorten_sha1',
             'shorten_message',
-            'pygmentize',
-            'guess_is_binary',
-            'guess_is_image',
             'extract_author_name',
         ]:
             env.filters[func] = getattr(utils, func)
