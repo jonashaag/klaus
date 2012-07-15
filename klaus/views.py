@@ -30,7 +30,7 @@ class BaseRepoView(View):
         self.template_name = template_name
         self.context = {}
 
-    def dispatch_request(self, repo, commit_id, path=''):
+    def dispatch_request(self, repo, commit_id=None, path=''):
         self.make_context(repo, commit_id, path)
         return self.get_response()
 
@@ -39,7 +39,9 @@ class BaseRepoView(View):
 
     def make_context(self, repo, commit_id, path):
         try:
-            repo = app.repo_map[repo]
+            repo = current_app.repo_map[repo]
+            if commit_id is None:
+                commit_id = repo.get_default_branch()
             commit, isbranch = repo.get_branch_or_commit(commit_id)
         except KeyError:
             raise NotFound

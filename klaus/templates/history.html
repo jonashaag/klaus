@@ -43,10 +43,9 @@
       <span>
         @<a href="{{ url_for(view, repo=repo.name, commit_id=branch) }}">{{ branch }}</a>
       </span>
-      {#{% if SMARTHTTP %}#}
-          {#<code> git clone {{ environ['wsgi.url_scheme'] ~ '://' ~ environ.HTTP_HOST#}
-                              {#~ environ.SCRIPT_NAME ~ repo.name ~ '/' }}</code>#}
-      {#{% endif %}#}
+      {% if USE_SMARTHTTP %}
+          <code>git clone {{ url_for('history', repo=repo.name, _external=True) }}</code>
+      {% endif %}
     </h2>
 
     {{ pagination() }}
