@@ -7,9 +7,10 @@ from flask.views import View
 from werkzeug.wrappers import Response
 from werkzeug.exceptions import NotFound
 
-import markup
+from klaus import markup
+from klaus.utils import subpaths, get_mimetype_and_encoding, pygmentize, \
+                        force_unicode, guess_is_binary, guess_is_image
 
-from klaus.utils import subpaths, get_mimetype_and_encoding
 
 def repo_list():
     """Shows a list of all repos and can be sorted by last update. """
@@ -117,17 +118,21 @@ class TreeView(BaseRepoView):
 class BlobView(TreeView):
     def make_context(self, *args):
         super(BlobView, self).make_context(*args)
-
         blob = self.context['repo'].get_tree(self.context['commit'],
                                              self.context['path'])
         filename = os.path.basename(self.context['path'])
+        render_markup = 'markup' not in request.args
+        rendered_code = pygmentize(force_unicode(blob.data), filename, render_markup)
 
         self.context.update({
             'blob': blob,
             'filename': filename,
             'too_large': sum(map(len, blob.chunked)) > 100*1024,
             'is_markup': markup.can_render(filename),
-            'render_markup': 'markup' not in request.args,
+            'render_markup': render_markup,
+            'rendered_code': rendered_code,
+            'is_binary': guess_is_binary(blob),
+            'is_image': guess_is_image(filename),
         })
 
     def get_directory(self):
