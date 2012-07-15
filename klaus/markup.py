@@ -26,10 +26,7 @@ except ImportError:
 
 
 def get_renderer(filename):
-
-    global LANGUAGES
     _, ext = os.path.splitext(filename)
-
     for extensions, renderer in LANGUAGES:
         if ext in extensions:
             return renderer

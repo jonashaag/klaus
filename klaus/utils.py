@@ -5,8 +5,7 @@ import time
 import mimetypes
 
 from pygments import highlight
-from pygments.lexers import get_lexer_for_filename, get_lexer_by_name, \
-                            guess_lexer, ClassNotFound
+from pygments.lexers import get_lexer_for_filename, guess_lexer, ClassNotFound
 from pygments.formatters import HtmlFormatter
 
 from klaus import markup
@@ -38,17 +37,14 @@ class KlausFormatter(HtmlFormatter):
             yield tag, line
 
 
-def pygmentize(code, filename=None, language=None, render_markup=True):
+def pygmentize(code, filename=None, render_markup=True):
     if render_markup and markup.can_render(filename):
         return markup.render(filename, code)
 
-    if language:
-        lexer = get_lexer_by_name(language)
-    else:
-        try:
-            lexer = get_lexer_for_filename(filename)
-        except ClassNotFound:
-            lexer = guess_lexer(code)
+    try:
+        lexer = get_lexer_for_filename(filename)
+    except ClassNotFound:
+        lexer = guess_lexer(code)
 
     return highlight(code, lexer, KlausFormatter())
 
@@ -101,7 +97,7 @@ def guess_is_binary(dulwich_blob):
 
 
 def guess_is_image(filename):
-    mime, encoding = mimetypes.guess_type(filename)
+    mime, _ = mimetypes.guess_type(filename)
     if mime is None:
         return False
     return mime.startswith('image/')
@@ -175,7 +171,7 @@ def get_mimetype_and_encoding(blob, filename):
 
 
 try:
-    from subprocess import check_output, CalledProcessError
+    from subprocess import check_output
 except ImportError:
     # Python < 2.7 fallback, stolen from the 2.7 stdlib
     def check_output(*popenargs, **kwargs):
@@ -183,7 +179,7 @@ except ImportError:
         if 'stdout' in kwargs:
             raise ValueError('stdout argument not allowed, it will be overridden.')
         process = Popen(stdout=PIPE, *popenargs, **kwargs)
-        output, unused_err = process.communicate()
+        output, _ = process.communicate()
         retcode = process.poll()
         if retcode:
             cmd = kwargs.get("args")
