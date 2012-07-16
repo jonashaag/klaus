@@ -36,6 +36,9 @@ class FancyRepo(dulwich.repo.Repo):
         return self['refs/heads/'+name]
 
     def get_default_branch(self):
+        """
+        Tries to guess the default repo branch name.
+        """
         for candidate in ['master', 'trunk', 'default', 'gh-pages']:
             try:
                 self.get_branch(candidate)

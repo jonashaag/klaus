@@ -25,6 +25,18 @@ def repo_list():
 
 
 class BaseRepoView(View):
+    """
+    Base for all views with a repo context.
+
+    The arguments `repo`, `commit_id`, `path` (see `dispatch_request`) define
+    the repository, branch/commit and directory/file context, respectively --
+    that is, they specify what (and in what state) is being displayed in all the
+    derived views.
+
+    For example: The 'history' view is the `git log` equivalent, i.e. if `path`
+    is "/foo/bar", only commits related to "/foo/bar" are displayed, and if
+    `commit_id` is "master", the history of the "master" branch is displayed.
+    """
     def __init__(self, view_name, template_name=None):
         self.view_name = view_name
         self.template_name = template_name
@@ -58,33 +70,13 @@ class BaseRepoView(View):
         }
 
 
-class TreeView(BaseRepoView):
+class TreeViewMixin(object):
     """
-    Shows a list of files/directories for the current path as well as all
-    commit history for that path in a paginated form.
+    Implements the logic required for displaying the current directory in the sidebar
     """
     def make_context(self, *args):
-        super(TreeView, self).make_context(*args)
-
+        super(TreeViewMixin, self).make_context(*args)
         self.context['tree'] = self.listdir()
-
-        try:
-            page = int(request.args.get('page'))
-        except (TypeError, ValueError):
-            page = 0
-
-        self.context['page'] = page
-
-        if page:
-            self.context['history_length'] = 30
-            self.context['skip'] = (self.context['page']-1) * 30 + 10
-            if page > 7:
-                self.context['previous_pages'] = [0, 1, 2, None] + range(page)[-3:]
-            else:
-                self.context['previous_pages'] = xrange(page)
-        else:
-            self.context['history_length'] = 10
-            self.context['skip'] = 0
 
     def listdir(self):
         """
@@ -117,31 +109,62 @@ class TreeView(BaseRepoView):
         return self.context['path']
 
 
-class BlobView(TreeView):
+class HistoryView(TreeViewMixin, BaseRepoView):
+    """ Show commits of a branch + path, just like `git log`. With pagination. """
+    def make_context(self, *args):
+        super(HistoryView, self).make_context(*args)
+
+        try:
+            page = int(request.args.get('page'))
+        except (TypeError, ValueError):
+            page = 0
+
+        self.context['page'] = page
+
+        if page:
+            self.context['history_length'] = 30
+            self.context['skip'] = (self.context['page']-1) * 30 + 10
+            if page > 7:
+                self.context['previous_pages'] = [0, 1, 2, None] + range(page)[-3:]
+            else:
+                self.context['previous_pages'] = xrange(page)
+        else:
+            self.context['history_length'] = 10
+            self.context['skip'] = 0
+
+
+class BlobViewMixin(object):
+    def make_context(self, *args):
+        super(BlobViewMixin, self).make_context(*args)
+        self.context['filename'] = os.path.basename(self.context['path'])
+        self.context['blob'] = self.context['repo'].get_tree(self.context['commit'],
+                                                             self.context['path'])
+
+
+class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
+    """ Shows a file rendered using ``pygmentize`` """
     def make_context(self, *args):
         super(BlobView, self).make_context(*args)
-        blob = self.context['repo'].get_tree(self.context['commit'],
-                                             self.context['path'])
-        filename = os.path.basename(self.context['path'])
         render_markup = 'markup' not in request.args
-        rendered_code = pygmentize(force_unicode(blob.data), filename, render_markup)
-
+        rendered_code = pygmentize(
+            force_unicode(self.context['blob'].data),
+            self.context['filename'],
+            render_markup
+        )
         self.context.update({
-            'blob': blob,
-            'filename': filename,
-            'too_large': sum(map(len, blob.chunked)) > 100*1024,
-            'is_markup': markup.can_render(filename),
+            'too_large': sum(map(len, self.context['blob'].chunked)) > 100*1024,
+            'is_markup': markup.can_render(self.context['filename']),
             'render_markup': render_markup,
             'rendered_code': rendered_code,
-            'is_binary': guess_is_binary(blob),
-            'is_image': guess_is_image(filename),
+            'is_binary': guess_is_binary(self.context['blob']),
+            'is_image': guess_is_image(self.context['filename']),
         })
 
     def get_directory(self):
         return os.path.split(self.context['path'])[0]
 
 
-class RawView(BlobView):
+class RawView(BlobViewMixin, BaseRepoView):
     """
     Shows a single file in raw for (as if it were a normal filesystem file
     served through a static file server)
@@ -165,7 +188,7 @@ class RawView(BlobView):
 
 
 #                                     TODO v
-history = TreeView.as_view('history', 'history', 'history.html')
+history = HistoryView.as_view('history', 'history', 'history.html')
 commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
 blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
 raw = RawView.as_view('raw', 'raw')
