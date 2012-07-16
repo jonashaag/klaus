@@ -34,7 +34,7 @@
       <div class=too-large-warning>(Large file not shown)</div>
     {% else %}
       {% autoescape false %}
-        {% if render_markup %}
+        {% if is_markup and render_markup %}
           <div class=markup>{{ rendered_code }}</div>
         {% else %}
           {{ rendered_code }}

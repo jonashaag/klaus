@@ -3,6 +3,7 @@
 
 {% include 'tree.inc.html' %}
 
+{# TODO: move logic into view #}
 {% set history = repo.history(branch, path.strip('/'), history_length+1, skip) %}
 {% set has_more_commits = history|length == history_length+1 %}
 
