@@ -25,6 +25,10 @@ class KlausFormatter(HtmlFormatter):
 
 
 def pygmentize(code, filename=None, render_markup=True):
+    """
+    Renders code using Pygments, markup (markdown, rst, ...) using the
+    corresponding renderer, if available.
+    """
     if render_markup and markup.can_render(filename):
         return markup.render(filename, code)
 
