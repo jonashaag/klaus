@@ -11,19 +11,6 @@ from pygments.formatters import HtmlFormatter
 from klaus import markup
 
 
-class AccessDeniedMiddleware(object):
-    def __init__(self, url_pattern, wsgi_app):
-        self.url_pattern = url_pattern
-        self.wsgi_app = wsgi_app
-
-    def __call__(self, environ, start_response):
-        if re.match(self.url_pattern, environ['PATH_INFO']):
-            start_response('403 Access Denied', [])
-            return []
-        else:
-            return self.wsgi_app(environ, start_response)
-
-
 class KlausFormatter(HtmlFormatter):
     def __init__(self):
         HtmlFormatter.__init__(self, linenos='table', lineanchors='L',

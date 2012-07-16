@@ -76,19 +76,22 @@ def make_app(repos, site_title, use_smarthttp=False, htdigest_file=None):
         dulwich_backend = dulwich.server.DictBackend(
             dict(('/'+repo.name, repo) for repo in app.repos)
         )
-        app.wsgi_app = dulwich.web.make_wsgi_chain(
+        dulwich_wrapped_app = dulwich.web.make_wsgi_chain(
             backend=dulwich_backend,
             fallback_app=app.wsgi_app,
         )
 
-        PATTERN = '^/[^/]+/(info/refs|git-.+-pack)$'
+        PATTERN = r'^/[^/]+/(info/refs\?service=git-receive-pack|git-receive-pack)$'
         if htdigest_file:
             app.wsgi_app = httpauth.DigestFileHttpAuthMiddleware(
                 htdigest_file,
-                wsgi_app=app.wsgi_app,
+                wsgi_app=dulwich_wrapped_app,
                 routes=[PATTERN],
             )
         else:
-            app.wsgi_app = utils.AccessDeniedMiddleware(PATTERN, app.wsgi_app)
+            app.wsgi_app = httpauth.AlwaysFailingAuthMiddleware(
+                wsgi_app=dulwich_wrapped_app,
+                routes=[PATTERN],
+            )
 
     return app
