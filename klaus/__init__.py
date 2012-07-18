@@ -75,6 +75,7 @@ def make_app(repos, sitename, use_smarthttp=False, htdigest_file=None):
         sitename,
         use_smarthttp,
     )
+    app.wsgi_app = utils.SubUri(app.wsgi_app)
 
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
