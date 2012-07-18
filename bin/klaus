@@ -20,9 +20,9 @@ def git_repository(path):
 
 def make_parser():
     parser = argparse.ArgumentParser(epilog="Gemüse kaufen!")
-    parser.add_argument('--host',  help="default: 127.0.0.1", default='127.0.0.1')
-    parser.add_argument('--port',  help="default: 8080", default=8080, type=int)
-    parser.add_argument('--site-title', help="Site title showed in header. default: your hostname")
+    parser.add_argument('--host',     help="default: 127.0.0.1", default='127.0.0.1')
+    parser.add_argument('--port',     help="default: 8080", default=8080, type=int)
+    parser.add_argument('--sitename', help="site name showed in header. default: your hostname")
 
     parser.add_argument('repos', help='repositories to serve',
                         metavar='DIR', nargs='*', type=git_repository)
@@ -42,11 +42,11 @@ def make_parser():
 def main():
     args = make_parser().parse_args()
 
-    if not args.site_title:
-        args.site_title = '%s:%d' % (args.host, args.port)
+    if not args.sitename:
+        args.sitename = '%s:%d' % (args.host, args.port)
 
     app = klaus.make_app(args.repos,
-                         args.site_title or args.host,
+                         args.sitename or args.host,
                          args.smarthttp,
                          args.htdigest)
 
