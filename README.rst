@@ -29,11 +29,11 @@ Using the ``klaus`` script
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 To run klaus using the default options::
 
-   $ klaus [repo1 [repo2 ...]]
+   klaus [repo1 [repo2 ...]]
 
 For more options, see::
 
-   $ klaus --help
+   klaus --help
 
 
 Using a real server
