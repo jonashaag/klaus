@@ -11,6 +11,41 @@ from pygments.formatters import HtmlFormatter
 from klaus import markup
 
 
+class SubUri(object):
+    """
+    WSGI middleware that tweaks the WSGI environ so that it's possible to serve
+    the wrapped app (klaus) under a sub-URL and/or to use a different HTTP
+    scheme (http:// vs. https://) for proxy communication.
+
+    This is done by making your proxy pass appropriate HTTP_X_SCRIPT_NAME and
+    HTTP_X_SCHEME headers.
+
+    For instance if you have klaus mounted under /git/ and your site uses SSL
+    (but your proxy doesn't), make it pass ::
+
+        X-Script-Name = '/git'
+        X-Scheme = 'https'
+
+    Snippet stolen from http://flask.pocoo.org/snippets/35/
+    """
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        script_name = environ.get('HTTP_X_SCRIPT_NAME', '')
+        if script_name:
+            environ['SCRIPT_NAME'] = script_name.rstrip('/')
+
+        if script_name and environ['PATH_INFO'].startswith(script_name):
+            # strip `script_name` from PATH_INFO
+            environ['PATH_INFO'] = environ['PATH_INFO'][len(script_name):]
+
+        if 'HTTP_X_SCHEME' in environ:
+            environ['wsgi.url_scheme'] = environ['HTTP_X_SCHEME']
+
+        return self.app(environ, start_response)
+
+
 class KlausFormatter(HtmlFormatter):
     def __init__(self):
         HtmlFormatter.__init__(self, linenos='table', lineanchors='L',
