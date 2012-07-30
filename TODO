@@ -1,5 +1,13 @@
+refactor
+--------
+* serve under sub-uri - posativ
+
+
 definitely
 ----------
+* who is using klaus, related projects
+* commit: summary before diffs
+* tests
 * tag selector
 
 maybe
@@ -7,3 +15,5 @@ maybe
 * file blame
 * search function
 * (p)ajax
+* pygments css cmd flag
+* font

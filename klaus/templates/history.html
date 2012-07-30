@@ -3,6 +3,7 @@
 
 {% include 'tree.inc.html' %}
 
+{# TODO: move logic into view #}
 {% set history = repo.history(branch, path.strip('/'), history_length+1, skip) %}
 {% set has_more_commits = history|length == history_length+1 %}
 
@@ -41,8 +42,11 @@
         Commit History
       {% endif %}
       <span>
-        @<a href="{{ build_url(commit_id=branch) }}">{{ branch }}</a>
+        @<a href="{{ url_for(view, repo=repo.name, commit_id=branch) }}">{{ branch }}</a>
       </span>
+      {% if USE_SMARTHTTP %}
+          <code>git clone {{ url_for('history', repo=repo.name, _external=True) }}</code>
+      {% endif %}
     </h2>
 
     {{ pagination() }}
@@ -51,12 +55,12 @@
     {% for commit in history %}
     {% if not loop.last or history|length < history_length %}
       <li>
-        <a class=commit href="{{ build_url('view_commit', commit_id=commit.id) }}">
+        <a class=commit href="{{ url_for('commit', repo=repo.name, commit_id=commit.id) }}">
           <span class=line1>
-            <span>{{ commit.message|u|shorten_message }}</span>
+            <span>{{ commit.message|force_unicode|shorten_message }}</span>
           </span>
           <span class=line2>
-            <span>{{ commit.author|u|shorten_author }}</span>
+            <span>{{ commit.author|force_unicode|extract_author_name }}</span>
             <span>{{ commit.commit_time|timesince }} ago</span>
           </span>
           <span class=clearfloat></span>

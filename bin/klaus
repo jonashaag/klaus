@@ -1,0 +1,57 @@
+#!/usr/bin/env python2
+# coding: utf-8
+
+import os
+import argparse
+from dulwich.errors import NotGitRepository
+from dulwich.repo import Repo
+import klaus
+
+
+def git_repository(path):
+    if not os.path.exists(path):
+        raise argparse.ArgumentTypeError('%r: No such directory' % path)
+    try:
+        Repo(path)
+    except NotGitRepository:
+        raise argparse.ArgumentTypeError('%r: Not a Git repository' % path)
+    return path
+
+
+def make_parser():
+    parser = argparse.ArgumentParser(epilog="Gemüse kaufen!")
+    parser.add_argument('--host',     help="default: 127.0.0.1", default='127.0.0.1')
+    parser.add_argument('--port',     help="default: 8080", default=8080, type=int)
+    parser.add_argument('--sitename', help="site name showed in header. default: your hostname")
+
+    parser.add_argument('repos', help='repositories to serve',
+                        metavar='DIR', nargs='*', type=git_repository)
+
+    grp = parser.add_argument_group("Git Smart HTTP")
+    grp.add_argument('--smarthttp', help="enable Git Smart HTTP serving",
+                     action='store_true')
+    grp.add_argument('--htdigest', help="use credentials from FILE",
+                     metavar="FILE", type=argparse.FileType('r'))
+
+    grp = parser.add_argument_group("Development flags", "DO NOT USE IN PRODUCTION!")
+    grp.add_argument('--debug', help="Enable Werkzeug debugger and reloader", action='store_true')
+
+    return parser
+
+
+def main():
+    args = make_parser().parse_args()
+
+    if not args.sitename:
+        args.sitename = '%s:%d' % (args.host, args.port)
+
+    app = klaus.make_app(args.repos,
+                         args.sitename or args.host,
+                         args.smarthttp,
+                         args.htdigest)
+
+    app.run(args.host, args.port, args.debug)
+
+
+if __name__ == '__main__':
+    main()

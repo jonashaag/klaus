@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block extra_header %}{% endblock %} {# no branch selector on commits #}
+
+{% block content %}
+
+<div class=full-commit>
+
+  <div class=commit>
+    <span class=line1>
+      <span>{{ commit.message|force_unicode }}</span>
+    </span>
+    <span class=line2>
+      <span>{{ commit.author|force_unicode|extract_author_name }}</span>
+      <span>{{ commit.commit_time|timesince }} ago</span>
+    </span>
+    <span class=clearfloat></span>
+  </div>
+
+  <div class=diff>
+    {% for file in repo.commit_diff(commit) %}
+
+      {% set fileno = loop.index0 %}
+
+      <div class=filename>
+        {# TODO dulwich doesn't do rename recognition
+        {% if file.old_filename != file.new_filename %}
+          {{ file.old_filename }} →
+        {% endif %}#}
+          {% if file.new_filename == '/dev/null' %}
+            <del>{{ file.old_filename|force_unicode }}</del>
+          {% else %}
+            <a href="{{ url_for('blob', repo=repo.name, commit_id=commit_id, path=file.new_filename) }}">
+              {{ file.new_filename|force_unicode }}
+            </a>
+          {% endif %}
+      </div>
+
+      {% if file.chunks %}
+
+        <table>
+          {% for chunk in file.chunks %}
+
+            {%- for line in chunk -%}
+              <tr>
+
+                {#- left column: linenos -#}
+                {%- if line.old_lineno -%}
+                  <td class=linenos><a href="#{{fileno}}-L-{{line.old_lineno}}">{{ line.old_lineno }}</a></td>
+                  {%- if line.new_lineno -%}
+                    <td class=linenos><a href="#{{fileno}}-L-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
+                  {%- else -%}
+                    <td class=linenos></td>
+                  {%- endif -%}
+                {%- else %}
+                  {%- if line.old_lineno -%}
+                    <td class=linenos><a href="#{{fileno}}-R-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
+                  {%- else -%}
+                    <td class=linenos></td>
+                  {%- endif -%}
+                  <td class=linenos><a href="#{{fileno}}-R-{{line.new_lineno}}">{{ line.new_lineno }}</a></td>
+                {% endif %}
+
+                {#- right column: code -#}
+                <td class={{line.action}}>
+                  {#- lineno anchors -#}
+                  {%- if line.old_lineno -%}
+                    <a name="{{fileno}}-L-{{line.old_lineno}}"></a>
+                  {%- else -%}
+                    <a name="{{fileno}}-R-{{line.new_lineno}}"></a>
+                  {%- endif -%}
+
+                  {#- the actual line of code -#}
+                  <span class=line>{% autoescape false %}{{ line.line|force_unicode }}{% endautoescape %}</span>
+                </td>
+
+              </tr>
+            {%- endfor -%} {# lines #}
+
+            {% if not loop.last %}
+              <tr class=sep>
+                <td colspan=3></td>
+              </tr>
+            {% endif %}
+
+          {%- endfor -%} {# chunks #}
+        </table>
+
+      {% else %}
+        <div class=binarydiff>Binary diff not shown</div>
+      {% endif %}
+
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+  highlight_linenos({
+    linksSelector: '.linenos a',
+    getLineFromAnchor: function(anchor) {
+      /* If we got the first (old_lineno) anchor, the span we're looking for is
+         the second-next sibling, otherwise it's the next. */
+      if (anchor.nextSibling instanceof HTMLSpanElement)
+        return anchor.nextSibling;
+      else
+        return anchor.nextSibling.nextSibling;
+    }
+  });
+</script>
+
+{% endblock %}

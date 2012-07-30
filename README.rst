@@ -15,59 +15,35 @@ Demo at http://klausdemo.lophus.org
 .. _img3: https://github.com/jonashaag/klaus/raw/master/assets/blob-view.gif
 
 
-Requirements
-------------
-* Python 2.7
-* Jinja2_
-* Pygments_
-* dulwich_ (>= 0.7.1)
-* argparse (only for Python 2.6)
-* Nano_ (shipped as submodule, do a ``git submodule update --init`` to fetch)
-
-.. _Jinja2: http://jinja.pocoo.org/
-.. _Pygments: http://pygments.org/
-.. _dulwich: http://www.samba.org/~jelmer/dulwich/
-.. _Nano: https://github.com/jonashaag/nano
-
-
 Installation
 ------------
-*The same procedure as every year, James.* ::
+::
 
-   virtualenv your-env
-   source your-env/bin/activate
-
-   git clone https://github.com/jonashaag/klaus
-   cd klaus
-   git submodule update --init
-   pip install -r requirements.txt
+   pip install klaus
 
 
 Usage
 -----
-Using the ``quickstart.py`` script
-..................................
-::
 
-   tools/quickstart --help
-   tools/quickstart.py <host> <port> /path/to/repo1 [../path/to/repo2 [...]]
+Using the ``klaus`` script
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+To run klaus using the default options::
 
-Example::
+   klaus [repo1 [repo2 ...]]
 
-   tools/quickstart.py 127.0.0.1 8080 ../klaus ../nano ../bjoern
+For more options, see::
 
-This will make klaus serve the *klaus*, *nano* and *bjoern* repos at
-``127.0.0.1:8080`` using Python's built-in wsgiref_ server (or, if installed,
-the bjoern_ server).
+   klaus --help
 
-.. _wsgiref: http://docs.python.org/library/wsgiref.html
-.. _bjoern: https://github.com/jonashaag/bjoern
 
 Using a real server
-...................
-The ``klaus.py`` module contains a WSGI ``application`` object. The repo list
-is read from the ``KLAUS_REPOS`` environment variable (space-separated paths).
+^^^^^^^^^^^^^^^^^^^
+The ``klaus`` module contains a ``make_app`` function which returns a WSGI app.
 
-UWSGI example::
+An example WSGI helper script is provided with klaus (see ``klaus/wsgi.py``),
+configuration being read from environment variables. Use it like this (uWSGI example)::
 
-   uwsgi ... -m klaus --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." ...
+   uwsgi -w klaus.wsgi \
+         --env KLAUS_SITE_TITLE="Klaus Demo" \
+         --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." \
+         ...
