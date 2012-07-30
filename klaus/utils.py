@@ -23,8 +23,8 @@ class SubUri(object):
     For instance if you have klaus mounted under /git/ and your site uses SSL
     (but your proxy doesn't), make it pass ::
 
-        HTTP-X-Script-Name = '/git'
-        HTTP-X-Scheme = 'https'
+        X-Script-Name = '/git'
+        X-Scheme = 'https'
 
     Snippet stolen from http://flask.pocoo.org/snippets/35/
     """
