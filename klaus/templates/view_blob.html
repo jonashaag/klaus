@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% include 'tree.inc.html' %}
+
+{% set raw_url = url_for('raw', repo=repo.name, commit_id=commit_id, path=path) %}
+
+<div class=blobview>
+  <h2>
+    {{ filename|force_unicode }}
+    <span>
+      @<a href="{{ url_for('commit', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_sha1 }}</a>
+      &mdash;
+      {% if is_markup %}
+        {% if render_markup %}
+          <a href="?markup">view markup</a>
+        {% else %}
+          <a href="?">view rendered</a>
+        {% endif %}
+        &middot;
+      {% endif %}
+      <a href="{{ raw_url }}">raw</a>
+      &middot; <a href="{{ url_for('history', repo=repo.name, commit_id=commit_id, path=path) }}">history</a>
+    </span>
+  </h2>
+  {% if is_binary %}
+    {% if is_image %}
+      <a href="{{ raw_url }}"><img src="{{ raw_url }}"></a>
+    {% else %}
+      <div class=binary-warning>(Binary data not shown)</div>
+    {% endif %}
+  {% else %}
+    {% if too_large %}
+      <div class=too-large-warning>(Large file not shown)</div>
+    {% else %}
+      {% autoescape false %}
+        {% if is_markup and render_markup %}
+          <div class=markup>{{ rendered_code }}</div>
+        {% else %}
+          {{ rendered_code }}
+        {% endif %}
+      {% endautoescape %}
+    {% endif %}
+  {% endif %}
+</div>
+
+<script>
+  highlight_linenos({
+    linksSelector: '.highlighttable .linenos a',
+    getLineFromAnchor: function(anchor) { return anchor.nextSibling }
+  })
+</script>
+
+{% endblock %}

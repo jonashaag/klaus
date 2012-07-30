@@ -14,8 +14,6 @@ def view_from_url(url):
 
 AHREF_RE = re.compile('href="([\w/][^"]+)"')
 
-BASE_URL = 'http://localhost:8080'
-
 seen = set()
 errors = defaultdict(set)
 durations = defaultdict(list)
@@ -37,7 +35,7 @@ def main():
         if '-v' in sys.argv:
             print 'Requesting %r...' % url
         start = time.time()
-        http_conn.request('GET', BASE_URL + url)
+        http_conn.request('GET', url)
         response = http_conn.getresponse()
         durations[view_from_url(url)].append(time.time() - start)
         status = str(response.status)

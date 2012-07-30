@@ -1,25 +1,26 @@
 import os
-import itertools
 import cStringIO
-import subprocess
 
 import dulwich, dulwich.patch
-from diff import prepare_udiff
 
-def pairwise(iterable):
-    """
-    Yields the items in `iterable` pairwise:
+from klaus.utils import check_output
+from klaus.diff import prepare_udiff
 
-    >>> list(pairwise(['a', 'b', 'c', 'd']))
-    [('a', 'b'), ('b', 'c'), ('c', 'd')]
-    """
-    prev = None
-    for item in iterable:
-        if prev is not None:
-            yield prev, item
-        prev = item
 
-class RepoWrapper(dulwich.repo.Repo):
+class FancyRepo(dulwich.repo.Repo):
+    # TODO: factor out stuff into dulwich
+    @property
+    def name(self):
+        return self.path.rstrip(os.sep).split(os.sep)[-1].replace('.git', '')
+
+    def get_last_updated_at(self):
+        refs = [self[ref_hash] for ref_hash in self.get_refs().itervalues()]
+        refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
+                  reverse=True)
+        if refs:
+            return refs[0].commit_time
+        return None
+
     def get_branch_or_commit(self, id):
         """
         Returns a `(commit_object, is_branch)` tuple for the commit or branch
@@ -35,7 +36,16 @@ class RepoWrapper(dulwich.repo.Repo):
         return self['refs/heads/'+name]
 
     def get_default_branch(self):
-        return self.get_branch('master')
+        """
+        Tries to guess the default repo branch name.
+        """
+        for candidate in ['master', 'trunk', 'default', 'gh-pages']:
+            try:
+                self.get_branch(candidate)
+                return candidate
+            except KeyError:
+                pass
+        return self.get_branch_names()[0]
 
     def get_branch_names(self, exclude=()):
         """ Returns a sorted list of branch names. """
@@ -65,11 +75,12 @@ class RepoWrapper(dulwich.repo.Repo):
 
         Similar to `git log [branch/commit] [--skip skip] [-n max_commits]`.
         """
-    # XXX The pure-Python/dulwich code is very slow compared to `git log`
-    #     at the time of this writing (Oct 2011).
-    #     For instance, `git log .tx` in the Django root directory takes
-    #     about 0.15s on my machine whereas the history() method needs 5s.
-    #     Therefore we use `git log` here unless dulwich gets faster.
+        # XXX The pure-Python/dulwich code is very slow compared to `git log`
+        #     at the time of this writing (mid-2012).
+        #     For instance, `git log .tx` in the Django root directory takes
+        #     about 0.15s on my machine whereas the history() method needs 5s.
+        #     Therefore we use `git log` here until dulwich gets faster.
+        #     For the pure-Python implementation, see the 'purepy-hist' branch.
 
         cmd = ['git', 'log', '--format=%H']
         if skip:
@@ -80,56 +91,10 @@ class RepoWrapper(dulwich.repo.Repo):
         if path:
             cmd.extend(['--', path])
 
-        # sha1_sums = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
-        # Can't use 'check_output' for Python 2.6 compatibility reasons
-        sha1_sums = subprocess.Popen(cmd, cwd=os.path.abspath(self.path),
-                                     stdout=subprocess.PIPE).communicate()[0]
+        sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
         return [self[sha1] for sha1 in sha1_sums.strip().split('\n')]
-    #
-    #     if not isinstance(commit, dulwich.objects.Commit):
-    #         commit, _ = self.get_branch_or_commit(commit)
-    #     commits = self._history(commit)
-    #     path = path.strip('/')
-    #     if path:
-    #         commits = (c1 for c1, c2 in pairwise(commits)
-    #                    if self._path_changed_between(path, c1, c2))
-    #     return list(itertools.islice(commits, skip, skip+max_commits))
 
-    # def _history(self, commit):
-    #     """ Yields all commits that lead to `commit`. """
-    #     if commit is None:
-    #         commit = self.get_default_branch()
-    #     while commit.parents:
-    #         yield commit
-    #         commit = self[commit.parents[0]]
-    #     yield commit
-
-    # def _path_changed_between(self, path, commit1, commit2):
-    #     """
-    #     Returns `True` if `path` changed between `commit1` and `commit2`,
-    #     including the case that the file was added or deleted in `commit2`.
-    #     """
-    #     path, filename = os.path.split(path)
-    #     try:
-    #         blob1 = self.get_tree(commit1, path)
-    #         if not isinstance(blob1, dulwich.objects.Tree):
-    #             return True
-    #         blob1 = blob1[filename]
-    #     except KeyError:
-    #         blob1 = None
-    #     try:
-    #         blob2 = self.get_tree(commit2, path)
-    #         if not isinstance(blob2, dulwich.objects.Tree):
-    #             return True
-    #         blob2 = blob2[filename]
-    #     except KeyError:
-    #         blob2 = None
-    #     if blob1 is None and blob2 is None:
-    #         # file present in neither tree
-    #         return False
-    #     return blob1 != blob2
-
-    def get_tree(self, commit, path, noblobs=False):
+    def get_tree(self, commit, path):
         """ Returns the Git tree object for `path` at `commit`. """
         tree = self[commit.tree]
         if path:
@@ -139,7 +104,7 @@ class RepoWrapper(dulwich.repo.Repo):
         return tree
 
     def commit_diff(self, commit):
-        from klaus import guess_is_binary, force_unicode
+        from klaus.utils import guess_is_binary, force_unicode
 
         if commit.parents:
             parent_tree = self[commit.parents[0]].tree
@@ -149,13 +114,13 @@ class RepoWrapper(dulwich.repo.Repo):
         changes = self.object_store.tree_changes(parent_tree, commit.tree)
         for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in changes:
             try:
-                if newsha and guess_is_binary(self[newsha].chunked) or \
-                   oldsha and guess_is_binary(self[oldsha].chunked):
+                if newsha and guess_is_binary(self[newsha]) or \
+                   oldsha and guess_is_binary(self[oldsha]):
                     yield {
                         'is_binary': True,
                         'old_filename': oldpath or '/dev/null',
                         'new_filename': newpath or '/dev/null',
-                        'chunks': [[{'line' : 'Binary diff not shown'}]]
+                        'chunks': None
                     }
                     continue
             except KeyError:
@@ -179,11 +144,3 @@ class RepoWrapper(dulwich.repo.Repo):
                 }
             else:
                 yield files[0]
-
-
-def Repo(name, path, _cache={}):
-    repo = _cache.get(path)
-    if repo is None:
-        repo = _cache[path] = RepoWrapper(path)
-        repo.name = name
-    return repo
