@@ -1,4 +1,9 @@
 <!doctype html>
+<title>
+  {%- if repo is defined %}
+    {{ path or commit_id | shorten_sha1 ~ " · " ~ repo.name }}
+  {% endif -%}
+</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <link rel="stylesheet" href={{ url_for('static', filename='pygments.css') }}>
 <link rel="stylesheet" href={{ url_for('static', filename='klaus.css') }}>
