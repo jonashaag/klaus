@@ -7,6 +7,8 @@ from flask.views import View
 from werkzeug.wrappers import Response
 from werkzeug.exceptions import NotFound
 
+from dulwich.objects import Blob
+
 from klaus import markup
 from klaus.utils import subpaths, get_mimetype_and_encoding, pygmentize, \
                         force_unicode, guess_is_binary, guess_is_image
@@ -66,8 +68,11 @@ class BaseRepoView(View):
             'branch': commit_id if isbranch else 'master',
             'branches': repo.get_branch_names(exclude=[commit_id]),
             'path': path,
-            'subpaths': subpaths(path) if path else None,
+            'subpaths': list(subpaths(path)) if path else None,
         }
+
+    def get_tree(self, path):
+        return self.context['repo'].get_tree(self.context['commit'], path)
 
 
 class TreeViewMixin(object):
@@ -83,20 +88,19 @@ class TreeViewMixin(object):
         Returns a list of directories and files in the current path of the
         selected commit
         """
-        dirs, files = [], []
-        root = self.get_directory()
         try:
-            tree = self.context['repo'].get_tree(self.context['commit'], root)
+            root = self.get_root_directory()
+            tree = self.get_tree(root)
         except KeyError:
             raise NotFound
 
+        dirs, files = [], []
         for entry in tree.iteritems():
             name, entry = entry.path, entry.in_path(root)
             if entry.mode & stat.S_IFDIR:
                 dirs.append((name.lower(), name, entry.path))
             else:
                 files.append((name.lower(), name, entry.path))
-
         files.sort()
         dirs.sort()
 
@@ -105,8 +109,12 @@ class TreeViewMixin(object):
 
         return {'dirs' : dirs, 'files' : files}
 
-    def get_directory(self):
-        return self.context['path']
+    def get_root_directory(self):
+        root = self.context['path']
+        if isinstance(self.get_tree(root), Blob):
+            # 'path' is a file name
+            root = os.path.split(self.context['path'])[0]
+        return root
 
 
 class HistoryView(TreeViewMixin, BaseRepoView):
@@ -137,8 +145,7 @@ class BlobViewMixin(object):
     def make_context(self, *args):
         super(BlobViewMixin, self).make_context(*args)
         self.context['filename'] = os.path.basename(self.context['path'])
-        self.context['blob'] = self.context['repo'].get_tree(self.context['commit'],
-                                                             self.context['path'])
+        self.context['blob'] = self.get_tree(self.context['path'])
 
 
 class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
@@ -159,9 +166,6 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
             'is_binary': guess_is_binary(self.context['blob']),
             'is_image': guess_is_image(self.context['filename']),
         })
-
-    def get_directory(self):
-        return os.path.split(self.context['path'])[0]
 
 
 class RawView(BlobViewMixin, BaseRepoView):
