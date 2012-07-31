@@ -108,7 +108,7 @@ def make_app(repos, sitename, use_smarthttp=False, htdigest_file=None):
             # .htdigest file given. Use it to read the push-er credentials from.
             app.wsgi_app = httpauth.DigestFileHttpAuthMiddleware(
                 htdigest_file,
-                wsgi_app=dulwich_wrapped_app,
+                wsgi_app=utils.SubUri(dulwich_wrapped_app),
                 routes=[PATTERN],
             )
         else:
@@ -117,7 +117,7 @@ def make_app(repos, sitename, use_smarthttp=False, htdigest_file=None):
             # (see above) we keep asking for authentication (401) instead.
             # Git will print a nice error message after a few tries.
             app.wsgi_app = httpauth.AlwaysFailingAuthMiddleware(
-                wsgi_app=dulwich_wrapped_app,
+                wsgi_app=utils.SubUri(dulwich_wrapped_app),
                 routes=[PATTERN],
             )
 
