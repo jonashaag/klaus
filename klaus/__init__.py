@@ -11,7 +11,7 @@ from klaus.repo import FancyRepo
 KLAUS_ROOT = os.path.dirname(__file__)
 
 try:
-    KLAUS_VERSION = utils.check_output(['git', 'log', '--format=%h', '-n', '1'])
+    KLAUS_VERSION = utils.check_output(['git', 'log', '--format=%h', '-n', '1']).strip()
 except subprocess.CalledProcessError:
     KLAUS_VERSION = '0.2'
 
