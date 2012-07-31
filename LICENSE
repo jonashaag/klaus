@@ -1,6 +1,11 @@
 https://github.com/jonashaag/klaus
 Copyright (c) 2011-2012 Jonas Haag <jonas@lophus.org> and contributors (see Git logs).
 
+Feature contributions
+---------------------
+* Werkzeug port -- Martin Zimmermann <info@posativ.org>
+* Git Smart HTTP support -- Martin Zimmermann <info@posativ.org>
+
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
 copyright notice and this permission notice appear in all copies.
