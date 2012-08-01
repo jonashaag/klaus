@@ -103,6 +103,10 @@ def timesince(when, now=time.time):
         if break_next:
             break
 
+    if not result:
+        # 0 seconds
+        result = [(1, 'second')]
+
     if len(result) > 1:
         n, unit = result[0]
         if unit == 'month':
