@@ -2,6 +2,7 @@
 
 import re
 import time
+import datetime
 import mimetypes
 
 from pygments import highlight
@@ -116,6 +117,10 @@ def timesince(when, now=time.time):
 
     return ', '.join('%d %s%s' % (n, unit, 's' if n != 1 else '')
                      for n, unit in result[:2])
+
+
+def formattimestamp(timestamp):
+    return datetime.datetime.fromtimestamp(timestamp).strftime('%b %d, %Y - %H:%M:%S')
 
 
 def guess_is_binary(dulwich_blob):
