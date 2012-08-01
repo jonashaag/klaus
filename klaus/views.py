@@ -45,7 +45,7 @@ class BaseRepoView(View):
         self.context = {}
 
     def dispatch_request(self, repo, commit_id=None, path=''):
-        self.make_context(repo, commit_id, path)
+        self.make_context(repo, commit_id, path.strip('/'))
         return self.get_response()
 
     def get_response(self):

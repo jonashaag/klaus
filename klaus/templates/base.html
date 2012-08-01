@@ -1,5 +1,9 @@
 {% extends 'skeleton.html' %}
 
+{% block title %}
+  {{ repo.name }} ({{ commit_id|shorten_sha1 }})
+{% endblock %}
+
 {% block breadcrumbs %}
   <span>
     <a href="{{ url_for('history', repo=repo.name) }}">{{ repo.name }}</a>
