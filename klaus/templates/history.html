@@ -67,8 +67,12 @@
             <span>{{ commit.message|force_unicode|shorten_message }}</span>
           </span>
           <span class=line2>
-            <span>{{ commit.author|force_unicode|extract_author_name }}</span>
-            <span>{{ commit.commit_time|timesince }} ago</span>
+            <span>
+              {{ commit.author|force_unicode|extract_author_name }}
+            </span>
+            <span title="{{ commit.commit_time|formattimestamp  }}">
+              {{ commit.commit_time|timesince }} ago
+            </span>
           </span>
           <span class=clearfloat></span>
         </a>
