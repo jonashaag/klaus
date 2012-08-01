@@ -171,9 +171,10 @@ a.commit { color: black !important; }
 
 /* Blob View */
 .blobview img { max-width: 100%; padding: 1px; }
+.blobview table { min-width: 100%; }
 .blobview table, .blobview img { border: 1px solid #e0e0e0; }
 .blobview .linenos { border: 1px solid #e0e0e0; padding: 0; }
-.blobview .code { padding: 0; }
+.blobview .code { padding: 0; width: 100%; }
 .blobview .code .line { padding: 0 5px 0 10px; }
 .blobview .markup { font-family: Georgia, serif; }
 .blobview .markup pre { background-color: #f9f9f9; padding: 10px 12px; }
