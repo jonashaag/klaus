@@ -2,6 +2,10 @@
 
 {% block extra_header %}{% endblock %} {# no branch selector on commits #}
 
+{% block title %}
+  Commit {{ commit_id }} - {{ repo.name }}
+{% endblock %}
+
 {% block content %}
 
 <div class=full-commit>

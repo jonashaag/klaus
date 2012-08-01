@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
+
+{% block title %}
+  History of
+  {% if path %}{{ path }} - {% endif %}
+  {{ super() }}
+{% endblock %}
+
 {% block content %}
 
 {% include 'tree.inc.html' %}
 
 {# TODO: move logic into view #}
-{% set history = repo.history(branch, path.strip('/'), history_length+1, skip) %}
+{% set history = repo.history(branch, path, history_length+1, skip) %}
 {% set has_more_commits = history|length == history_length+1 %}
 
 {% macro pagination() %}
@@ -31,7 +38,7 @@
   <div class=history>
     <h2>
       {% if subpaths %}
-        History for
+        History of
         {% for name, subpath in subpaths %}
           {{ name }}
           {% if not loop.last %}
