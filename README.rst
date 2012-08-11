@@ -1,8 +1,14 @@
-klaus
-=====
-*a simple Git web viewer that Just Works™.*  (If it doesn't Just Work for you, please file a bug.)
+klaus: a simple Git web viewer that Just Works™.
+================================================
 
-Demo at http://klausdemo.lophus.org
+(If it doesn't Just Work for you, please file a bug.)
+
+Features
+--------
+* Super easy to set up -- no configuration required
+* Syntax highlighting
+* Git Smart HTTP support
+
 
 |img1|_ |img2|_ |img3|_
 
@@ -13,6 +19,15 @@ Demo at http://klausdemo.lophus.org
 .. _img1: https://github.com/jonashaag/klaus/raw/master/assets/commit-view.gif
 .. _img2: https://github.com/jonashaag/klaus/raw/master/assets/tree-view.gif
 .. _img3: https://github.com/jonashaag/klaus/raw/master/assets/blob-view.gif
+
+
+Who is using it?
+----------------
+Standard installations:
+   * http://klausdemo.lophus.org
+   * https://posativ.org/git/
+Forks/related projects:
+   * `GikiLog <http://arnout.engelen.eu>`_, blog/wiki hybrid based on klaus
 
 
 Installation
