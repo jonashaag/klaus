@@ -42,24 +42,27 @@ class FancyRepo(dulwich.repo.Repo):
                 pass
         return self.get_branch_names()[0]
 
-    def _get_refs(self, type, exclude=()):
-        type = 'refs/%s/' % type
-        refs = []
-        for ref in self.get_refs():
-            if ref.startswith(type):
-                name = ref[len(type):]
-                if name not in exclude:
-                    refs.append(name)
-        refs.sort()
-        return refs
+    def get_sorted_ref_names(self, prefix, exclude=None):
+        refs = self.refs.as_dict(prefix)
+        if exclude:
+            refs.pop(prefix + exclude, None)
 
-    def get_branch_names(self, exclude=()):
+        def get_commit_time(refname):
+            obj = self[refs[refname]]
+            if isinstance(obj, dulwich.objects.Tag):
+                return obj.tag_time
+            return obj.commit_time
+
+        return sorted(refs.iterkeys(), key=get_commit_time, reverse=True)
+
+    def get_branch_names(self, exclude=None):
         """ Returns a sorted list of branch names. """
-        return self._get_refs('heads', exclude)
+        return self.get_sorted_ref_names('refs/heads', exclude)
 
     def get_tag_names(self):
         """ Returns a sorted list of tag names. """
-        return self._get_refs('tags')
+        return self.get_sorted_ref_names('refs/tags')
+        return sorted(self.refs.keys('refs/tags'))
 
     def history(self, commit, path=None, max_commits=None, skip=0):
         """
