@@ -11,7 +11,7 @@
 {% include 'tree.inc.html' %}
 
 {# TODO: move logic into view #}
-{% set history = repo.history(branch, path, history_length+1, skip) %}
+{% set history = repo.history(commit_id, path, history_length+1, skip) %}
 {% set has_more_commits = history|length == history_length+1 %}
 
 {% macro pagination() %}
@@ -49,7 +49,7 @@
         Commit History
       {% endif %}
       <span>
-        @<a href="{{ url_for(view, repo=repo.name, commit_id=branch) }}">{{ branch }}</a>
+        @<a href="{{ url_for(view, repo=repo.name, commit_id=commit_id) }}">{{ commit_id }}</a>
       </span>
       {% if USE_SMARTHTTP %}
           <code>git clone {{ url_for('history', repo=repo.name, _external=True) }}</code>
