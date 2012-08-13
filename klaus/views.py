@@ -56,7 +56,7 @@ class BaseRepoView(View):
             repo = current_app.repo_map[repo]
             if commit_id is None:
                 commit_id = repo.get_default_branch()
-            commit, isbranch = repo.get_branch_or_commit(commit_id)
+            commit  = repo.get_ref_or_commit(commit_id)
         except KeyError:
             raise NotFound
 
@@ -65,7 +65,6 @@ class BaseRepoView(View):
             'repo': repo,
             'commit_id': commit_id,
             'commit': commit,
-            'branch': commit_id if isbranch else 'master',
             'branches': repo.get_branch_names(exclude=[commit_id]),
             'tags': repo.get_tag_names(),
             'path': path,

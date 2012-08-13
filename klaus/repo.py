@@ -21,19 +21,14 @@ class FancyRepo(dulwich.repo.Repo):
             return refs[0].commit_time
         return None
 
-    def get_branch_or_commit(self, id):
-        """
-        Returns a `(commit_object, is_branch)` tuple for the commit or branch
-        identified by `id`.
-        """
-        try:
-            return self[id], False
-        except KeyError:
-            return self.get_branch(id), True
+    def get_ref_or_commit(self, name_or_sha1):
+        for prefix in ['', 'refs/heads/', 'refs/tags/']:
+            try:
+                return self[prefix+name_or_sha1]
+            except KeyError:
+                pass
 
-    def get_branch(self, name):
-        """ Returns the commit object pointed to by the branch `name`. """
-        return self['refs/heads/'+name]
+        raise KeyError(name_or_sha1)
 
     def get_default_branch(self):
         """
@@ -41,7 +36,7 @@ class FancyRepo(dulwich.repo.Repo):
         """
         for candidate in ['master', 'trunk', 'default', 'gh-pages']:
             try:
-                self.get_branch(candidate)
+                self.get_ref_or_commit(candidate)
                 return candidate
             except KeyError:
                 pass
