@@ -62,7 +62,6 @@ class FancyRepo(dulwich.repo.Repo):
     def get_tag_names(self):
         """ Returns a sorted list of tag names. """
         return self.get_sorted_ref_names('refs/tags')
-        return sorted(self.refs.keys('refs/tags'))
 
     def history(self, commit, path=None, max_commits=None, skip=0):
         """
