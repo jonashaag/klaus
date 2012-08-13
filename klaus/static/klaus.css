@@ -30,6 +30,8 @@ header > a { padding: 10px 0; }
 header .breadcrumbs > span:before { content: ' » '; color: #666; }
 header .slash { margin: 0 -3px; }
 
+
+/* Branch/tag selector */
 .branch-selector {
   position: absolute;
   top: 5px;
@@ -41,18 +43,23 @@ header .slash { margin: 0 -3px; }
   background-color: #fcfcfc;
   position: relative;
 }
-.branch-selector span {
+.branch-selector > span {
   border: 1px solid #f1f1f1;
   padding: 4px 5px;
   float: right;
 }
-.branch-selector span:after { content: "☟"; margin-left: 5px; }
-.branch-selector span:hover { background-color: #fefefe; cursor: pointer; }
-.branch-selector ul {
+.branch-selector > span:after { content: "☟"; margin-left: 5px; }
+.branch-selector > span:hover { background-color: #fefefe; cursor: pointer; }
+.branch-selector div {
   z-index: 1;
   clear: both;
   display: none;
+}
+.branch-selector ul {
   margin: 0;
+}
+.branch-selector ul + ul {
+  border-top: 1px solid #e0e0e0;
 }
 .branch-selector li a {
   display: block;
@@ -63,8 +70,8 @@ header .slash { margin: 0 -3px; }
 .branch-selector li a:hover { background-color: #fefefe; }
 .branch-selector li:last-child a { border: 0; }
 .branch-selector:hover { border: 1px solid #ccc; }
-.branch-selector:hover span { border: 0; background-color: inherit; }
-.branch-selector:hover ul { display: block; }
+.branch-selector:hover > span { border: 0; background-color: inherit; }
+.branch-selector:hover div { display: block; }
 
 /* Footer */
 footer {

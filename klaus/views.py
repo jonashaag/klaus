@@ -67,6 +67,7 @@ class BaseRepoView(View):
             'commit': commit,
             'branch': commit_id if isbranch else 'master',
             'branches': repo.get_branch_names(exclude=[commit_id]),
+            'tags': repo.get_tag_names(),
             'path': path,
             'subpaths': list(subpaths(path)) if path else None,
         }

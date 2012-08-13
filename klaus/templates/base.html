@@ -28,10 +28,19 @@
 {% block extra_header %}
 <div class=branch-selector>
   <span>{{ commit_id|shorten_sha1 }}</span>
-  <ul>
-    {% for branch in branches %}
-    <li><a href="{{ url_for(view, repo=repo.name, commit_id=branch, path=path) }}">{{ branch }}</a></li>
-    {% endfor %}
-  </ul>
+  <div>
+    <ul class=branches>
+      {% for branch in branches %}
+      <li><a href="{{ url_for(view, repo=repo.name, commit_id=branch, path=path) }}">{{ branch }}</a></li>
+      {% endfor %}
+    </ul>
+    {% if tags %}
+    <ul class=tags>
+      {% for tag in tags %}
+      <li><a href="{{ url_for(view, repo=repo.name, commit_id=tag, path=path) }}">{{ tag }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}
