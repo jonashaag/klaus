@@ -15,7 +15,7 @@ def install_data_files_hack():
 
 install_data_files_hack()
 
-requires = ['flask', 'pygments', 'dulwich', 'httpauth']
+requires = ['flask', 'pygments', 'dulwich>=0.8.6', 'httpauth']
 
 try:
     import argparse  # not available for Python 2.6
