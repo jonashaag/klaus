@@ -12,6 +12,7 @@ import klaus
 
 
 def git_repository(path):
+    path = os.path.abspath(path)
     if not os.path.exists(path):
         raise argparse.ArgumentTypeError('%r: No such directory' % path)
     try:
