@@ -1,10 +1,13 @@
 #!/usr/bin/env python2
 # coding: utf-8
 
+import sys
 import os
 import argparse
+
 from dulwich.errors import NotGitRepository
 from dulwich.repo import Repo
+
 import klaus
 
 
@@ -41,6 +44,9 @@ def make_parser():
 
 def main():
     args = make_parser().parse_args()
+
+    if not args.repos:
+        print >> sys.stderr, "WARNING: No repositories supplied -- syntax is 'klaus dir1 dir2...'."
 
     if not args.sitename:
         args.sitename = '%s:%d' % (args.host, args.port)
