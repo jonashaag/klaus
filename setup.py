@@ -15,7 +15,7 @@ def install_data_files_hack():
 
 install_data_files_hack()
 
-requires = ['flask', 'pygments', 'dulwich>=0.8.6', 'httpauth']
+requires = ['flask', 'pygments', 'dulwich(>=0.8.6)', 'httpauth']
 
 try:
     import argparse  # not available for Python 2.6
@@ -35,7 +35,6 @@ setup(
         ['klaus/static',    glob.glob('klaus/static/*')],
     ],
     url='https://github.com/jonashaag/klaus',
-    license='2-clause BSD',
     description='The first Git web viewer that Just Works™.',
     long_description=__doc__,
     classifiers=[
@@ -45,11 +44,11 @@ setup(
         "Topic :: Software Development :: Version Control",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: ICS License",
+        "License :: OSI Approved :: ISC License (ISCL)",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
     ],
-    install_requires=requires,
+    requires=requires,
 )
 
