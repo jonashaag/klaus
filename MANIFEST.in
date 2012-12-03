@@ -1,0 +1,2 @@
+recursive-include klaus/static *
+recursive-include klaus/templates *

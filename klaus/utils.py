@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+import os
 import re
 import time
 import datetime
@@ -222,3 +222,8 @@ except ImportError:
                 cmd = popenargs[0]
             raise CalledProcessError(retcode, cmd, output=output)
         return output
+
+
+def guess_git_revision():
+    if os.path.exists(os.path.join(os.path.dirname(__file__), '..', '.git')):
+        return check_output(['git', 'log', '--format=%h', '-n', '1']).strip()

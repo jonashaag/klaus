@@ -1,5 +1,3 @@
-import os
-import subprocess
 import jinja2
 import flask
 import httpauth
@@ -8,12 +6,7 @@ from klaus import views, utils
 from klaus.repo import FancyRepo
 
 
-KLAUS_ROOT = os.path.dirname(__file__)
-
-try:
-    KLAUS_VERSION = utils.check_output(['git', 'log', '--format=%h', '-n', '1']).strip()
-except subprocess.CalledProcessError:
-    KLAUS_VERSION = '0.2'
+KLAUS_VERSION = utils.guess_git_revision() or '0.2'
 
 
 class Klaus(flask.Flask):
