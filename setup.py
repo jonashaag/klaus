@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import glob
-from distutils.core import setup
+from setuptools import setup
 
 
 def install_data_files_hack():
@@ -15,7 +15,7 @@ def install_data_files_hack():
 
 install_data_files_hack()
 
-requires = ['flask', 'pygments', 'dulwich(>=0.8.6)', 'httpauth']
+requires = ['flask', 'pygments', 'dulwich>=0.8.6', 'httpauth']
 
 try:
     import argparse  # not available for Python 2.6
@@ -25,15 +25,13 @@ except ImportError:
 
 setup(
     name='klaus',
-    version='0.2',
+    version='0.2.0',
     author='Jonas Haag',
     author_email='jonas@lophus.org',
     packages=['klaus'],
     scripts=['bin/klaus'],
-    data_files=[
-        ['klaus/templates', glob.glob('klaus/templates/*')],
-        ['klaus/static',    glob.glob('klaus/static/*')],
-    ],
+    include_package_data=True,
+    zip_safe=False,
     url='https://github.com/jonashaag/klaus',
     description='The first Git web viewer that Just Works™.',
     long_description=__doc__,
@@ -49,6 +47,6 @@ setup(
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
     ],
-    requires=requires,
+    install_requires=requires,
 )
 
