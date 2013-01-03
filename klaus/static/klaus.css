@@ -1,5 +1,7 @@
 @charset "utf-8";
 
+body, header, #content { overflow: auto; }
+
 /* Reset */
 body { margin: 0; padding: 0; font-family: sans-serif; }
 pre { line-height: 125%; }
@@ -10,9 +12,7 @@ table { border-spacing: 0; border-collapse: collapse; }
 h2 > span:last-of-type { font-size: 60%; }
 h2 > code:last-of-type {
   font-size: 60%;
-  border-bottom: 1px solid #E0E0E0;
-  padding: 4px 5px;
-  margin-left: 12px;
+  margin-left: 2%;
 }
 
 .slash { color: #666; margin: 0 -0.2em; }
@@ -25,17 +25,17 @@ h2 > code:last-of-type {
 }
 
 /* Header */
-header { font-size: 90%; padding: 8px 10px; border-bottom: 3px solid #e0e0e0; }
-header > a { padding: 10px 0; }
+header { font-size: 90%; padding: 0.5%; border-bottom: 3px solid #e0e0e0; }
+header a { padding: 0.5% 0; }
 header .breadcrumbs > span:before { content: ' » '; color: #666; }
-header .slash { margin: 0 -3px; }
+header .slash { margin: 0 -2px; }
 
 
 /* Branch/tag selector */
 .branch-selector {
   position: absolute;
-  top: 5px;
-  right: 4px;
+  top: 2px;
+  right: 2px;
   font-size: 90%;
   background-color: #fefefe;
 }
@@ -90,12 +90,7 @@ footer a:hover { text-decoration: none; }
 #content > div:nth-of-type(1),
 #content > div:nth-of-type(2) { float: left; }
 #content > div:nth-of-type(1) { width: 24%; }
-#content > div:nth-of-type(2) {
-  width: 72%;
-  padding-left: 1.5%;
-  margin-left: 1.5%;
-  border-left: 1px dotted #ccc;
-}
+#content > div:nth-of-type(2) { width: 72%; margin-left: 1.5%; }
 
 
 /* Pagination */
@@ -154,7 +149,14 @@ a.commit { color: black !important; }
 
 .tree ul { font-family: monospace; border-top: 1px solid #e0e0e0; }
 .tree li { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-top: 0; }
-.tree li a { padding: 5px 7px 6px 7px; display: block; color: #001533; }
+.tree li a {
+  padding: 5px 7px 6px 7px;
+  display: block;
+  color: #001533;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .tree li a:before, .diff .filename:before {
   margin-right: 5px;
   position: relative;
@@ -209,7 +211,6 @@ a.commit { color: black !important; }
 .diff table, .diff .binarydiff {
   border: 1px solid #e0e0e0;
   background-color: #fdfdfd;
-  width: 100%;
 }
 .diff .binarydiff {
   padding: 7px 10px;
