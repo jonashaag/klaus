@@ -8,7 +8,7 @@ import argparse
 from dulwich.errors import NotGitRepository
 from dulwich.repo import Repo
 
-import klaus
+from klaus import make_app, utils
 
 
 def git_repository(path):
@@ -26,7 +26,8 @@ def make_parser():
     parser = argparse.ArgumentParser(epilog="Gemüse kaufen!")
     parser.add_argument('--host',     help="default: 127.0.0.1", default='127.0.0.1')
     parser.add_argument('--port',     help="default: 8080", default=8080, type=int)
-    parser.add_argument('--site-name', help="site name showed in header. default: your hostname")
+    parser.add_argument('--site-name', help="site name showed in header. default: your hostname",
+                        type=utils.force_unicode)
 
     parser.add_argument('repos', help='repositories to serve',
                         metavar='DIR', nargs='*', type=git_repository)
@@ -52,10 +53,10 @@ def main():
     if not args.site_name:
         args.site_name = '%s:%d' % (args.host, args.port)
 
-    app = klaus.make_app(args.repos,
-                         args.site_name or args.host,
-                         args.smarthttp,
-                         args.htdigest)
+    app = make_app(args.repos,
+                   args.site_name or args.host,
+                   args.smarthttp,
+                   args.htdigest)
 
     app.run(args.host, args.port, args.debug)
 
