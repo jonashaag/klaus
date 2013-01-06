@@ -4,6 +4,11 @@ import re
 import time
 import datetime
 import mimetypes
+import locale
+try:
+    import chardet
+except ImportError:
+    chardet = None
 
 from pygments import highlight
 from pygments.lexers import get_lexer_for_filename, guess_lexer, ClassNotFound
@@ -140,23 +145,27 @@ def guess_is_image(filename):
 
 def force_unicode(s):
     """ Does all kind of magic to turn `s` into unicode """
+    # It's already unicode, don't do anything:
     if isinstance(s, unicode):
         return s
+
+    # Try some default encodings:
     try:
         return s.decode('utf-8')
     except UnicodeDecodeError as exc:
         pass
     try:
-        return s.decode('iso-8859-1')
+        return s.decode(locale.getpreferredencoding())
     except UnicodeDecodeError:
         pass
-    try:
-        import chardet
+
+    if chardet is not None:
+        # Try chardet, if available
         encoding = chardet.detect(s)['encoding']
         if encoding is not None:
             return s.decode(encoding)
-    except (ImportError, UnicodeDecodeError):
-        raise exc
+
+    raise exc  # Give up.
 
 
 def extract_author_name(email):
