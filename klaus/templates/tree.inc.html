@@ -1,10 +1,10 @@
 <div class=tree>
   <h2>Tree @<a href="{{ url_for('commit', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_sha1 }}</a></h2>
   <ul>
-    {% for _, name, fullpath in tree.dirs %}
+    {% for _, name, fullpath in root_tree.dirs %}
     <li><a href="{{ url_for('history', repo=repo.name, commit_id=commit_id, path=fullpath) }}" class=dir>{{ name|force_unicode }}</a></li>
     {% endfor %}
-    {% for _, name, fullpath in tree.files %}
+    {% for _, name, fullpath in root_tree.files %}
     <li><a href="{{ url_for('blob', repo=repo.name, commit_id=commit_id, path=fullpath) }}">{{ name|force_unicode }}</a></li>
     {% endfor %}
   </ul>

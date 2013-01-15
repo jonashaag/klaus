@@ -90,14 +90,17 @@ class FancyRepo(dulwich.repo.Repo):
         sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
         return [self[sha1] for sha1 in sha1_sums.strip().split('\n')]
 
-    def get_tree(self, commit, path):
-        """ Returns the Git tree object for `path` at `commit`. """
-        tree = self[commit.tree]
-        if path:
-            for directory in path.strip('/').split('/'):
-                if directory:
-                    tree = self[tree[directory][1]]
-        return tree
+    def get_blob_or_tree(self, commit, path):
+        """ Returns the Git tree or blob object for `path` at `commit`. """
+        tree_or_blob = self[commit.tree]  # Still a tree here but may turn into
+                                          # a blob somewhere in the loop.
+        for part in path.strip('/').split('/'):
+            if part:
+                if isinstance(tree_or_blob, dulwich.objects.Blob):
+                    # Blobs don't have sub-files/folders.
+                    raise KeyError
+                tree_or_blob = self[tree_or_blob[part][1]]
+        return tree_or_blob
 
     def commit_diff(self, commit):
         from klaus.utils import guess_is_binary, force_unicode
