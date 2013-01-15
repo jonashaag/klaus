@@ -8,6 +8,7 @@ from werkzeug.wrappers import Response
 from werkzeug.exceptions import NotFound
 
 from dulwich.objects import Blob
+from dulwich.diff_tree import RenameDetector
 
 from klaus import markup
 from klaus.utils import parent_directory, subpaths, get_mimetype_and_encoding, \
@@ -133,15 +134,34 @@ class HistoryView(TreeViewMixin, BaseRepoView):
         self.context['page'] = page
 
         if page:
-            self.context['history_length'] = 30
-            self.context['skip'] = (self.context['page']-1) * 30 + 10
+            history_length = 30
+            skip = (self.context['page']-1) * 30 + 10
             if page > 7:
                 self.context['previous_pages'] = [0, 1, 2, None] + range(page)[-3:]
             else:
                 self.context['previous_pages'] = xrange(page)
         else:
-            self.context['history_length'] = 10
-            self.context['skip'] = 0
+            history_length = 10
+            skip = 0
+
+        history = self.context['repo'].history(
+            self.context['commit_id'],
+            self.context['path'],
+            history_length + 1,
+            skip
+        )
+        if len(history) == history_length + 1:
+            # At least one more commit for next page left
+            more_commits = True
+            # We don't want show the additional commit on this page
+            history.pop()
+        else:
+            more_commits = False
+
+        self.context.update({
+            'history': history,
+            'more_commits': more_commits,
+        })
 
 
 class BlobViewMixin(object):
