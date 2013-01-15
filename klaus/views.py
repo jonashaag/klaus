@@ -10,8 +10,8 @@ from werkzeug.exceptions import NotFound
 from dulwich.objects import Blob
 
 from klaus import markup
-from klaus.utils import subpaths, get_mimetype_and_encoding, pygmentize, \
-                        force_unicode, guess_is_binary, guess_is_image
+from klaus.utils import parent_directory, subpaths, get_mimetype_and_encoding, \
+                        pygmentize, force_unicode, guess_is_binary, guess_is_image
 
 
 def repo_list():
@@ -56,9 +56,14 @@ class BaseRepoView(View):
             repo = current_app.repo_map[repo]
             if commit_id is None:
                 commit_id = repo.get_default_branch()
-            commit  = repo.get_ref_or_commit(commit_id)
+            commit = repo.get_ref_or_commit(commit_id)
         except KeyError:
-            raise NotFound
+            raise NotFound("Commit not found")
+
+        try:
+            blob_or_tree = repo.get_blob_or_tree(commit, path)
+        except KeyError:
+            raise NotFound("File not found")
 
         self.context = {
             'view': self.view_name,
@@ -68,11 +73,9 @@ class BaseRepoView(View):
             'branches': repo.get_branch_names(exclude=commit_id),
             'tags': repo.get_tag_names(),
             'path': path,
+            'blob_or_tree': blob_or_tree,
             'subpaths': list(subpaths(path)) if path else None,
         }
-
-    def get_tree(self, path):
-        return self.context['repo'].get_tree(self.context['commit'], path)
 
 
 class TreeViewMixin(object):
@@ -81,22 +84,22 @@ class TreeViewMixin(object):
     """
     def make_context(self, *args):
         super(TreeViewMixin, self).make_context(*args)
-        self.context['tree'] = self.listdir()
+        self.context['root_tree'] = self.listdir()
 
     def listdir(self):
         """
         Returns a list of directories and files in the current path of the
         selected commit
         """
-        try:
-            root = self.get_root_directory()
-            tree = self.get_tree(root)
-        except KeyError:
-            raise NotFound
+        root_directory = self.get_root_directory()
+        root_tree = self.context['repo'].get_blob_or_tree(
+            self.context['commit'],
+            root_directory
+        )
 
         dirs, files = [], []
-        for entry in tree.iteritems():
-            name, entry = entry.path, entry.in_path(root)
+        for entry in root_tree.iteritems():
+            name, entry = entry.path, entry.in_path(root_directory)
             if entry.mode & stat.S_IFDIR:
                 dirs.append((name.lower(), name, entry.path))
             else:
@@ -104,17 +107,17 @@ class TreeViewMixin(object):
         files.sort()
         dirs.sort()
 
-        if root:
-            dirs.insert(0, (None, '..', os.path.split(root)[0]))
+        if root_directory:
+            dirs.insert(0, (None, '..', parent_directory(root_directory)))
 
         return {'dirs' : dirs, 'files' : files}
 
     def get_root_directory(self):
-        root = self.context['path']
-        if isinstance(self.get_tree(root), Blob):
-            # 'path' is a file name
-            root = os.path.split(self.context['path'])[0]
-        return root
+        root_directory = self.context['path']
+        if isinstance(self.context['blob_or_tree'], Blob):
+            # 'path' is a file (not folder) name
+            root_directory = parent_directory(root_directory)
+        return root_directory
 
 
 class HistoryView(TreeViewMixin, BaseRepoView):
@@ -145,27 +148,37 @@ class BlobViewMixin(object):
     def make_context(self, *args):
         super(BlobViewMixin, self).make_context(*args)
         self.context['filename'] = os.path.basename(self.context['path'])
-        self.context['blob'] = self.get_tree(self.context['path'])
 
 
 class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
     """ Shows a file rendered using ``pygmentize`` """
     def make_context(self, *args):
         super(BlobView, self).make_context(*args)
-        render_markup = 'markup' not in request.args
-        rendered_code = pygmentize(
-            force_unicode(self.context['blob'].data),
-            self.context['filename'],
-            render_markup
-        )
-        self.context.update({
-            'too_large': sum(map(len, self.context['blob'].chunked)) > 100*1024,
-            'is_markup': markup.can_render(self.context['filename']),
-            'render_markup': render_markup,
-            'rendered_code': rendered_code,
-            'is_binary': guess_is_binary(self.context['blob']),
-            'is_image': guess_is_image(self.context['filename']),
-        })
+
+        if guess_is_binary(self.context['blob_or_tree']):
+            self.context.update({
+                'is_markup': False,
+                'is_binary': True,
+                'is_image': False,
+            })
+            if guess_is_image(self.context['filename']):
+                self.context.update({
+                    'is_image': True,
+                })
+        else:
+            render_markup = 'markup' not in request.args
+            rendered_code = pygmentize(
+                force_unicode(self.context['blob_or_tree'].data),
+                self.context['filename'],
+                render_markup
+            )
+            self.context.update({
+                'too_large': sum(map(len, self.context['blob_or_tree'].chunked)) > 100*1024,
+                'is_markup': markup.can_render(self.context['filename']),
+                'render_markup': render_markup,
+                'rendered_code': rendered_code,
+                'is_binary': False,
+            })
 
 
 class RawView(BlobViewMixin, BaseRepoView):
@@ -174,7 +187,7 @@ class RawView(BlobViewMixin, BaseRepoView):
     served through a static file server)
     """
     def get_response(self):
-        chunks = self.context['blob'].chunked
+        chunks = self.context['blob_or_tree'].chunked
 
         if len(chunks) == 1 and not chunks[0]:
             # empty file

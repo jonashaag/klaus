@@ -190,6 +190,10 @@ def shorten_sha1(sha1):
     return sha1
 
 
+def parent_directory(path):
+    return os.path.split(path)[0]
+
+
 def subpaths(path):
     """
     Yields a `(last part, subpath)` tuple for all possible sub-paths of `path`.
