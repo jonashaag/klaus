@@ -25,7 +25,7 @@ except ImportError:
 
 setup(
     name='klaus',
-    version='0.2.0',
+    version='0.2.1',
     author='Jonas Haag',
     author_email='jonas@lophus.org',
     packages=['klaus'],

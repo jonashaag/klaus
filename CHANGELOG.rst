@@ -1,11 +1,13 @@
 Changelog
 =========
 
-0.3 (TBA)
----------
+0.2.1 (Jan 29, 2013)
+--------------------
+* Tags work again (Jonas Haag)
 * Apache/mod_wsgi deployment docs (Alex Marandon)
 * #43: ``bin/klaus``: ``--site-name`` did only accept ASCII strings
   (Alex Marandon, Martin Zimmermann, Jonas Haag)
+* More robust routing (Jonas Haag)
 
 0.2 (Dec 3, 2012)
 -----------------
