@@ -1,14 +1,14 @@
 {% extends 'skeleton.html' %}
 
 {% block title %}
-  {{ repo.name }} ({{ commit_id|shorten_sha1 }})
+  {{ repo.name }} ({{ rev|shorten_sha1 }})
 {% endblock %}
 
 {% block breadcrumbs %}
   <span>
     <a href="{{ url_for('history', repo=repo.name) }}">{{ repo.name }}</a>
     <span class=slash>/</span>
-    <a href="{{ url_for('history', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_sha1 }}</a>
+    <a href="{{ url_for('history', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
   </span>
 
   {% if subpaths %}
@@ -17,7 +17,7 @@
       {% if loop.last %}
       <a href="">{{ name|force_unicode }}</a>
       {% else %}
-      <a href="{{ url_for('history', repo=repo.name, commit_id=commit_id, path=subpath) }}">{{ name|force_unicode }}</a>
+      <a href="{{ url_for('history', repo=repo.name, rev=rev, path=subpath) }}">{{ name|force_unicode }}</a>
       <span class=slash>/</span>
       {% endif %}
     {% endfor %}
@@ -27,17 +27,17 @@
 
 {% block extra_header %}
 <div class=branch-selector>
-  <span>{{ commit_id|shorten_sha1 }}</span>
+  <span>{{ rev|shorten_sha1 }}</span>
   <div>
     <ul class=branches>
       {% for branch in branches %}
-      <li><a href="{{ url_for(view, repo=repo.name, commit_id=branch, path=path) }}">{{ branch }}</a></li>
+      <li><a href="{{ url_for(view, repo=repo.name, rev=branch, path=path) }}">{{ branch }}</a></li>
       {% endfor %}
     </ul>
     {% if tags %}
     <ul class=tags>
       {% for tag in tags %}
-      <li><a href="{{ url_for(view, repo=repo.name, commit_id=tag, path=path) }}">{{ tag }}</a></li>
+      <li><a href="{{ url_for(view, repo=repo.name, rev=tag, path=path) }}">{{ tag }}</a></li>
       {% endfor %}
     </ul>
     {% endif %}

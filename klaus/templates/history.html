@@ -45,7 +45,7 @@
         Commit History
       {% endif %}
       <span>
-        @<a href="{{ url_for(view, repo=repo.name, commit_id=commit_id) }}">{{ commit_id }}</a>
+        @<a href="{{ url_for(view, repo=repo.name, rev=rev) }}">{{ rev }}</a>
       </span>
       {% if USE_SMARTHTTP %}
           <code>git clone {{ url_for('history', repo=repo.name, _external=True) }}</code>
@@ -57,7 +57,7 @@
     <ul>
     {% for commit in history %}
       <li>
-        <a class=commit href="{{ url_for('commit', repo=repo.name, commit_id=commit.id) }}">
+        <a class=commit href="{{ url_for('commit', repo=repo.name, rev=commit.id) }}">
           <span class=line1>
             <span>{{ commit.message|force_unicode|shorten_message }}</span>
           </span>

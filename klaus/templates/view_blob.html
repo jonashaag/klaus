@@ -8,13 +8,13 @@
 
 {% include 'tree.inc.html' %}
 
-{% set raw_url = url_for('raw', repo=repo.name, commit_id=commit_id, path=path) %}
+{% set raw_url = url_for('raw', repo=repo.name, rev=rev, path=path) %}
 
 <div class=blobview>
   <h2>
     {{ filename|force_unicode }}
     <span>
-      @<a href="{{ url_for('commit', repo=repo.name, commit_id=commit_id) }}">{{ commit_id|shorten_sha1 }}</a>
+      @<a href="{{ url_for('commit', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
       &mdash;
       {% if is_markup %}
         {% if render_markup %}
@@ -25,7 +25,7 @@
         &middot;
       {% endif %}
       <a href="{{ raw_url }}">raw</a>
-      &middot; <a href="{{ url_for('history', repo=repo.name, commit_id=commit_id, path=path) }}">history</a>
+      &middot; <a href="{{ url_for('history', repo=repo.name, rev=rev, path=path) }}">history</a>
     </span>
   </h2>
   {% if is_binary %}
