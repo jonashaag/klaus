@@ -8,7 +8,8 @@ import argparse
 from dulwich.errors import NotGitRepository
 from dulwich.repo import Repo
 
-import klaus
+from klaus import make_app
+from klaus.utils import force_unicode
 
 
 def git_repository(path):
@@ -52,10 +53,12 @@ def main():
     if not args.site_name:
         args.site_name = '%s:%d' % (args.host, args.port)
 
-    app = klaus.make_app(args.repos,
-                         args.site_name or args.host,
-                         args.smarthttp,
-                         args.htdigest)
+    app = make_app(
+        args.repos,
+        force_unicode(args.site_name or args.host),
+        args.smarthttp,
+        args.htdigest
+    )
 
     app.run(args.host, args.port, args.debug)
 
