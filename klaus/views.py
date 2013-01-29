@@ -8,7 +8,6 @@ from werkzeug.wrappers import Response
 from werkzeug.exceptions import NotFound
 
 from dulwich.objects import Blob
-from dulwich.diff_tree import RenameDetector
 
 from klaus import markup
 from klaus.utils import parent_directory, subpaths, get_mimetype_and_encoding, \
@@ -31,33 +30,33 @@ class BaseRepoView(View):
     """
     Base for all views with a repo context.
 
-    The arguments `repo`, `commit_id`, `path` (see `dispatch_request`) define
-    the repository, branch/commit and directory/file context, respectively --
+    The arguments `repo`, `rev`, `path` (see `dispatch_request`) define the
+    repository, branch/commit and directory/file context, respectively --
     that is, they specify what (and in what state) is being displayed in all the
     derived views.
 
     For example: The 'history' view is the `git log` equivalent, i.e. if `path`
     is "/foo/bar", only commits related to "/foo/bar" are displayed, and if
-    `commit_id` is "master", the history of the "master" branch is displayed.
+    `rev` is "master", the history of the "master" branch is displayed.
     """
     def __init__(self, view_name, template_name=None):
         self.view_name = view_name
         self.template_name = template_name
         self.context = {}
 
-    def dispatch_request(self, repo, commit_id=None, path=''):
-        self.make_context(repo, commit_id, path.strip('/'))
+    def dispatch_request(self, repo, rev=None, path=''):
+        self.make_context(repo, rev, path.strip('/'))
         return self.get_response()
 
     def get_response(self):
         return render_template(self.template_name, **self.context)
 
-    def make_context(self, repo, commit_id, path):
+    def make_context(self, repo, rev, path):
         try:
             repo = current_app.repo_map[repo]
-            if commit_id is None:
-                commit_id = repo.get_default_branch()
-            commit = repo.get_ref_or_commit(commit_id)
+            if rev is None:
+                rev = repo.get_default_branch()
+            commit = repo.get_commit(rev)
         except KeyError:
             raise NotFound("Commit not found")
 
@@ -69,9 +68,9 @@ class BaseRepoView(View):
         self.context = {
             'view': self.view_name,
             'repo': repo,
-            'commit_id': commit_id,
+            'rev': rev,
             'commit': commit,
-            'branches': repo.get_branch_names(exclude=commit_id),
+            'branches': repo.get_branch_names(exclude=rev),
             'tags': repo.get_tag_names(),
             'path': path,
             'blob_or_tree': blob_or_tree,
@@ -145,7 +144,7 @@ class HistoryView(TreeViewMixin, BaseRepoView):
             skip = 0
 
         history = self.context['repo'].history(
-            self.context['commit_id'],
+            self.context['rev'],
             self.context['path'],
             history_length + 1,
             skip

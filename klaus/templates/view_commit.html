@@ -3,7 +3,7 @@
 {% block extra_header %}{% endblock %} {# no branch selector on commits #}
 
 {% block title %}
-  Commit {{ commit_id }} - {{ repo.name }}
+  Commit {{ rev }} - {{ repo.name }}
 {% endblock %}
 
 {% block content %}
@@ -38,7 +38,7 @@
           {% if file.new_filename == '/dev/null' %}
             <del>{{ file.old_filename|force_unicode }}</del>
           {% else %}
-            <a href="{{ url_for('blob', repo=repo.name, commit_id=commit_id, path=file.new_filename) }}">
+            <a href="{{ url_for('blob', repo=repo.name, rev=rev, path=file.new_filename) }}">
               {{ file.new_filename|force_unicode }}
             </a>
           {% endif %}

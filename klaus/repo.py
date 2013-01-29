@@ -21,14 +21,20 @@ class FancyRepo(dulwich.repo.Repo):
             return refs[0].commit_time
         return None
 
-    def get_ref_or_commit(self, name_or_sha1):
-        for prefix in ['', 'refs/heads/', 'refs/tags/']:
+    def get_commit(self, rev):
+        for prefix in ['refs/heads/', 'refs/tags/', '']:
+            key = prefix + rev
             try:
-                return self[prefix+name_or_sha1]
+                # XXX: Workaround https://github.com/jelmer/dulwich/issues/82
+                if not key.isalnum():
+                    key = self.refs[key]
+                obj = self.object_store[key]
+                if isinstance(obj, dulwich.objects.Tag):
+                    obj = self[obj.object[1]]
+                return obj
             except KeyError:
                 pass
-
-        raise KeyError(name_or_sha1)
+        raise KeyError(rev)
 
     def get_default_branch(self):
         """
@@ -36,7 +42,7 @@ class FancyRepo(dulwich.repo.Repo):
         """
         for candidate in ['master', 'trunk', 'default', 'gh-pages']:
             try:
-                self.get_ref_or_commit(candidate)
+                self.get_commit(candidate)
                 return candidate
             except KeyError:
                 pass
