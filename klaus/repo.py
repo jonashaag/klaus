@@ -23,7 +23,7 @@ class FancyRepo(dulwich.repo.Repo):
             return refs[0].commit_time
         return None
 
-    def get_readme(self):
+    def get_readme(self, preview=False):
         readme_formats = {'.md':   None,
                           '.mkdn': None,
                           '.rst':  None,
@@ -41,6 +41,8 @@ class FancyRepo(dulwich.repo.Repo):
             if asset:
                 file = "README" + format
                 content = self[asset[1]].data
+                if preview:
+                    content = '\n\n'.join(content.split('\n\n')[:2])
                 if can_render(file):
                     return render(file, content)
                 else:

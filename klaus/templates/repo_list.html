@@ -24,9 +24,16 @@
           {% endif %}
         </span>
       </a>
-      <div class="readme">
+      <div id="{{ repo.name }}-preview" class="readme">
+        {% if repo.get_readme() %}
+        {{ repo.get_readme(preview=True)|safe }}
+        <a href="#" onclick="document.getElementById('{{ repo.name }}-preview').style.display = 'none'; document.getElementById('{{ repo.name }}-full').style.display = '';">read more...</a>
+        {% endif %}
+      </div>
+      <div id="{{ repo.name }}-full" class="readme" style="display: none;">
         {% if repo.get_readme() %}
         {{ repo.get_readme()|safe }}
+        <a href="#" onclick="document.getElementById('{{ repo.name }}-full').style.display = 'none'; document.getElementById('{{ repo.name }}-preview').style.display = '';">read less...</a>
         {% endif %}
       </div>
     </li>
