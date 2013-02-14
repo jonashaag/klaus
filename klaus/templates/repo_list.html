@@ -28,9 +28,11 @@
         {% endif %}
         </span>
       </a>
+      {% set readme = repo.get_readme() %}
+      {% if readme %}
       <a class="readme-button" id="readme-button-{{ repo.name }}" href="#" onclick="showReadme('{{ repo.name }}');">readme</a>
+      {% endif %}
       <div id="{{ repo.name }}-readme" class="readme" style="display: none;">
-        {% set readme = repo.get_readme() %}
         {% if readme %}
         <a href="#" onclick="hideReadme('{{ repo.name }}');" style="float: right;">hide readme</a>
         {% if readme['rendered'] %}
