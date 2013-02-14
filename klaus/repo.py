@@ -2,9 +2,11 @@ import os
 import cStringIO
 
 import dulwich, dulwich.patch
+from dulwich.object_store import tree_lookup_path
 
 from klaus.utils import check_output
 from klaus.diff import prepare_udiff
+from klaus.markup import can_render, render
 
 
 class FancyRepo(dulwich.repo.Repo):
@@ -19,6 +21,33 @@ class FancyRepo(dulwich.repo.Repo):
                   reverse=True)
         if refs:
             return refs[0].commit_time
+        return None
+
+    def get_readme(self, preview=False):
+        readme_formats = {'.md':   None,
+                          '.mkdn': None,
+                          '.rst':  None,
+                          '.rest': None}
+        tree = self["HEAD"].tree
+
+        for format in readme_formats.keys():
+            file = "README" + format
+            try:
+                readme_formats[format] = tree_lookup_path(self.get_object, tree, file)
+            except Exception:
+                pass
+
+        for format, asset in readme_formats.items():
+            if asset:
+                file = "README" + format
+                content = self[asset[1]].data
+                if preview:
+                    content = '\n\n'.join(content.split('\n\n')[:2])
+                if can_render(file):
+                    return render(file, content)
+                else:
+                    return "<pre>%s</pre>" % content.decode('unicode-escape') 
+
         return None
 
     def get_commit(self, rev):
