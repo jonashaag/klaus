@@ -116,6 +116,12 @@ footer a:hover { text-decoration: none; }
   font-size: 60%;
   margin-left: 1px;
 }
+.repolist li a .description {
+  display: block;
+  color: black;
+  font-size: 75%;
+  margin-left: 1px;
+}
 .repolist li a:hover { text-decoration: none; }
 .repolist li a:hover .name { text-decoration: underline; }
 
