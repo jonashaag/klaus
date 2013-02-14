@@ -118,6 +118,7 @@ footer a:hover { text-decoration: none; }
 }
 .repolist li a:hover { text-decoration: none; }
 .repolist li a:hover .name { text-decoration: underline; }
+.readme { padding-left: 20px; background-color: #F9F9F9; border: 1px solid #F1F1F1; font-size: 50%; }
 
 
 /* Base styles for history and commit views */

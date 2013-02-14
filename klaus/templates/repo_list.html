@@ -24,11 +24,11 @@
           {% endif %}
         </span>
       </a>
-      <span class="readme">
+      <div class="readme">
         {% if repo.get_readme() %}
         {{ repo.get_readme()|safe }}
         {% endif %}
-      </span>
+      </div>
     </li>
   {% endfor %}
 </ul>
