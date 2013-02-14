@@ -15,14 +15,33 @@
     <li>
       <a href="{{ url_for('history', repo=repo.name) }}">
         <span class=name>{{ repo.name }}</span>
-      <span class=last-updated>
+        {% set description = repo.get_description() %}
+        {% if description %}
+        <span class=description>{{ description }}</span>
+        {% endif %}
+        <span class=last-updated>
         {% set last_updated_at = repo.get_last_updated_at() %}
         {% if last_updated_at is not none %}
         last updated {{ last_updated_at|timesince }} ago
         {% else %}
         no commits yet
         {% endif %}
-      </span></a>
+        </span>
+      </a>
+      {% set readme = repo.get_readme() %}
+      {% if readme %}
+      <a class="readme-button" id="readme-button-{{ repo.name }}" href="#" onclick="showReadme('{{ repo.name }}');">readme</a>
+      {% endif %}
+      <div id="{{ repo.name }}-readme" class="readme" style="display: none;">
+        {% if readme %}
+        <a href="#" onclick="hideReadme('{{ repo.name }}');" style="float: right;">hide readme</a>
+        {% if readme['rendered'] %}
+        {{ readme['content']|safe }}
+        {% else %}
+        <pre>{{ readme['content'] }}</pre>
+        {% endif %}
+        {% endif %}
+      </div>
     </li>
   {% endfor %}
 </ul>
