@@ -1,16 +1,12 @@
 import os
 import cStringIO
 
-try:
-  import markdown
-except Exception:
-  pass
-
 import dulwich, dulwich.patch
 from dulwich.object_store import tree_lookup_path
 
 from klaus.utils import check_output
 from klaus.diff import prepare_udiff
+from klaus.markup import can_render, render
 
 
 class FancyRepo(dulwich.repo.Repo):
@@ -28,12 +24,29 @@ class FancyRepo(dulwich.repo.Repo):
         return None
 
     def get_readme(self):
-        try:
-            tree = self["HEAD"].tree
-            (mode, sha) = tree_lookup_path(self.get_object, tree, 'README.md')
-            return markdown.markdown(str(self[sha].data))
-        except Exception as e:
-            return None
+        readme_formats = {'.md':   None,
+                          '.mkdn': None,
+                          '.rst':  None,
+                          '.rest': None}
+        tree = self["HEAD"].tree
+
+        for format in readme_formats.keys():
+            file = "README" + format
+            try:
+                readme_formats[format] = tree_lookup_path(self.get_object, tree, file)
+            except Exception:
+                pass
+
+        for format, asset in readme_formats.items():
+            if asset:
+                file = "README" + format
+                content = self[asset[1]].data
+                if can_render(file):
+                    return render(file, content)
+                else:
+                    return "<pre>%s</pre>" % content.decode('unicode-escape') 
+
+        return None
 
     def get_commit(self, rev):
         for prefix in ['refs/heads/', 'refs/tags/', '']:
