@@ -21,6 +21,12 @@ class FancyRepo(dulwich.repo.Repo):
             return refs[0].commit_time
         return None
 
+    def get_description(self):
+        description = self.get_named_file('description').read()
+        if description.startswith("Unnamed repository;"):
+            return None
+        return description
+
     def get_commit(self, rev):
         for prefix in ['refs/heads/', 'refs/tags/', '']:
             key = prefix + rev

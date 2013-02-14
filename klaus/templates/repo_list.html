@@ -15,6 +15,10 @@
     <li>
       <a href="{{ url_for('history', repo=repo.name) }}">
         <span class=name>{{ repo.name }}</span>
+        {% set description = repo.get_description() %}
+        {% if description %}
+        <span class=description>{{ description }}</span>
+        {% endif %}
       <span class=last-updated>
         {% set last_updated_at = repo.get_last_updated_at() %}
         {% if last_updated_at is not none %}
@@ -22,7 +26,8 @@
         {% else %}
         no commits yet
         {% endif %}
-      </span></a>
+      </span>
+      </a>
     </li>
   {% endfor %}
 </ul>
