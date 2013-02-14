@@ -34,7 +34,7 @@ class FancyRepo(dulwich.repo.Repo):
             file = "README" + format
             try:
                 readme_formats[format] = tree_lookup_path(self.get_object, tree, file)
-            except Exception:
+            except KeyError:
                 pass
 
         for format, asset in readme_formats.items():
@@ -46,7 +46,7 @@ class FancyRepo(dulwich.repo.Repo):
                 if can_render(file):
                     return render(file, content)
                 else:
-                    return "<pre>%s</pre>" % content.decode('unicode-escape') 
+                    return "<pre>\n%s\n</pre>" % force_unicode(content)
 
         return None
 
