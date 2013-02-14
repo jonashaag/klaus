@@ -3,7 +3,7 @@ import cStringIO
 
 import dulwich, dulwich.patch
 
-from klaus.utils import check_output
+from klaus.utils import check_output, force_unicode
 from klaus.diff import prepare_udiff
 
 
@@ -20,6 +20,13 @@ class FancyRepo(dulwich.repo.Repo):
         if refs:
             return refs[0].commit_time
         return None
+
+    def get_description(self):
+        description_file = self.get_named_file('description')
+        if description_file:
+            description = force_unicode(description_file.read())
+            if not description.startswith("Unnamed repository;"):
+                return description
 
     def get_commit(self, rev):
         for prefix in ['refs/heads/', 'refs/tags/', '']:
