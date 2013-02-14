@@ -1,7 +1,14 @@
 import os
 import cStringIO
 
+try:
+  import markdown
+except Exception:
+  pass
+
 import dulwich, dulwich.patch
+from dulwich.object_store import tree_lookup_path
+from dulwich.errors import NotTreeError
 
 from klaus.utils import check_output
 from klaus.diff import prepare_udiff
@@ -20,6 +27,14 @@ class FancyRepo(dulwich.repo.Repo):
         if refs:
             return refs[0].commit_time
         return None
+
+    def get_readme(self):
+        try:
+            tree = self["HEAD"].tree
+            (mode, sha) = tree_lookup_path(self.get_object, tree, 'README.md')
+            return markdown.markdown(str(self[sha].data))
+        except Exception as e:
+            return None
 
     def get_commit(self, rev):
         for prefix in ['refs/heads/', 'refs/tags/', '']:

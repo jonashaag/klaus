@@ -15,14 +15,20 @@
     <li>
       <a href="{{ url_for('history', repo=repo.name) }}">
         <span class=name>{{ repo.name }}</span>
-      <span class=last-updated>
-        {% set last_updated_at = repo.get_last_updated_at() %}
-        {% if last_updated_at is not none %}
-        last updated {{ last_updated_at|timesince }} ago
-        {% else %}
-        no commits yet
+        <span class=last-updated>
+          {% set last_updated_at = repo.get_last_updated_at() %}
+          {% if last_updated_at is not none %}
+          last updated {{ last_updated_at|timesince }} ago
+          {% else %}
+          no commits yet
+          {% endif %}
+        </span>
+      </a>
+      <span class="readme">
+        {% if repo.get_readme() %}
+        {{ repo.get_readme()|safe }}
         {% endif %}
-      </span></a>
+      </span>
     </li>
   {% endfor %}
 </ul>
