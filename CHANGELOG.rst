@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.2 (TBD)
+-----------
+* #49: Support for short descriptions using `.git/description` file (Ernest W. Durbin III)
+
 0.2.1 (Jan 29, 2013)
 --------------------
 * Tags work again (Jonas Haag)
