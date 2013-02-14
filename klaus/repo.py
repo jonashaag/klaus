@@ -8,7 +8,6 @@ except Exception:
 
 import dulwich, dulwich.patch
 from dulwich.object_store import tree_lookup_path
-from dulwich.errors import NotTreeError
 
 from klaus.utils import check_output
 from klaus.diff import prepare_udiff
