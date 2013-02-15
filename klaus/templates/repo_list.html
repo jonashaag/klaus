@@ -35,11 +35,13 @@
       </div>
       <div id="{{ repo.name }}-readme" class="readme" style="display: none;">
         <a href="#" class="hide-readme-button" onclick="hideReadme('{{ repo.name }}');">hide readme</a>
-        {% if readme['rendered'] %}
-        {{ readme['content']|safe }}
-        {% else %}
-        <pre>{{ readme['content'] }}</pre>
-        {% endif %}
+        <div class="readme-content">
+          {% if readme['rendered'] %}
+          {{ readme['content']|safe }}
+          {% else %}
+          <pre>{{ readme['content'] }}</pre>
+          {% endif %}
+        </div>
       </div>
       {% endif %}
     </li>
