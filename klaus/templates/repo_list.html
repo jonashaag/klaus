@@ -14,19 +14,11 @@
   {% for repo in repos %}
     <li>
       <a href="{{ url_for('history', repo=repo.name) }}">
-        <span class=name>{{ repo.name }}</span>
+        <div class=name>{{ repo.name }}</div>
         {% set description = repo.get_description() %}
         {% if description %}
-        <span class=description>{{ description }}</span>
+          <div class=description>{{ description }}</div>
         {% endif %}
-        <span class=last-updated>
-        {% set last_updated_at = repo.get_last_updated_at() %}
-        {% if last_updated_at is not none %}
-        last updated {{ last_updated_at|timesince }} ago
-        {% else %}
-        no commits yet
-        {% endif %}
-        </span>
       </a>
       {% set readme = repo.get_readme() %}
       {% if readme %}

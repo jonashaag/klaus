@@ -24,10 +24,11 @@ class FancyRepo(dulwich.repo.Repo):
         return None
 
     def get_description(self):
-        description = self.get_named_file('description').read()
-        if description.startswith("Unnamed repository;"):
-            return None
-        return force_unicode(description)
+        description_file = self.get_named_file('description')
+        if description_file:
+            description = force_unicode(description_file.read())
+            if not description.startswith("Unnamed repository;"):
+                return description
 
     def get_readme(self):
         readme_formats = {'.md':   None,
