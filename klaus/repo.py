@@ -35,7 +35,7 @@ class FancyRepo(dulwich.repo.Repo):
         tree = self.get_blob_or_tree(commit, '/')
 
         for item in tree.items():
-            if item.path.startswith("README"):
+            if item.path.startswith("README."):
                 content = self[item.sha].data
                 if can_render(item.path):
                     return {'rendered': True, 'content': render(item.path, content)}
