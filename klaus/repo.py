@@ -2,11 +2,12 @@ import os
 import cStringIO
 
 import dulwich, dulwich.patch
-from dulwich.object_store import tree_lookup_path
 
 from klaus.utils import check_output, force_unicode
 from klaus.diff import prepare_udiff
 from klaus.markup import can_render, render
+
+from glob import glob
 
 
 class FancyRepo(dulwich.repo.Repo):
@@ -31,25 +32,15 @@ class FancyRepo(dulwich.repo.Repo):
                 return description
 
     def get_readme(self):
-        readme_formats = {'.md':   None,
-                          '.mkdn': None,
-                          '.rst':  None,
-                          '.rest': None}
-        tree = self["HEAD"].tree
+        rev = self.get_default_branch()
+        commit = self.get_commit(rev)
+        tree = self.get_blob_or_tree(commit, '/')
 
-        for format in readme_formats.keys():
-            file = "README" + format
-            try:
-                readme_formats[format] = tree_lookup_path(self.get_object, tree, file)
-            except KeyError:
-                pass
-
-        for format, asset in readme_formats.items():
-            if asset:
-                file = "README" + format
-                content = self[asset[1]].data
-                if can_render(file):
-                    return {'rendered': True, 'content': render(file, content)}
+        for item in tree.items():
+            if item.path.startswith("README"):
+                content = self[item.sha].data
+                if can_render(item.path):
+                    return {'rendered': True, 'content': render(item.path, content)}
                 else:
                     return {'rendered': False, 'content': force_unicode(content)}
 
