@@ -4,7 +4,7 @@ import cStringIO
 import dulwich, dulwich.patch
 from dulwich.object_store import tree_lookup_path
 
-from klaus.utils import check_output
+from klaus.utils import check_output, force_unicode
 from klaus.diff import prepare_udiff
 from klaus.markup import can_render, render
 
@@ -24,10 +24,11 @@ class FancyRepo(dulwich.repo.Repo):
         return None
 
     def get_description(self):
-        description = self.get_named_file('description').read()
-        if description.startswith("Unnamed repository;"):
-            return None
-        return description
+        description_file = self.get_named_file('description')
+        if description_file:
+            description = force_unicode(description_file.read())
+            if not description.startswith("Unnamed repository;"):
+                return description
 
     def get_readme(self):
         readme_formats = {'.md':   None,

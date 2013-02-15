@@ -109,15 +109,12 @@ footer a:hover { text-decoration: none; }
 /* Repo List */
 .repolist { margin-left: 2em; font-size: 120%; }
 .repolist li { margin-bottom: 10px; }
-.repolist li a { display: block; }
 .repolist li a .last-updated {
-  display: block;
   color: #737373;
   font-size: 60%;
   margin-left: 10px;
 }
 .repolist li a .description {
-  display: block;
   color: black;
   font-size: 75%;
   margin-left: 10px;
