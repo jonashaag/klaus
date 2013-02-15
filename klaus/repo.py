@@ -7,8 +7,6 @@ from klaus.utils import check_output, force_unicode
 from klaus.diff import prepare_udiff
 from klaus.markup import can_render, render
 
-from glob import glob
-
 
 class FancyRepo(dulwich.repo.Repo):
     # TODO: factor out stuff into dulwich
