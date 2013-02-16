@@ -1,6 +1,6 @@
 import os
 
-LANGUAGES = []
+LANGUAGES = [(['.html'], str)]
 
 try:
     import markdown
