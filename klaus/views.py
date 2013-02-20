@@ -10,8 +10,8 @@ from werkzeug.exceptions import NotFound
 from dulwich.objects import Blob
 
 from klaus import markup
-from klaus.utils import parent_directory, subpaths, get_mimetype_and_encoding, \
-                        pygmentize, force_unicode, guess_is_binary, guess_is_image
+from klaus.utils import parent_directory, subpaths, pygmentize, \
+                        force_unicode, guess_is_binary, guess_is_image
 
 
 def repo_list():
@@ -206,21 +206,7 @@ class RawView(BlobViewMixin, BaseRepoView):
     served through a static file server)
     """
     def get_response(self):
-        chunks = self.context['blob_or_tree'].chunked
-
-        if len(chunks) == 1 and not chunks[0]:
-            # empty file
-            chunks = []
-            mime = 'text/plain'
-            encoding = 'utf-8'
-        else:
-            mime, encoding = get_mimetype_and_encoding(chunks, self.context['filename'])
-
-        headers = {'Content-Type': mime}
-        if encoding:
-            headers['Content-Encoding'] = encoding
-
-        return Response(chunks, headers=headers)
+        return Response(self.context['blob_or_tree'].chunked)
 
 
 #                                     TODO v

@@ -211,13 +211,6 @@ def shorten_message(msg):
     return msg.split('\n')[0]
 
 
-def get_mimetype_and_encoding(blob, filename):
-    mime, encoding = mimetypes.guess_type(filename)
-    if mime and mime.startswith('text/'):
-        mime = 'text/plain'
-    return mime, encoding
-
-
 try:
     from subprocess import check_output
 except ImportError:
