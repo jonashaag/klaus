@@ -40,6 +40,8 @@ Installation
 Usage
 -----
 
+See also: `Klaus wiki <https://github.com/jonashaag/klaus/wiki>`_
+
 Using the ``klaus`` script
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 **NOTE:** This is intended for testing/low-traffic local installations *only*!
