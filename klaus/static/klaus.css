@@ -125,10 +125,10 @@ footer a:hover { text-decoration: none; }
 
 /* Base styles for history and commit views */
 .commit {
-  background-color: #f9f9f9;
-  padding: 8px 10px;
-  margin-bottom: 2px;
   display: block;
+  margin-bottom: 2px;
+  padding: 8px 10px;
+  background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
 }
 .commit:hover { text-decoration: none; }
@@ -184,12 +184,18 @@ a.commit { color: black !important; }
 /* Blob View */
 .blobview img { max-width: 100%; padding: 1px; }
 .blobview table { min-width: 100%; }
-.blobview table, .blobview img { border: 1px solid #e0e0e0; }
+.blobview table, .blobview img, .blobview .markup {
+  border: 1px solid #e0e0e0;
+}
 .blobview .linenos { border: 1px solid #e0e0e0; padding: 0; }
 .blobview .code { padding: 0; width: 100%; }
 .blobview .code .line { padding: 0 5px 0 10px; }
-.blobview .markup { font-family: Georgia, serif; }
-.blobview .markup pre { background-color: #f9f9f9; padding: 10px 12px; }
+.blobview .markup { padding: 0 10px; }
+.blobview .markup pre {
+  padding: 10px 12px;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+}
 
 
 /* Commit View */
@@ -203,8 +209,8 @@ a.commit { color: black !important; }
 
 .diff { font-family: monospace; }
 .diff .filename {
-  background-color: #f9f9f9;
   padding: 8px 10px;
+  background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
   border-bottom: 0;
   margin-top: 25px;
@@ -235,8 +241,8 @@ a.commit { color: black !important; }
 .diff table ins { background-color: #99ee99; text-decoration: none; }
 .diff .sep > td {
   height: 1.2em;
-  background-color: #f9f9f9;
   text-align: center;
+  background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
 }
 .diff .sep:hover > td { background-color: #f9f9f9; }
