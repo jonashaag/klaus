@@ -17,7 +17,7 @@
         <div class=name>{{ repo.name }}</div>
         {% set description = repo.get_description() %}
         {% if description %}
-          <div class=description>{{ description }}</div>
+        <div class=description>{{ description }}</div>
         {% endif %}
         <div class=last-updated>
         {% set last_updated_at = repo.get_last_updated_at() %}
@@ -28,6 +28,22 @@
         {% endif %}
         </div>
       </a>
+      {% set readme = repo.get_readme() %}
+      {% if readme %}
+      <div class=readme-button-div>
+        <a class="readme-button" id="readme-button-{{ repo.name }}" href="#" onclick="showReadme('{{ repo.name }}');">show readme</a>
+      </div>
+      <div id="{{ repo.name }}-readme" class="readme" style="display: none;">
+        <a href="#" class="hide-readme-button" onclick="hideReadme('{{ repo.name }}');">hide readme</a>
+        <div class="readme-content">
+          {% if readme['rendered'] %}
+          {{ readme['content']|safe }}
+          {% else %}
+          <pre>{{ readme['content'] }}</pre>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
     </li>
   {% endfor %}
 </ul>
