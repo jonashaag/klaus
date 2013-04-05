@@ -1,15 +1,16 @@
 Changelog
 =========
 
-0.2.2 (TBD)
------------
+0.2.2 (Apr 5, 2013)
+-------------------
 * #49: Support for short descriptions using `.git/description` file (Ernest W. Durbin III)
+* Bug #53: Misbehaving mimetype recognition
 
 0.2.1 (Jan 29, 2013)
 --------------------
 * Tags work again (Jonas Haag)
 * Apache/mod_wsgi deployment docs (Alex Marandon)
-* #43: ``bin/klaus``: ``--site-name`` did only accept ASCII strings
+* Bug #43: ``bin/klaus``: ``--site-name`` did only accept ASCII strings
   (Alex Marandon, Martin Zimmermann, Jonas Haag)
 * More robust routing (Jonas Haag)
 
@@ -18,7 +19,7 @@ Changelog
 * Rewrite/port to Flask/Werkzeug (Martin Zimmermann, Jonas Haag).
 * Git Smart HTTP support with HTTP authentication (Martin Zimmermann, Jonas Haag)
 * Tag selector (Jonas Haag)
-* Switch to ICS license
+* Switch to ISC license
 
 0.1 (unreleased)
 ----------------
