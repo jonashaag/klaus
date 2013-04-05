@@ -21,15 +21,6 @@ Features
 .. _img3: https://github.com/jonashaag/klaus/raw/master/assets/blob-view.gif
 
 
-Who is using it?
-----------------
-Standard installations:
-   * http://klausdemo.lophus.org
-   * https://posativ.org/git/
-Forks/related projects:
-   * `GikiLog <http://arnout.engelen.eu>`_, blog/wiki hybrid based on klaus
-
-
 Installation
 ------------
 ::
