@@ -3,6 +3,11 @@ klaus: a simple Git web viewer that Just Works™.
 
 (If it doesn't Just Work for you, please file a bug.)
 
+:Demo: http://klausdemo.lophus.org
+:Mailing list: http://groups.google.com/group/klaus-users
+:On PyPI: http://pypi.python.org/pypi/klaus/
+:License: ISC (BSD)
+
 Features
 --------
 * Super easy to set up -- no configuration required
