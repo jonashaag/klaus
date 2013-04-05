@@ -190,6 +190,7 @@ a.commit { color: black !important; }
 .blobview .linenos { border: 1px solid #e0e0e0; padding: 0; }
 .blobview .code { padding: 0; width: 100%; }
 .blobview .code .line { padding: 0 5px 0 10px; }
+.blobview .markup h1:first-child { margin-top: 8px; }
 .blobview .markup { padding: 0 10px; }
 .blobview .markup pre {
   padding: 10px 12px;
