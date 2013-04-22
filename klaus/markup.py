@@ -8,7 +8,7 @@ try:
     def render_markdown(content):
         return markdown.markdown(content, extensions=['toc'])
         
-    LANGUAGES.append((['.md', '.mkdn'], render.markdown))
+    LANGUAGES.append((['.md', '.mkdn'], render_markdown))
 except ImportError:
     pass
 
