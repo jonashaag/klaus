@@ -231,5 +231,9 @@ except ImportError:
 
 
 def guess_git_revision():
-    if os.path.exists(os.path.join(os.path.dirname(__file__), '..', '.git')):
-        return check_output(['git', 'log', '--format=%h', '-n', '1']).strip()
+    git_dir = os.path.join(os.path.dirname(__file__), '..', '.git')
+    if os.path.exists(git_dir):
+        return check_output(
+            ['git', 'log', '--format=%h', '-n', '1'],
+            cwd=git_dir
+        ).strip()
