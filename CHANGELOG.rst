@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.3 (May 08, 2013)
+--------------------
+* Fix an issue with the version/revision indicator bottom-right of the page
+
 0.2.2 (Apr 5, 2013)
 -------------------
 * #49: Support for short descriptions using `.git/description` file (Ernest W. Durbin III)
