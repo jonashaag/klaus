@@ -50,7 +50,10 @@ class FancyRepo(dulwich.repo.Repo):
                 return candidate
             except KeyError:
                 pass
-        return self.get_branch_names()[0]
+        try:
+            return self.get_branch_names()[0]
+        except IndexError:
+            return None
 
     def get_sorted_ref_names(self, prefix, exclude=None):
         refs = self.refs.as_dict(prefix)
