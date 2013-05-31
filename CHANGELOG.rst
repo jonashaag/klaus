@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.4 (May 31, 2013)
+--------------------
+* Bug #61: Don't crash on repos without "master" branch
+
 0.2.3 (May 08, 2013)
 --------------------
 * Fix an issue with the version/revision indicator bottom-right of the page
