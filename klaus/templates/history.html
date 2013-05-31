@@ -23,7 +23,7 @@
     {% endif %}
     {% if more_commits %}
       <a href="?page={{page+1}}">»»</a>
-    {% else %}
+    {% elif page %}
       <span>»»</span>
     {% endif%}
   </div>
