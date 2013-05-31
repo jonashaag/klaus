@@ -4,6 +4,7 @@ Changelog
 0.2.4 (May 31, 2013)
 --------------------
 * Bug #61: Don't crash on repos without "master" branch
+* Don't crash on completely empty repos
 
 0.2.3 (May 08, 2013)
 --------------------
