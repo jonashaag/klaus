@@ -32,10 +32,7 @@ class FancyRepo(dulwich.repo.Repo):
         for prefix in ['refs/heads/', 'refs/tags/', '']:
             key = prefix + rev
             try:
-                # XXX: Workaround https://github.com/jelmer/dulwich/issues/82
-                if not key.isalnum():
-                    key = self.refs[key]
-                obj = self.object_store[key]
+                obj = self[key]
                 if isinstance(obj, dulwich.objects.Tag):
                     obj = self[obj.object[1]]
                 return obj
