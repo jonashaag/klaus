@@ -12,15 +12,19 @@
 </h2>
 <ul class=repolist>
   {% for repo in repos %}
+    {% set last_updated_at = repo.get_last_updated_at() %}
+    {% set description = repo.get_description() %}
     <li>
-      <a href="{{ url_for('history', repo=repo.name) }}">
+      <a
+        {% if last_updated_at %}
+          href="{{ url_for('history', repo=repo.name) }}"
+        {% endif %}
+      >
         <div class=name>{{ repo.name }}</div>
-        {% set description = repo.get_description() %}
         {% if description %}
           <div class=description>{{ description }}</div>
         {% endif %}
         <div class=last-updated>
-        {% set last_updated_at = repo.get_last_updated_at() %}
         {% if last_updated_at is not none %}
           last updated {{ last_updated_at|timesince }} ago
         {% else %}

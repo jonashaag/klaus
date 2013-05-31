@@ -54,11 +54,17 @@ class BaseRepoView(View):
     def make_context(self, repo, rev, path):
         try:
             repo = current_app.repo_map[repo]
+        except KeyError:
+            raise NotFound("No such repository %r" % repo)
+
+        if rev is None:
+            rev = repo.get_default_branch()
             if rev is None:
-                rev = repo.get_default_branch()
+                raise NotFound("Empty repository")
+        try:
             commit = repo.get_commit(rev)
         except KeyError:
-            raise NotFound("Commit not found")
+            raise NotFound("No such commit %r" % rev)
 
         try:
             blob_or_tree = repo.get_blob_or_tree(commit, path)
