@@ -45,13 +45,13 @@ class BaseRepoView(View):
         self.context = {}
 
     def dispatch_request(self, repo, rev=None, path=''):
-        self.make_context(repo, rev, path.strip('/'))
+        self.make_template_context(repo, rev, path.strip('/'))
         return self.get_response()
 
     def get_response(self):
         return render_template(self.template_name, **self.context)
 
-    def make_context(self, repo, rev, path):
+    def make_template_context(self, repo, rev, path):
         try:
             repo = current_app.repo_map[repo]
         except KeyError:
@@ -88,8 +88,8 @@ class TreeViewMixin(object):
     """
     Implements the logic required for displaying the current directory in the sidebar
     """
-    def make_context(self, *args):
-        super(TreeViewMixin, self).make_context(*args)
+    def make_template_context(self, *args):
+        super(TreeViewMixin, self).make_template_context(*args)
         self.context['root_tree'] = self.listdir()
 
     def listdir(self):
@@ -128,8 +128,8 @@ class TreeViewMixin(object):
 
 class HistoryView(TreeViewMixin, BaseRepoView):
     """ Show commits of a branch + path, just like `git log`. With pagination. """
-    def make_context(self, *args):
-        super(HistoryView, self).make_context(*args)
+    def make_template_context(self, *args):
+        super(HistoryView, self).make_template_context(*args)
 
         try:
             page = int(request.args.get('page'))
@@ -170,15 +170,15 @@ class HistoryView(TreeViewMixin, BaseRepoView):
 
 
 class BlobViewMixin(object):
-    def make_context(self, *args):
-        super(BlobViewMixin, self).make_context(*args)
+    def make_template_context(self, *args):
+        super(BlobViewMixin, self).make_template_context(*args)
         self.context['filename'] = os.path.basename(self.context['path'])
 
 
 class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
     """ Shows a file rendered using ``pygmentize`` """
-    def make_context(self, *args):
-        super(BlobView, self).make_context(*args)
+    def make_template_context(self, *args):
+        super(BlobView, self).make_template_context(*args)
 
         if guess_is_binary(self.context['blob_or_tree']):
             self.context.update({
