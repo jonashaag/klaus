@@ -3,17 +3,17 @@ Changelog
 
 0.2.4 (May 31, 2013)
 --------------------
-* Bug #61: Don't crash on repos without "master" branch
-* Don't crash on completely empty repos
+* Bug #61: Don't crash on repos without "master" branch (Jonas Haag)
+* Don't crash on completely empty repos (Jonas Haag)
 
 0.2.3 (May 08, 2013)
 --------------------
-* Fix an issue with the version/revision indicator bottom-right of the page
+* Fix an issue with the version/revision indicator bottom-right of the page (Jonas Haag)
 
 0.2.2 (Apr 5, 2013)
 -------------------
 * #49: Support for short descriptions using `.git/description` file (Ernest W. Durbin III)
-* Bug #53: Misbehaving mimetype recognition
+* Bug #53: Misbehaving mimetype recognition (Jonas Haag)
 
 0.2.1 (Jan 29, 2013)
 --------------------
