@@ -4,7 +4,11 @@ LANGUAGES = []
 
 try:
     import markdown
-    LANGUAGES.append((['.md', '.mkdn'], markdown.markdown))
+    
+    def render_markdown(content):
+        return markdown.markdown(content, extensions=['toc'])
+        
+    LANGUAGES.append((['.md', '.mkdn'], render_markdown))
 except ImportError:
     pass
 
