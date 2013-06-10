@@ -183,7 +183,10 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
         if not isinstance(self.context['blob_or_tree'], Blob):
             raise NotFound("Not a blob")
 
-        if guess_is_binary(self.context['blob_or_tree']):
+        binary = guess_is_binary(self.context['blob_or_tree'])
+        too_large = sum(map(len, self.context['blob_or_tree'].chunked)) > 100*1024
+
+        if binary:
             self.context.update({
                 'is_markup': False,
                 'is_binary': True,
@@ -193,6 +196,12 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
                 self.context.update({
                     'is_image': True,
                 })
+        elif too_large:
+            self.context.update({
+                'too_large': True,
+                'is_markup': False,
+                'is_binary': False,
+            })
         else:
             render_markup = 'markup' not in request.args
             rendered_code = pygmentize(
@@ -201,7 +210,7 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
                 render_markup
             )
             self.context.update({
-                'too_large': sum(map(len, self.context['blob_or_tree'].chunked)) > 100*1024,
+                'too_large': False,
                 'is_markup': markup.can_render(self.context['filename']),
                 'render_markup': render_markup,
                 'rendered_code': rendered_code,
