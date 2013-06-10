@@ -180,6 +180,9 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
     def make_template_context(self, *args):
         super(BlobView, self).make_template_context(*args)
 
+        if not isinstance(self.context['blob_or_tree'], Blob):
+            raise NotFound("Not a blob")
+
         if guess_is_binary(self.context['blob_or_tree']):
             self.context.update({
                 'is_markup': False,
