@@ -14,6 +14,8 @@ from pygments import highlight
 from pygments.lexers import get_lexer_for_filename, guess_lexer, ClassNotFound
 from pygments.formatters import HtmlFormatter
 
+from humanize import naturaltime
+
 from klaus import markup
 
 
@@ -83,49 +85,7 @@ def pygmentize(code, filename=None, render_markup=True):
 
 def timesince(when, now=time.time):
     """ Returns the difference between `when` and `now` in human readable form. """
-    # TODO: rewrite this mess
-    delta = now() - when
-    result = []
-    break_next = False
-    for unit, seconds, break_immediately in [
-        ('year', 365*24*60*60, False),
-        ('month', 30*24*60*60, False),
-        ('week', 7*24*60*60, False),
-        ('day', 24*60*60, True),
-        ('hour', 60*60, False),
-        ('minute', 60, True),
-        ('second', 1, False),
-    ]:
-        if delta > seconds:
-            n = int(delta/seconds)
-            delta -= n*seconds
-            result.append((n, unit))
-            if break_immediately:
-                break
-            if not break_next:
-                break_next = True
-                continue
-        if break_next:
-            break
-
-    if not result:
-        # 0 seconds
-        result = [(1, 'second')]
-
-    if len(result) > 1:
-        n, unit = result[0]
-        if unit == 'month':
-            if n == 1:
-                # 1 month, 3 weeks --> 7 weeks
-                result = [(result[1][0] + 4, 'week')]
-            else:
-                # 2 months, 1 week -> 2 months
-                result = result[:1]
-        elif unit == 'hour' and n > 5:
-            result = result[:1]
-
-    return ', '.join('%d %s%s' % (n, unit, 's' if n != 1 else '')
-                     for n, unit in result[:2])
+    return naturaltime(now() - when)
 
 
 def formattimestamp(timestamp):
