@@ -1,9 +1,13 @@
 Changelog
 =========
 
-0.2.4 (May 31, 2013)
---------------------
+0.3 (Jun 10, 2013)
+------------------
+* #57: Better "N minutes/hours/weeks ago" strings (Jonas Haag)
+* #59: Show download link for binary files / large files
+* #56: Markdown renderer: enable "TOC" and "extra" extensions (@ar4s, Jonas Haag)
 * Bug #61: Don't crash on repos without "master" branch (Jonas Haag)
+* Bug #60: Don't crash if "/blob/" URL is requested with non-file argument
 * Don't crash on completely empty repos (Jonas Haag)
 
 0.2.3 (May 08, 2013)
