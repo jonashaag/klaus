@@ -8,6 +8,15 @@ klaus: a simple Git web viewer that Just Works™.
 :On PyPI: http://pypi.python.org/pypi/klaus/
 :License: ISC (BSD)
 
+Contributing
+------------
+Please do it!
+
+I'm equally happy with bug reports/feature ideas and code contributions.
+If you have any questions/issues, I'm happy to help!
+
+For starters, `here are a few ideas what to work on. <https://github.com/jonashaag/klaus/issues>`_ :-)
+
 Features
 --------
 * Super easy to set up -- no configuration required
