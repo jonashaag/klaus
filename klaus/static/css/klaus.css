@@ -200,7 +200,7 @@ a.commit { color: black !important; }
 .full-commit .commit .line2 > span:nth-child(2):before { content: '·'; margin: 0 3px 0 5px; }
 
 .diff table { font-family: Menlo, "Andale Mono", Consolas, "Lucida Console", "Liberation Mono", monospace; font-size: 0.7em;}
-.diff .filename, .diff .filename a { font-size: 0.9em; color: #4183C4;
+.diff .filename, .diff .filename a { font-size: 0.9em; color: #4183C4; }
 .diff .filename {
   padding: 8px 10px;
   background-color: #f9f9f9;
