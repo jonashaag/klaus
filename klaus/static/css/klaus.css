@@ -26,7 +26,6 @@ h2 > code:last-of-type {
 /* Header */
 header { font-size: 90%; padding: 0.5%; border-bottom: 3px solid #e0e0e0; }
 header a { padding: 0.5% 0; }
-header .breadcrumbs > span:before { content: ' » '; color: #666; }
 header .slash { margin: 0 -2px; }
 
 
@@ -47,7 +46,6 @@ header .slash { margin: 0 -2px; }
   padding: 4px 5px;
   float: right;
 }
-.branch-selector > span:after { content: "☟"; margin-left: 5px; }
 .branch-selector > span:hover { background-color: #fefefe; cursor: pointer; }
 .branch-selector div {
   z-index: 1;
@@ -64,9 +62,10 @@ header .slash { margin: 0 -2px; }
   display: block;
   padding: 4px 5px;
   border-bottom: 1px solid #f1f1f1;
+  color: #888;
 }
 .branch-selector li:first-child a { border-top: 1px solid #f1f1f1; }
-.branch-selector li a:hover { background-color: #fefefe; }
+.branch-selector li a:hover { background-color: #cdf; text-decoration: none; }
 .branch-selector li:last-child a { border: 0; }
 .branch-selector:hover { border: 1px solid #ccc; }
 .branch-selector:hover > span { border: 0; background-color: inherit; }
@@ -159,6 +158,10 @@ a.commit { color: black !important; }
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.tree li a:hover {
+  background: #cdf;
+  text-decoration: none;
+}
 
 /* Common for diff and blob view */
 .line { display: block; }
@@ -196,8 +199,8 @@ a.commit { color: black !important; }
 .full-commit .commit .line2 > span:nth-child(2) { float: left; }
 .full-commit .commit .line2 > span:nth-child(2):before { content: '·'; margin: 0 3px 0 5px; }
 
-.diff table { font-family: Menlo, "Andale Mono", Consolas, "Lucida Console", "Liberation Mono", monospace; font-size: 0.8em;}
-.diff .filename, .diff .filename a { font-size: 0.9em; color: #4183C4;}
+.diff table { font-family: Menlo, "Andale Mono", Consolas, "Lucida Console", "Liberation Mono", monospace; font-size: 0.7em;}
+.diff .filename, .diff .filename a { font-size: 0.9em; color: #4183C4;
 .diff .filename {
   padding: 8px 10px;
   background-color: #f9f9f9;
