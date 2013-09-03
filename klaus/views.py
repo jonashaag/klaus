@@ -22,7 +22,8 @@ def repo_list():
     else:
         sort_key = lambda repo: repo.name
         reverse = False
-    repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
+    #repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
+    repos = sorted(Map(FancyRepo, ['/srv/git/'+path for path in os.listdir('/srv/git')]), key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
 
