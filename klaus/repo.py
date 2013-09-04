@@ -14,7 +14,14 @@ class FancyRepo(dulwich.repo.Repo):
         return self.path.rstrip(os.sep).split(os.sep)[-1].replace('.git', '')
 
     def get_last_updated_at(self):
-        refs = [self[ref_hash] for ref_hash in self.get_refs().itervalues()]
+        print("Entering ", self.name)
+        try:
+            refs = [self[ref_hash] for ref_hash in self.get_refs()]
+        except StopIteration:
+            try:
+                refs = [self[ref_hash] for ref_hash in self.get_refs()]
+            except StopIteration:
+                return 0
         refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
                   reverse=True)
         if refs:
