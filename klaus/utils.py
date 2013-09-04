@@ -197,3 +197,4 @@ def guess_git_revision():
             ['git', 'log', '--format=%h', '-n', '1'],
             cwd=git_dir
         ).strip()
+

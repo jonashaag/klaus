@@ -1,12 +1,16 @@
+import os
 import jinja2
 import flask
 import httpauth
 import dulwich.web
+from dulwich.errors import NotGitRepository
 from klaus import views, utils
 from klaus.repo import FancyRepo
-
+from dulwich.repo import Repo
 
 KLAUS_VERSION = utils.guess_git_revision() or '0.3'
+
+
 
 
 class Klaus(flask.Flask):
@@ -15,15 +19,27 @@ class Klaus(flask.Flask):
         'undefined': jinja2.StrictUndefined
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp):
-        self.repos = map(FancyRepo, repo_paths)
-        self.repo_map = dict((repo.name, repo) for repo in self.repos)
+    def __init__(self, repos_path, site_name, use_smarthttp):
+        self.repos_root = repos_path
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
+
 
         flask.Flask.__init__(self, __name__)
 
         self.setup_routes()
+
+    def scan_repos(self):
+        folders = [self.repos_root+f for f in os.listdir(self.repos_root) if (os.path.isdir(self.repos_root+f))]
+
+        self.repos = []
+        for f in folders:
+            try:
+                print(f)
+                self.repos.append(FancyRepo(f))
+            except NotGitRepository:
+                pass
+        self.repo_map = dict((repo.name, repo) for repo in self.repos)
 
     def create_jinja_environment(self):
         """ Called by Flask.__init__ """

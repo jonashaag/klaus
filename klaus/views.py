@@ -10,6 +10,7 @@ from werkzeug.exceptions import NotFound
 from dulwich.objects import Blob
 
 from klaus import markup
+from klaus.repo import FancyRepo
 from klaus.utils import parent_directory, subpaths, pygmentize, \
                         force_unicode, guess_is_binary, guess_is_image
 
@@ -22,8 +23,8 @@ def repo_list():
     else:
         sort_key = lambda repo: repo.name
         reverse = False
-    #repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
-    repos = sorted(Map(FancyRepo, ['/srv/git/'+path for path in os.listdir('/srv/git')]), key=sort_key, reverse=reverse)
+    current_app.scan_repos()
+    repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
 

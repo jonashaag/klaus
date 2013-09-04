@@ -14,7 +14,6 @@ class FancyRepo(dulwich.repo.Repo):
         return self.path.rstrip(os.sep).split(os.sep)[-1].replace('.git', '')
 
     def get_last_updated_at(self):
-        print("Entering ", self.name)
         try:
             refs = [self[ref_hash] for ref_hash in self.get_refs()]
         except StopIteration:
