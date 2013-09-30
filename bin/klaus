@@ -29,8 +29,8 @@ def make_parser():
     parser.add_argument('--port',     help="default: 8080", default=8080, type=int)
     parser.add_argument('--site-name', help="site name showed in header. default: your hostname")
 
-    parser.add_argument('repos', help='repositories to serve',
-                        metavar='DIR', nargs='*', type=git_repository)
+    parser.add_argument('repos_root', help='folder to scan for repositories',
+                        metavar='DIR', type=str)
 
     grp = parser.add_argument_group("Git Smart HTTP")
     grp.add_argument('--smarthttp', help="enable Git Smart HTTP serving",
@@ -47,14 +47,11 @@ def make_parser():
 def main():
     args = make_parser().parse_args()
 
-    if not args.repos:
-        print >> sys.stderr, "WARNING: No repositories supplied -- syntax is 'klaus dir1 dir2...'."
-
     if not args.site_name:
         args.site_name = '%s:%d' % (args.host, args.port)
 
     app = make_app(
-        args.repos,
+        args.repos_root if (args.repos_root[-1]=='/') else args.repos_root+'/',
         force_unicode(args.site_name or args.host),
         args.smarthttp,
         args.htdigest
