@@ -3,7 +3,7 @@
 body, header, #content { overflow: auto; }
 
 /* Reset */
-body { margin: 0; padding: 0; font-family: sans-serif; }
+body { margin: 0; padding: 0; font-family: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif; }
 a, a:visited { color: #003278; text-decoration: none; }
 a:hover { text-decoration: underline; }
 table { border-spacing: 0; border-collapse: collapse; }
@@ -26,7 +26,6 @@ h2 > code:last-of-type {
 /* Header */
 header { font-size: 90%; padding: 0.5%; border-bottom: 3px solid #e0e0e0; }
 header a { padding: 0.5% 0; }
-header .breadcrumbs > span:before { content: ' » '; color: #666; }
 header .slash { margin: 0 -2px; }
 
 
@@ -47,7 +46,6 @@ header .slash { margin: 0 -2px; }
   padding: 4px 5px;
   float: right;
 }
-.branch-selector > span:after { content: "☟"; margin-left: 5px; }
 .branch-selector > span:hover { background-color: #fefefe; cursor: pointer; }
 .branch-selector div {
   z-index: 1;
@@ -64,9 +62,10 @@ header .slash { margin: 0 -2px; }
   display: block;
   padding: 4px 5px;
   border-bottom: 1px solid #f1f1f1;
+  color: #888;
 }
 .branch-selector li:first-child a { border-top: 1px solid #f1f1f1; }
-.branch-selector li a:hover { background-color: #fefefe; }
+.branch-selector li a:hover { background-color: #cdf; text-decoration: none; }
 .branch-selector li:last-child a { border: 0; }
 .branch-selector:hover { border: 1px solid #ccc; }
 .branch-selector:hover > span { border: 0; background-color: inherit; }
@@ -134,7 +133,7 @@ footer a:hover { text-decoration: none; }
 
 .commit > span { display: block; }
 
-.commit .line1 { font-family: monospace; padding-bottom: 2px; }
+.commit .line1 { font-size: 0.9 em; padding-bottom: 2px; }
 .commit .line1 span { white-space: pre-wrap; text-overflow: hidden; }
 .commit:hover .line1 { text-decoration: underline; color: #aaa; }
 .commit:hover .line1 span { color: black; }
@@ -149,27 +148,20 @@ footer a:hover { text-decoration: none; }
 .history .pagination { margin-top: -2em; }
 a.commit { color: black !important; }
 
-.tree ul { font-family: monospace; border-top: 1px solid #e0e0e0; }
+.tree ul { font-size: 0.8em; border-top: 1px solid #e0e0e0; }
 .tree li { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-top: 0; }
 .tree li a {
   padding: 5px 7px 6px 7px;
   display: block;
-  color: #001533;
+  color: #4183C4;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.tree li a:before, .diff .filename:before {
-  margin-right: 5px;
-  position: relative;
-  top: 2px;
-  opacity: 0.7;
-  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sGBhMmAbS/QqsAAAAdaVRYdENvbW1lbnQAAAAAAENyZWF0ZWQgd2l0aCBHSU1QZC5lBwAAANBJREFUKM+Vkj2OgzAQhb8HSLupkKiQD8DPWbZMkSMgLsF9IlLmMpiKA9CncraIQGbXIPGqsec9faOx1TTNwxhz5YT6vr8lxphr13Wc1D1Zqnmecc4BIGl1LLUk4jgmTVMA1qBzDmvtxuhLEnVdr+fEb5ZleUj0lfgGn/hXh8SiKAKEF+/3F1EUhYkA4zhumlVVARfgBXzvjxoiSkK6/Bt9Q7TWHi7lM8HOVsNE7RMlMQxDkLRs078LEkPh3XfMsuzUZ1Xbts88z3/OhKZpuv8CNeMsq6Yg8OoAAAAASUVORK5CYII=);
+.tree li a:hover {
+  background: #cdf;
+  text-decoration: none;
 }
-.tree li a.dir:before {
-  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sGBhMiMxgE1i8AAAAdaVRYdENvbW1lbnQAAAAAAENyZWF0ZWQgd2l0aCBHSU1QZC5lBwAAAYxJREFUKM+l0r1KXEEYxvH/bNS4K2RNCjsRBAlqITESI0QCuqBdWLwACSJaiZILiDcQkDRql8oUIqkkkRTRwiKVyvoRV5HFEFEX/DjomePsmfNauB4xrLAmD1PNML95eBnV0Fj/vjPRMcpfMcYAMP9jYXDzV3qSO1LSmegYfdvbV/DQ8zS+709oVzu7u78/FwQAHOeU9Y31gsjz5hYcx5lqbXsxdb23ld4eW15aGQmBaDRGZfzxXS1JvukBQCmFUoqZL9PDIWCMQWuX76tnpLIxisqjJC39SXmoM5thg1Q2xsd3XXjGFmWUlz1g6MPc0xIArV0A9o89dg7PiwJqqyoAiHieRzRaZPUCibiuGzb4J+B6Bv8F3LeBtQFeznLrH5RGAgQQEZRSiAgiEIhgrZCzAcYXLnxLzgrxirIbQGuXmvgFR2eGP0caRBEg5BciIAgieRjwrdwAB9lDnrW9Yjlzkr909boIBAiCApGwVWvdE+a+fkOvzX5STd0D86XV7a/vOzy7t/hzaXb85SVDycBfkNNgmgAAAABJRU5ErkJggg==);
-}
-
 
 /* Common for diff and blob view */
 .line { display: block; }
@@ -207,7 +199,8 @@ a.commit { color: black !important; }
 .full-commit .commit .line2 > span:nth-child(2) { float: left; }
 .full-commit .commit .line2 > span:nth-child(2):before { content: '·'; margin: 0 3px 0 5px; }
 
-.diff { font-family: monospace; }
+.diff table { font-family: Menlo, "Andale Mono", Consolas, "Lucida Console", "Liberation Mono", monospace; font-size: 0.7em;}
+.diff .filename, .diff .filename a { font-size: 0.9em; color: #4183C4; }
 .diff .filename {
   padding: 8px 10px;
   background-color: #f9f9f9;

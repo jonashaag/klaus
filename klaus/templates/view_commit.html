@@ -31,6 +31,7 @@
       {% set fileno = loop.index0 %}
 
       <div class=filename>
+        <i class="icon-file-text-alt"></i>
         {# TODO dulwich doesn't do rename recognition
         {% if file.old_filename != file.new_filename %}
           {{ file.old_filename }} →
