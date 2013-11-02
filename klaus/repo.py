@@ -22,11 +22,14 @@ class FancyRepo(dulwich.repo.Repo):
         return None
 
     def get_description(self):
-        description_file = self.get_named_file('description')
-        if description_file:
-            description = force_unicode(description_file.read())
+        """
+        Like Dulwich's `get_description`, but returns None if the file contains
+        Git's default text "Unnamed repository[...]"
+        """
+        description = super(FancyRepo, self).get_description()
+        if description:
             if not description.startswith("Unnamed repository;"):
-                return description
+                return force_unicode(description)
 
     def get_commit(self, rev):
         for prefix in ['refs/heads/', 'refs/tags/', '']:
