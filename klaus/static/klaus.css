@@ -228,11 +228,11 @@ a.commit { color: black !important; }
   padding: 0;
   border-left: 1px solid #e0e0e0;
 }
-.diff td .line { padding: 1px 10px; display: block; height: 1.2em; }
-.diff .linenos { font-size: 85%; padding: 0; }
+.diff td .line { padding: 1px 10px; display: block; min-height: 1.2em; }
+.diff .linenos { font-size: 85%; padding: 0; vertical-align: top; }
 .diff .linenos a { display: block; padding-top: 1px; padding-bottom: 1px; }
 .diff td + td + td { width: 100%; }
-.diff td + td + td > span { white-space: pre; }
+.diff td + td + td > span { white-space: pre-wrap; }
 .diff tr:first-of-type td { padding-top: 7px; }
 .diff tr:last-of-type td { padding-bottom: 7px; }
 .diff table .del { background-color: #ffdddd; }
