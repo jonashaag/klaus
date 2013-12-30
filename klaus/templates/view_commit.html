@@ -8,9 +8,22 @@
 
 {% block content %}
 
+<script type="text/javascript">
+    function toggleblock(id){
+        var tables = document.getElementsByTagName("table");
+        for (var i = 0; i < tables.length; i++){
+            var tmp = tables[i];
+            if(tmp.style.display == 'none')
+                tmp.style.display = 'block';
+            else
+                tmp.style.display = 'none';
+        }
+    }
+</script>
+
 <div class=full-commit>
   {# TODO code duplication in history.html #}
-  <div class=commit>
+  <div class=commit onclick="toggleblock('table')">
     <span class=line1>
       <span>{{ commit.message|force_unicode }}</span>
     </span>
@@ -21,6 +34,7 @@
       <span title="{{ commit.commit_time|formattimestamp  }}">
         {{ commit.commit_time|timesince }}
       </span>
+      <span class="toggletext">Click to toggle visibility</span>
     </span>
     <span class=clearfloat></span>
   </div>

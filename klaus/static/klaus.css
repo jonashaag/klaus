@@ -143,6 +143,12 @@ footer a:hover { text-decoration: none; }
 .commit .line2 > span:first-child { float: left; }
 .commit .line2 > span:nth-child(2) { float: right; }
 .commit .line2 { color: #737373; font-size: 80%; }
+.commit .toggletext {
+    text-align: right;
+    float: right;
+    color: rgb(115, 115, 115);
+    font-size: 80%;
+}
 
 
 /* History View */
@@ -212,21 +218,23 @@ a.commit { color: black !important; }
   padding: 8px 10px;
   background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
-  border-bottom: 0;
   margin-top: 25px;
 }
 .diff .filename del { color: #999; }
 .diff .filename:before { margin-right: 0; opacity: 0.3; }
 .diff table, .diff .binarydiff {
   border: 1px solid #e0e0e0;
+  border-top: 0;
   background-color: #fdfdfd;
+  display: block;
 }
 .diff .binarydiff {
   padding: 7px 10px;
 }
 .diff td {
   padding: 0;
-  border-left: 1px solid #e0e0e0;
+  /*HACK! looks weird having extra border, I made it disappear...
+  border-left: 1px solid #e0e0e0; */
 }
 .diff td .line { padding: 1px 10px; display: block; min-height: 1.2em; }
 .diff .linenos { font-size: 85%; padding: 0; vertical-align: top; }
