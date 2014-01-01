@@ -212,6 +212,7 @@ a.commit { color: black !important; }
 .full-commit .commit:hover .line1 { text-decoration: none; }
 .full-commit .commit .line2 > span:nth-child(2) { float: left; }
 .full-commit .commit .line2 > span:nth-child(2):before { content: '·'; margin: 0 3px 0 5px; }
+.full-commit .commit .line2 > span:nth-child(3):before { content: '·'; margin: 0 3px 0 5px; }
 
 .diff { font-family: monospace; }
 .diff .filename {

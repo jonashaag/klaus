@@ -35,6 +35,7 @@ class Klaus(flask.Flask):
             'shorten_message',
             'extract_author_name',
             'formattimestamp',
+            'calc_file_stats',
         ]:
             env.filters[func] = getattr(utils, func)
 

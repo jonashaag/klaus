@@ -29,6 +29,7 @@
     }
 </script>
 
+{% set files, adds, dels = repo.commit_diff(commit)|calc_file_stats %}
 <div class=full-commit>
   {# TODO code duplication in history.html #}
   <div class=commit onclick="toggletags('table')">
@@ -41,6 +42,9 @@
       </span>
       <span title="{{ commit.commit_time|formattimestamp  }}">
         {{ commit.commit_time|timesince }}
+      </span>
+      <span>
+      {{files}} changed files with {{adds}} additions and {{dels}} deletions.
       </span>
       <span class="toggletext">Click to toggle visibility</span>
     </span>
