@@ -64,6 +64,9 @@
               {{ file.new_filename|force_unicode }}
             </a>
           {% endif %}
+          <span class=additions>{{file.additions}} additions</span>
+          and
+          <span class=deletions>{{file.deletions}} deletions</span>
       </div>
 
       {% if file.chunks %}

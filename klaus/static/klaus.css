@@ -228,6 +228,14 @@ a.commit { color: black !important; }
   background-color: #fdfdfd;
   display: block;
 }
+.diff .additions {
+    background-color: rgb(153, 238, 153);
+    font-size: 80%;
+}
+.diff .deletions{
+    background-color: rgb(238, 153, 153);
+    font-size: 80%;
+}
 .diff .binarydiff {
   padding: 7px 10px;
 }
