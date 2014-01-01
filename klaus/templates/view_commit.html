@@ -9,21 +9,29 @@
 {% block content %}
 
 <script type="text/javascript">
-    function toggleblock(id){
-        var tables = document.getElementsByTagName("table");
-        for (var i = 0; i < tables.length; i++){
-            var tmp = tables[i];
+    function toggleelements(list){
+        for (var i = 0; i < list.length; i++){
+            var tmp = list[i];
             if(tmp.style.display == 'none')
                 tmp.style.display = 'block';
             else
                 tmp.style.display = 'none';
         }
     }
+
+    function toggletags(id){
+        var list = document.getElementsByTagName(id);
+        toggleelements(list)
+    }
+    function toggleid(id){
+        var list = new Array(document.getElementById(id));
+        toggleelements(list)
+    }
 </script>
 
 <div class=full-commit>
   {# TODO code duplication in history.html #}
-  <div class=commit onclick="toggleblock('table')">
+  <div class=commit onclick="toggletags('table')">
     <span class=line1>
       <span>{{ commit.message|force_unicode }}</span>
     </span>
@@ -44,7 +52,7 @@
 
       {% set fileno = loop.index0 %}
 
-      <div class=filename>
+      <div class=filename onclick="toggleid('file-{{fileno}}')")>
         {# TODO dulwich doesn't do rename recognition
         {% if file.old_filename != file.new_filename %}
           {{ file.old_filename }} →
@@ -60,7 +68,7 @@
 
       {% if file.chunks %}
 
-        <table>
+        <table id=file-{{fileno}}>
           {% for chunk in file.chunks %}
 
             {%- for line in chunk -%}
