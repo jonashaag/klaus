@@ -233,8 +233,7 @@ a.commit { color: black !important; }
 }
 .diff td {
   padding: 0;
-  /*HACK! looks weird having extra border, I made it disappear...
-  border-left: 1px solid #e0e0e0; */
+  border-left: 1px solid #e0e0e0;
 }
 .diff td .line { padding: 1px 10px; display: block; min-height: 1.2em; }
 .diff .linenos { font-size: 85%; padding: 0; vertical-align: top; }
