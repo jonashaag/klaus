@@ -126,17 +126,23 @@ class FancyRepo(dulwich.repo.Repo):
         else:
             parent_tree = None
 
-        changes = self.object_store.tree_changes(parent_tree, commit.tree)
-        for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in changes:
+        summary = {'nfiles': 0, 'nadditions':  0, 'ndeletions':  0}
+        file_changes = []  # the changes in detail
+
+        dulwich_changes = self.object_store.tree_changes(parent_tree, commit.tree)
+        for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in dulwich_changes:
+            summary['nfiles'] += 1
+
             try:
+                # Check for binary files -- can't show diffs for these
                 if newsha and guess_is_binary(self[newsha]) or \
                    oldsha and guess_is_binary(self[oldsha]):
-                    yield {
+                    file_changes.append({
                         'is_binary': True,
                         'old_filename': oldpath or '/dev/null',
                         'new_filename': newpath or '/dev/null',
                         'chunks': None
-                    }
+                    })
                     continue
             except KeyError:
                 # newsha/oldsha are probably related to submodules.
@@ -152,10 +158,17 @@ class FancyRepo(dulwich.repo.Repo):
             if not files:
                 # the diff module doesn't handle deletions/additions
                 # of empty files correctly.
-                yield {
+                file_changes.append({
                     'old_filename': oldpath or '/dev/null',
                     'new_filename': newpath or '/dev/null',
-                    'chunks': []
-                }
+                    'chunks': [],
+                    'additions': 0,
+                    'deletions': 0,
+                })
             else:
-                yield files[0]
+                change = files[0]
+                summary['nadditions'] += change['additions']
+                summary['ndeletions'] += change['deletions']
+                file_changes.append(change)
+
+        return summary, file_changes

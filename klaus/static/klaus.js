@@ -1,11 +1,31 @@
-var highlight_linenos = function(opts) {
-  var forEach = function(collection, func) {
-    for(var i = 0; i < collection.length; ++i) {
-      func(collection[i]);
-    }
+var forEach = function(collection, func) {
+  for(var i = 0; i < collection.length; ++i) {
+    func(collection[i]);
   }
+}
 
 
+/* General collapse/expand/toggle framework. Used for hiding diffs in commits */
+var toggler = {
+  expand: function(elem) {
+    elem.className = elem.className.replace("collapsed", "");
+  },
+  collapse: function(elem) {
+    if (!/collapsed/.test(elem.className)) {
+      elem.className += " collapsed";
+    }
+  },
+  collapseAll: function(selector) {
+    forEach(document.querySelectorAll(selector), toggler.collapse);
+  },
+  expandAll: function(selector) {
+    forEach(document.querySelectorAll(selector), toggler.expand);
+  }
+};
+
+
+/* Line highlighting logic for diffs */
+var highlight_linenos = function(opts) {
   var links = document.querySelectorAll(opts.linksSelector);
       currentHash = location.hash;
 
@@ -32,7 +52,7 @@ var highlight_linenos = function(opts) {
     a.onmouseout  = associatedLine.onmouseout  = unhighlight;
   });
 
- 
+
   window.onpopstate = function() {
     if (currentHash) {
       forEach(document.querySelectorAll('a[href="' + currentHash + '"]'),

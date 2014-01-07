@@ -14,9 +14,12 @@ h2 > code:last-of-type {
   margin-left: 2%;
 }
 
-.slash { color: #666; margin: 0 -0.2em; }
-
 .clearfloat { clear: both; }
+
+.hastooltip { cursor: help; }
+.separated-by-dots > span:not(:first-child):before { content: '·'; margin: 0 3px 0 5px; }
+
+.slash { color: #666; margin: 0 -0.2em; }
 
 .history ul, .repolist, .tree ul, .branch-selector ul {
   list-style-type: none;
@@ -159,7 +162,7 @@ a.commit { color: black !important; }
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.tree li a:before, .diff .filename:before {
+.tree li a:before {
   margin-right: 5px;
   position: relative;
   top: 2px;
@@ -204,24 +207,38 @@ a.commit { color: black !important; }
 .full-commit .commit { padding: 15px 20px; }
 .full-commit .commit .line1 { padding-bottom: 5px; }
 .full-commit .commit:hover .line1 { text-decoration: none; }
-.full-commit .commit .line2 > span:nth-child(2) { float: left; }
-.full-commit .commit .line2 > span:nth-child(2):before { content: '·'; margin: 0 3px 0 5px; }
+.full-commit .commit .line2 > span { float: left; }
+
+.full-commit .summary { color: #737373; font-size: 80%; margin-top: 25px; }
+.full-commit .summary .additions { color: #008800; }
+.full-commit .summary .deletions { color: #ee4444; }
+
+.full-commit .file.collapsed > table { display: none; }
 
 .diff { font-family: monospace; }
 .diff .filename {
   padding: 8px 10px;
   background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
-  border-bottom: 0;
   margin-top: 25px;
 }
 .diff .filename del { color: #999; }
-.diff .filename:before { margin-right: 0; opacity: 0.3; }
-.diff table, .diff .binarydiff {
+.diff .filename .summary { float: left; margin: -4px 15px 0 -5px; font-size: 80%; }
+.diff .filename .summary .additions { color: green; }
+.diff .filename .summary .deletions{ color: red; }
+
+.diff .togglers { float: right; }
+.diff .togglers a { opacity: 0.5; }
+.diff .file:not(.collapsed) .togglers .expand   { display: none; }
+.diff .file.collapsed       .togglers .collapse { display: none; }
+
+.diff table, .diff .emptydiff {
   border: 1px solid #e0e0e0;
+  border-top: 0;
   background-color: #fdfdfd;
+  display: block;
 }
-.diff .binarydiff {
+.diff .emptydiff {
   padding: 7px 10px;
 }
 .diff td {
