@@ -92,12 +92,15 @@ class DiffRenderer(object):
                 in_header = False
                 chunks = []
                 old, new = self._extract_rev(line, lineiter.next())
+                adds, dels = 0, 0
                 files.append({
                     'is_header':        False,
                     'old_filename':     old[0],
                     'old_revision':     old[1],
                     'new_filename':     new[0],
                     'new_revision':     new[1],
+                    'additions':        adds,
+                    'deletions':        dels,
                     'chunks':           chunks
                 })
 
@@ -129,9 +132,11 @@ class DiffRenderer(object):
                         if command == '+':
                             affects_new = True
                             action = 'add'
+                            adds += 1
                         elif command == '-':
                             affects_old = True
                             action = 'del'
+                            dels += 1
                         else:
                             affects_old = affects_new = True
                             action = 'unmod'
@@ -144,6 +149,10 @@ class DiffRenderer(object):
                             'action':       action,
                             'line':         line
                         })
+                        # Make sure to store the stats before a
+                        # StopIteration is raised
+                        files[-1]['additions'] = adds
+                        files[-1]['deletions'] = dels
                         line = lineiter.next()
 
         except StopIteration:

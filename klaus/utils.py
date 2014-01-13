@@ -197,3 +197,11 @@ def guess_git_revision():
             ['git', 'log', '--format=%h', '-n', '1'],
             cwd=git_dir
         ).strip()
+
+def calc_file_stats(file_list):
+    files, adds, dels = 0, 0, 0
+    for f in file_list:
+        files += 1
+        adds += f['additions']
+        dels += f['deletions']
+    return files, adds, dels

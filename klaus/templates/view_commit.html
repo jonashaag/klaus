@@ -8,9 +8,31 @@
 
 {% block content %}
 
+<script type="text/javascript">
+    function toggleelements(list){
+        for (var i = 0; i < list.length; i++){
+            var tmp = list[i];
+            if(tmp.style.display == 'none')
+                tmp.style.display = 'block';
+            else
+                tmp.style.display = 'none';
+        }
+    }
+
+    function toggletags(id){
+        var list = document.getElementsByTagName(id);
+        toggleelements(list)
+    }
+    function toggleid(id){
+        var list = new Array(document.getElementById(id));
+        toggleelements(list)
+    }
+</script>
+
+{% set files, adds, dels = repo.commit_diff(commit)|calc_file_stats %}
 <div class=full-commit>
   {# TODO code duplication in history.html #}
-  <div class=commit>
+  <div class=commit onclick="toggletags('table')">
     <span class=line1>
       <span>{{ commit.message|force_unicode }}</span>
     </span>
@@ -21,6 +43,10 @@
       <span title="{{ commit.commit_time|formattimestamp  }}">
         {{ commit.commit_time|timesince }}
       </span>
+      <span>
+      {{files}} changed files with {{adds}} additions and {{dels}} deletions.
+      </span>
+      <span class="toggletext">Click to toggle visibility</span>
     </span>
     <span class=clearfloat></span>
   </div>
@@ -30,7 +56,7 @@
 
       {% set fileno = loop.index0 %}
 
-      <div class=filename>
+      <div class=filename onclick="toggleid('file-{{fileno}}')")>
         {# TODO dulwich doesn't do rename recognition
         {% if file.old_filename != file.new_filename %}
           {{ file.old_filename }} →
@@ -42,11 +68,14 @@
               {{ file.new_filename|force_unicode }}
             </a>
           {% endif %}
+          <span class=additions>{{file.additions}} additions</span>
+          and
+          <span class=deletions>{{file.deletions}} deletions</span>
       </div>
 
       {% if file.chunks %}
 
-        <table>
+        <table id=file-{{fileno}}>
           {% for chunk in file.chunks %}
 
             {%- for line in chunk -%}
