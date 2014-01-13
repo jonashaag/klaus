@@ -6,13 +6,12 @@ var highlight_linenos = function(opts) {
   }
 
 
-  var links = document.querySelectorAll(opts.linksSelector);
+  var links = document.querySelectorAll(opts.linksSelector),
       currentHash = location.hash;
 
   forEach(links, function(a) {
     var lineno = a.getAttribute('href').substr(1),
-        selector = 'a[name="' + lineno + '"]',
-        anchor = document.querySelector(selector),
+        anchor = document.getElementById(lineno),
         associatedLine = opts.getLineFromAnchor(anchor);
 
     var highlight = function() {
