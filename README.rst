@@ -1,5 +1,5 @@
-A simple Git web viewer that Just Works™.
------------------------------------------
+klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
+================================================================
 
 (If it doesn't Just Work for you, please file a bug.)
 
