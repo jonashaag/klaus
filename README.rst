@@ -26,9 +26,9 @@ Features
 
 |img1|_ |img2|_ |img3|_
 
-.. |img1| image:: http://i.imgur.com/Y5iEqX4.png
-.. |img2| image:: http://i.imgur.com/7kRnx06.png
-.. |img3| image:: http://i.imgur.com/REUx8cK.png
+.. |img1| image:: http://i.imgur.com/2XhZIgw.png
+.. |img2| image:: http://i.imgur.com/6LjC8Cl.png
+.. |img3| image:: http://i.imgur.com/EYJdQwv.png
 
 .. _img1: http://i.imgur.com/MV3uFvw.png
 .. _img2: http://i.imgur.com/9HEZ3ro.png
