@@ -1,6 +1,18 @@
 Changelog
 =========
 
+0.4 (Jan 16, 2014)
+------------------
+* NOTE TO CONTRIBUTORS -- HISTORY REWRITTEN: See 46bcec1a8e21d510f3af3c9e2d19bc388b20c753
+* New autoreloader (see ``contrib/wsgi_autoreload.py``) WSGI middleware that
+  watches a directory for repository additions/deletions
+  (i.e., no need to restart klaus anymore).  Also see page in wiki.
+  (Jonas Haag)
+* Commit view:
+   - Wrap long lines (Brendan Molloy)
+   - Add change summary and make file diffs toggleable (A. Svensson, Jonas Haag)
+   - Speed up page rendering thanks to Javascript optimization (Jonas Haag)
+
 0.3 (Jun 10, 2013)
 ------------------
 * #57: Better "N minutes/hours/weeks ago" strings (Jonas Haag)
