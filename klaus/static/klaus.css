@@ -137,12 +137,12 @@ footer a:hover { text-decoration: none; }
 
 .commit > span { display: block; }
 
-.commit .line1 { font-family: monospace; padding-bottom: 2px; }
+.commit .line1 { font-family: monospace; padding-bottom: 2px; line-height: 1.3; }
 .commit .line1 span { white-space: pre-wrap; text-overflow: hidden; }
 .commit:hover .line1 { text-decoration: underline; color: #aaa; }
 .commit:hover .line1 span { color: black; }
 
-.commit .line2 { position: relative; top: 3px; left: 1px; }
+.commit .line2 { position: relative; top: 5px; left: 1px; }
 .commit .line2 > span:first-child { float: left; }
 .commit .line2 > span:nth-child(2) { float: right; }
 .commit .line2 { color: #737373; font-size: 80%; }
