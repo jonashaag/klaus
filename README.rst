@@ -26,13 +26,13 @@ Features
 
 |img1|_ |img2|_ |img3|_
 
-.. |img1| image:: https://github.com/jonashaag/klaus/raw/master/assets/commit-view.thumb.gif
-.. |img2| image:: https://github.com/jonashaag/klaus/raw/master/assets/tree-view.thumb.gif
-.. |img3| image:: https://github.com/jonashaag/klaus/raw/master/assets/blob-view.thumb.gif
+.. |img1| image:: http://i.imgur.com/Y5iEqX4.png
+.. |img2| image:: http://i.imgur.com/7kRnx06.png
+.. |img3| image:: http://i.imgur.com/REUx8cK.png
 
-.. _img1: https://github.com/jonashaag/klaus/raw/master/assets/commit-view.gif
-.. _img2: https://github.com/jonashaag/klaus/raw/master/assets/tree-view.gif
-.. _img3: https://github.com/jonashaag/klaus/raw/master/assets/blob-view.gif
+.. _img1: http://i.imgur.com/MV3uFvw.png
+.. _img2: http://i.imgur.com/9HEZ3ro.png
+.. _img3: http://i.imgur.com/kx2HaTq.png
 
 
 Installation
