@@ -6,6 +6,7 @@ klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
 :Demo: http://klausdemo.lophus.org
 :Mailing list: http://groups.google.com/group/klaus-users
 :On PyPI: http://pypi.python.org/pypi/klaus/
+:Wiki: https://github.com/jonashaag/klaus/wiki
 :License: ISC (BSD)
 
 Contributing
@@ -70,9 +71,16 @@ An example WSGI helper script is provided with klaus (see ``klaus/contrib/wsgi.p
 configuration being read from environment variables. Use it like this (uWSGI example)::
 
    uwsgi -w klaus.contrib.wsgi \
-         --env KLAUS_SITE_TITLE="Klaus Demo" \
+         --env KLAUS_SITE_NAME="Klaus Demo" \
          --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." \
          ...
 
+Gunicorn example::
+
+   gunicorn --env KLAUS_SITE_NAME="Klaus Demo" \
+            --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." \
+            klaus.contrib.wsgi
+            
+See also `deploymeny section in the wiki <https://github.com/jonashaag/klaus/wiki#deployment>`_.
 
 .. _wsgiref: http://docs.python.org/library/wsgiref.html
