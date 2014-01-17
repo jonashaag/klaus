@@ -15,23 +15,27 @@
   </div>
 {% endmacro %}
 
+{% macro blame(authors) -%}
+  {% set last = None %}
+  {%- for commit in authors %}
+    {%- if commit.id == last %}
+<span>&nbsp;</span>
+    {%- else %}
+<a href="{{ url_for('commit', repo=repo.name, rev=commit.id) }}">{{ commit.id | shorten_sha1 }}</a>
+      {%- set last = commit.id -%}
+    {% endif -%}
+  {% endfor -%}
+{%- endmacro %}
+
 <div class=blobview>
   <h2>
     {{ filename|force_unicode }}
     <span>
       @<a href="{{ url_for('commit', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
       &mdash;
-      {% if is_markup %}
-        {% if render_markup %}
-          <a href="?markup">view markup</a>
-        {% else %}
-          <a href="?">view rendered</a>
-        {% endif %}
-        &middot;
-      {% endif %}
       <a href="{{ raw_url }}">raw</a>
       &middot; <a href="{{ url_for('history', repo=repo.name, rev=rev, path=path) }}">history</a>
-      &middot; <a href="{{ url_for('blame', repo=repo.name, rev=rev, path=path) }}">blame</a>
+        &middot; <a href="{{ url_for('blame', repo=repo.name, rev=rev, path=path) }}">blame</a>
     </span>
   </h2>
   {% if is_binary %}
@@ -44,13 +48,22 @@
     {% if too_large %}
       {{ not_shown("Large file") }}
     {% else %}
-      {% autoescape false %}
-        {% if is_markup and render_markup %}
-          <div class=markup>{{ rendered_code }}</div>
-        {% else %}
-          {{ rendered_code }}
-        {% endif %}
-      {% endautoescape %}
+      <table class="highlighttable">
+        <tbody>
+          <tr>
+            <td class="linenos">
+              <div class="linenodiv">
+                <pre>{{- blame(authors) -}}</pre>
+              </div>
+            </td>
+            <td class="code">
+              {% autoescape false %}
+                {{ rendered_code }}
+              {% endautoescape %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     {% endif %}
   {% endif %}
 </div>

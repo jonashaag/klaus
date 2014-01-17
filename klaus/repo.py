@@ -110,6 +110,14 @@ class FancyRepo(dulwich.repo.Repo):
         sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
         return [self[sha1] for sha1 in sha1_sums.strip().split('\n')]
 
+    def blame(self, commit, path):
+        """"""
+        cmd = ['git', 'blame', '-ls', commit.id, '--', path]
+        sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
+        for line in sha1_sums.split("\n"):
+            if line:
+                yield self.get_commit(line.split(" ", 1)[0].lstrip("^"))
+
     def get_blob_or_tree(self, commit, path):
         """ Returns the Git tree or blob object for `path` at `commit`. """
         tree_or_blob = self[commit.tree]  # Still a tree here but may turn into

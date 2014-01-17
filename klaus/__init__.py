@@ -49,6 +49,8 @@ class Klaus(flask.Flask):
             ('repo_list',   '/'),
             ('blob',        '/<repo>/blob/<rev>/'),
             ('blob',        '/<repo>/blob/<rev>/<path:path>'),
+            ('blame',       '/<repo>/blame/<rev>/'),
+            ('blame',       '/<repo>/blame/<rev>/<path:path>'),
             ('raw',         '/<repo>/raw/<rev>/'),
             ('raw',         '/<repo>/raw/<rev>/<path:path>'),
             ('commit',      '/<repo>/commit/<rev>/'),

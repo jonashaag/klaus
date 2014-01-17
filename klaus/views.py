@@ -221,6 +221,46 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
             })
 
 
+class BlameView(BlobViewMixin, TreeViewMixin, BaseRepoView):
+
+    def make_template_context(self, *args):
+        super(BlameView, self).make_template_context(*args)
+
+        if not isinstance(self.context['blob_or_tree'], Blob):
+            raise NotFound("Not a blob")
+
+        binary = guess_is_binary(self.context['blob_or_tree'])
+        too_large = sum(map(len, self.context['blob_or_tree'].chunked)) > 100*1024
+
+        if binary:
+            self.context.update({
+                'is_markup': False,
+                'is_binary': True,
+                'is_image': False,
+            })
+            if guess_is_image(self.context['filename']):
+                self.context.update({
+                    'is_image': True,
+                })
+        elif too_large:
+            self.context.update({
+                'too_large': True,
+                'is_markup': False,
+                'is_binary': False,
+            })
+        else:
+            self.context.update({
+                'too_large': False,
+                'is_markup': markup.can_render(self.context['filename']),
+                'is_binary': False,
+                'rendered_code': pygmentize(
+                    force_unicode(self.context['blob_or_tree'].data),
+                    self.context['filename'],
+                    render_markup=False , linenos=False),
+                'authors': list(self.context["repo"].blame(self.context["commit"], self.context["path"]))
+            })
+
+
 class RawView(BlobViewMixin, BaseRepoView):
     """
     Shows a single file in raw for (as if it were a normal filesystem file
@@ -259,6 +299,7 @@ class DownloadView(BaseRepoView):
 
 history = HistoryView.as_view('history', 'history', 'history.html')
 commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
+blame = BlameView.as_view('blame', 'blame', 'blame_blob.html')
 blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
 raw = RawView.as_view('raw', 'raw')
 download = DownloadView.as_view('download', 'download')
