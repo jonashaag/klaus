@@ -112,7 +112,7 @@ class FancyRepo(dulwich.repo.Repo):
 
     def blame(self, commit, path):
         """"""
-        cmd = ['git', 'blame', '-ls', commit.id, '--', path]
+        cmd = ['git', 'blame', '-ls', '--root', commit.id, '--', path]
         sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
         for line in sha1_sums.split("\n"):
             if line:
