@@ -66,10 +66,10 @@ Using a real server
 ^^^^^^^^^^^^^^^^^^^
 The ``klaus`` module contains a ``make_app`` function which returns a WSGI app.
 
-An example WSGI helper script is provided with klaus (see ``klaus/wsgi.py``),
+An example WSGI helper script is provided with klaus (see ``klaus/contrib/wsgi.py``),
 configuration being read from environment variables. Use it like this (uWSGI example)::
 
-   uwsgi -w klaus.wsgi \
+   uwsgi -w klaus.contrib.wsgi \
          --env KLAUS_SITE_TITLE="Klaus Demo" \
          --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." \
          ...

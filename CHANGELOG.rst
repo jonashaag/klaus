@@ -1,11 +1,16 @@
 Changelog
 =========
 
+0.4.1 (Jan 17, 2014)
+--------------------
+* Bug #62: Include ``contrib/*`` in the distribution as ``klaus.contrib.*``.
+
 0.4 (Jan 16, 2014)
 ------------------
 * NOTE TO CONTRIBUTORS -- HISTORY REWRITTEN: See 46bcec1a8e21d510f3af3c9e2d19bc388b20c753
-* New autoreloader (see ``contrib/wsgi_autoreload.py``) WSGI middleware that
-  watches a directory for repository additions/deletions
+* Moved ``klaus.wsgi`` to ``klaus.contrib.wsgi``
+* New autoreloader (see ``klaus/contrib/wsgi_autoreload.py``) WSGI middleware
+  that watches a directory for repository additions/deletions
   (i.e., no need to restart klaus anymore).  Also see page in wiki.
   (Jonas Haag)
 * Commit view:

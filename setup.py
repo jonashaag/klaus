@@ -25,10 +25,10 @@ except ImportError:
 
 setup(
     name='klaus',
-    version='0.4',
+    version='0.4.1',
     author='Jonas Haag',
     author_email='jonas@lophus.org',
-    packages=['klaus'],
+    packages=['klaus', 'klaus.contrib'],
     scripts=['bin/klaus'],
     include_package_data=True,
     zip_safe=False,
