@@ -15,7 +15,7 @@ def install_data_files_hack():
 
 install_data_files_hack()
 
-requires = ['flask', 'pygments', 'dulwich>=0.8.6', 'httpauth', 'humanize']
+requires = ['flask', 'pygments', 'dulwich>=0.9.1', 'httpauth', 'humanize']
 
 try:
     import argparse  # not available for Python 2.6
@@ -25,7 +25,7 @@ except ImportError:
 
 setup(
     name='klaus',
-    version='0.4.1',
+    version='0.4.2',
     author='Jonas Haag',
     author_email='jonas@lophus.org',
     packages=['klaus', 'klaus.contrib'],

@@ -6,7 +6,7 @@ from klaus import views, utils
 from klaus.repo import FancyRepo
 
 
-KLAUS_VERSION = utils.guess_git_revision() or '0.4.1'
+KLAUS_VERSION = utils.guess_git_revision() or '0.4.2'
 
 
 class Klaus(flask.Flask):
@@ -61,8 +61,8 @@ class Klaus(flask.Flask):
 
 def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None):
     """
-    Returns a WSGI with all the features (smarthttp, authentication) already
-    patched in.
+    Returns a WSGI app with all the features (smarthttp, authentication)
+    already patched in.
     """
     app = Klaus(
         repos,

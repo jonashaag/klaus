@@ -1,9 +1,13 @@
 Changelog
 =========
 
+0.4.2 (Jan 21, 2014)
+--------------------
+* Bug #83: Wrong version of Dulwich dependency in ``setup.py``
+
 0.4.1 (Jan 17, 2014)
 --------------------
-* Bug #62: Include ``contrib/*`` in the distribution as ``klaus.contrib.*``.
+* Bug #82: Include ``contrib/*`` in the distribution as ``klaus.contrib.*``.
 
 0.4 (Jan 16, 2014)
 ------------------
