@@ -11,7 +11,10 @@ class FancyRepo(dulwich.repo.Repo):
     # TODO: factor out stuff into dulwich
     @property
     def name(self):
-        return self.path.rstrip(os.sep).split(os.sep)[-1].replace('.git', '')
+        # 1. /x/y.git -> /x/y  and  /x/y/.git/ -> /x/y//
+        # 2. /x/y/ -> /x/y
+        # 3. /x/y -> y
+        return self.path.replace(".git", "").rstrip(os.sep).split(os.sep)[-1]
 
     def get_last_updated_at(self):
         refs = [self[ref_hash] for ref_hash in self.get_refs().itervalues()]
