@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.4.3 (Feb 20, 2014)
+--------------------
+* Bug #86: Empty repo name if klaus is fed a ".git" directory.
+  Now: name of parent directory, i.e. /foo/bar/.git has the name "bar".
+  (David Wahlund)
+
 0.4.2 (Jan 21, 2014)
 --------------------
 * Bug #83: Wrong version of Dulwich dependency in ``setup.py``
