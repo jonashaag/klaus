@@ -75,11 +75,7 @@ def pygmentize(code, filename=None, render_markup=True):
     if render_markup and markup.can_render(filename):
         return markup.render(filename, code)
 
-    try:
-        lexer = get_lexer_for_filename(filename)
-    except ClassNotFound:
-        lexer = guess_lexer(code)
-
+    lexer = get_lexer_for_filename(filename, code)
     return highlight(code, lexer, KlausFormatter())
 
 
