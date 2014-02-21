@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.4.4 (Feb 21, 2014)
+-------------------
+* Fix syntax highlighting in case multiple different file formats share the
+  same file extension.  Rely on Pygments to select the best matching lexer for us.
+  (Gnewbee, Jonas Haag)
+
 0.4.3 (Feb 20, 2014)
 --------------------
 * Bug #86: Empty repo name if klaus is fed a ".git" directory.
@@ -26,7 +32,7 @@ Changelog
 * Commit view:
    - Wrap long lines (Brendan Molloy)
    - Add change summary and make file diffs toggleable (A. Svensson, Jonas Haag)
-   - Speed up page rendering thanks to Javascript optimization (Jonas Haag)
+   - Speed up page rendering thanks to Javascript optimization (Martin Zimmermann, Jonas Haag)
 
 0.3 (Jun 10, 2013)
 ------------------
