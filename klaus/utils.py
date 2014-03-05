@@ -11,7 +11,7 @@ except ImportError:
     chardet = None
 
 from pygments import highlight
-from pygments.lexers import get_lexer_for_filename, guess_lexer, ClassNotFound
+from pygments.lexers import get_lexer_for_filename, guess_lexer, ClassNotFound, TextLexer
 from pygments.formatters import HtmlFormatter
 
 from humanize import naturaltime
@@ -75,7 +75,13 @@ def pygmentize(code, filename=None, render_markup=True):
     if render_markup and markup.can_render(filename):
         return markup.render(filename, code)
 
-    lexer = get_lexer_for_filename(filename, code)
+    try:
+        lexer = get_lexer_for_filename(filename, code)
+    except ClassNotFound:
+        try:
+            lexer = guess_lexer(code)
+        except ClassNotFound:
+            lexer = TextLexer()
     return highlight(code, lexer, KlausFormatter())
 
 
