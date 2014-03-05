@@ -35,6 +35,7 @@ class FancyRepo(dulwich.repo.Repo):
                 return force_unicode(description)
 
     def get_commit(self, rev):
+        rev = str(rev)  # https://github.com/jelmer/dulwich/issues/144
         for prefix in ['refs/heads/', 'refs/tags/', '']:
             key = prefix + rev
             try:
