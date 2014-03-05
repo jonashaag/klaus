@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.4.5 (Mar 5, 2014)
+-------------------
+* Bugfix release for bugfix release 0.4.4. (Daniel Krüger, Jonas Haag)
+
 0.4.4 (Feb 21, 2014)
 -------------------
 * Fix syntax highlighting in case multiple different file formats share the
