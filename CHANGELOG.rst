@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.4.6 (Mar 5, 2014)
+-------------------
+* #89: Work around a bug in Dulwich 0.9.5: https://github.com/jelmer/dulwich/issues/144
+  (Klaus Alexander Seistrup, Jonas Haag)
+
 0.4.5 (Mar 5, 2014)
 -------------------
 * Bugfix release for bugfix release 0.4.4. (Daniel Krüger, Jonas Haag)
