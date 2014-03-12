@@ -58,7 +58,7 @@ if 'KLAUS_HTDIGEST_FILE' in os.environ:
             file,
         )
 else:
-    application = make_app(
+    application = make_autoreloading_app(
         os.environ['KLAUS_REPOS'].split(),
         os.environ['KLAUS_SITE_NAME'],
         os.environ.get('KLAUS_USE_SMARTHTTP'),
