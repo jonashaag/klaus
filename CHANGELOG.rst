@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.4.7 (TBA)
+-----------
+* Bug #90: htdigest file handling broken in contrib.wsgi. (Philip Dexter)
+
 0.4.6 (Mar 5, 2014)
 -------------------
 * #89: Work around a bug in Dulwich 0.9.5: https://github.com/jelmer/dulwich/issues/144
