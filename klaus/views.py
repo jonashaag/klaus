@@ -1,13 +1,16 @@
 import os
 import stat
 
-from flask import request, render_template, current_app
+from tempfile import NamedTemporaryFile
+
+from flask import request, render_template, current_app, send_file
 from flask.views import View
 
 from werkzeug.wrappers import Response
 from werkzeug.exceptions import NotFound
 
 from dulwich.objects import Blob
+from dulwich.porcelain import archive
 
 from klaus import markup
 from klaus.utils import parent_directory, subpaths, pygmentize, \
@@ -228,7 +231,20 @@ class RawView(BlobViewMixin, BaseRepoView):
 
 
 #                                     TODO v
+
+class DownloadView(BaseRepoView):
+    """
+    Offers the current rev for download
+    """
+    def get_response(self):
+
+        tmpfile = NamedTemporaryFile(delete=True)
+        archive(self.context['repo'].path, self.context['rev'], tmpfile)
+        filename = self.context['repo'].name + '@' + self.context['rev'] +'.tar'
+        return send_file(tmpfile.name, as_attachment=True, attachment_filename=filename, mimetype='application/x-tar')
+
 history = HistoryView.as_view('history', 'history', 'history.html')
 commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
 blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
 raw = RawView.as_view('raw', 'raw')
+download = DownloadView.as_view('download', 'download')
