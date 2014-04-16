@@ -32,6 +32,10 @@ def make_parser():
     parser.add_argument('repos', help='repositories to serve',
                         metavar='DIR', nargs='*', type=git_repository)
 
+    parser.add_argument('--serve-robotstxt', help="defines wether a robots.txt is served or not",
+                        action="store_true")
+    parser.add_argument('--robotstxt', help="path to custom robots.txt file", required=False)
+
     grp = parser.add_argument_group("Git Smart HTTP")
     grp.add_argument('--smarthttp', help="enable Git Smart HTTP serving",
                      action='store_true')
@@ -53,11 +57,16 @@ def main():
     if not args.site_name:
         args.site_name = '%s:%d' % (args.host, args.port)
 
+    if args.serve_robotstxt:
+        if not args.robotstxt:
+            args.robotstxt = 'default'
+
     app = make_app(
         args.repos,
         force_unicode(args.site_name or args.host),
+        args.robotstxt,
         args.smarthttp,
-        args.htdigest
+        args.htdigest,
     )
 
     app.run(args.host, args.port, args.debug)
