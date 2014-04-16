@@ -1,7 +1,7 @@
 import os
 import stat
 
-from flask import request, render_template, current_app
+from flask import request, render_template, current_app, send_from_directory
 from flask.views import View
 
 from werkzeug.wrappers import Response
@@ -25,6 +25,9 @@ def repo_list():
     repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
+def robots_txt():
+    """Serves the robots.txt file to manage the indexing of the site by search enginges"""
+    return send_from_directory(current_app.static_folder, 'robots.txt')
 
 class BaseRepoView(View):
     """
