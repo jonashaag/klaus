@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /*/blob/master/
+Allow: /*/tree/master/
+Allow: /*/raw/master/
+Disallow: /*/tree/
+Disallow: /*/blob/
+Disallow: /*/raw/

@@ -55,6 +55,7 @@ class Klaus(flask.Flask):
             ('history',     '/<repo>/'),
             ('history',     '/<repo>/tree/<rev>/'),
             ('history',     '/<repo>/tree/<rev>/<path:path>'),
+            ('robots_txt',  '/robots.txt/'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
