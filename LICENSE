@@ -5,6 +5,7 @@ Feature contributions
 ---------------------
 * Werkzeug port -- Martin Zimmermann <info@posativ.org>
 * Git Smart HTTP support -- Martin Zimmermann <info@posativ.org>
+* Favicon -- Git Logo by Jason Long <http://twitter.com/jasonlong>, licensed under the Creative Commons Attribution 3.0 Unported License.
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
