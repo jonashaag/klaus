@@ -1,6 +1,9 @@
 https://github.com/jonashaag/klaus
 Copyright (c) 2011-2013 Jonas Haag <jonas@lophus.org> and contributors (see Git logs).
 
+Favicon: Git Logo by Jason Long <http://twitter.com/jasonlong>,
+         licensed under the Creative Commons Attribution 3.0 Unported License.
+
 Feature contributions
 ---------------------
 * Werkzeug port -- Martin Zimmermann <info@posativ.org>

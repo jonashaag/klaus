@@ -3,6 +3,7 @@ Changelog
 
 0.4.7 (TBA)
 -----------
+* #87, #98: Add favicon (@lb1a)
 * #35, #95: Add default robots.txt file (@lb1a)
 * Bug #90: htdigest file handling broken in contrib.wsgi. (Philip Dexter)
 
