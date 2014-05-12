@@ -42,6 +42,7 @@ Installation
 
    pip install klaus
 
+(Optional dependencies: see `Markup rendering <https://github.com/jonashaag/klaus/wiki/Markup-rendering>`_ in the wiki.)
 
 Usage
 -----
