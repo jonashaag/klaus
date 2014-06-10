@@ -152,12 +152,25 @@ class HistoryView(TreeViewMixin, BaseRepoView):
             history_length = 10
             skip = 0
 
-        history = self.context['repo'].history(
-            self.context['rev'],
-            self.context['path'],
-            history_length + 1,
-            skip
-        )
+        try:
+            history = self.context['repo'].history(
+                self.context['rev'],
+                self.context['path'],
+                history_length + 1,
+                skip
+            )
+        except IOError:
+            history_length = 10
+            skip = 0
+            self.context['previous_pages'] = []
+
+            history = self.context['repo'].history(
+                self.context['rev'],
+                self.context['path'],
+                history_length + 1,
+                skip
+            )
+
         if len(history) == history_length + 1:
             # At least one more commit for next page left
             more_commits = True
