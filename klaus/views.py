@@ -1,6 +1,10 @@
 import os
 import stat
 
+import tarfile
+from io import BytesIO
+from time import time
+
 from flask import request, render_template, current_app
 from flask.views import View
 
@@ -230,8 +234,77 @@ class RawView(BlobViewMixin, BaseRepoView):
         return Response(self.context['blob_or_tree'].chunked)
 
 
+class DownloadView(BaseRepoView):
+    """
+    Download a repo as a tar file
+    """
+    def get_response(self):
+        tarname = "%s@%s.tar" % (self.context['repo'].name, self.context['rev'])
+        resp = Response(self._generator(), mimetype="application/tar")
+        resp.headers['Content-Disposition'] = 'attachment; filename=%s' % tarname
+        resp.headers['Content-Length'] = str(self._size())
+        resp.headers['Cache-Control'] = "no-store"  # Disables browser caching
+        return resp
+
+    @staticmethod
+    def _io_len(s):
+        pos = s.tell()
+        s.seek(0, os.SEEK_END)
+        length = s.tell()
+        s.seek(pos)
+        return length
+
+    def _walker(self, directory=''):
+        root_tree = self.context['repo'].get_blob_or_tree(
+            self.context['commit'], directory
+        )
+        for entry in root_tree.iteritems():
+            name, entry = entry.path, entry.in_path(directory)
+            if entry.mode & stat.S_IFDIR:
+                for f in self._walker(entry.path):
+                    yield f
+            else:
+                data = self.context['repo'].get_blob_or_tree(
+                    self.context['commit'], entry.path
+                ).as_raw_string()
+                yield (entry.path, BytesIO(data), entry.mode)
+
+    def _size(self, directory=''):
+        root_tree = self.context['repo'].get_blob_or_tree(
+            self.context['commit'], directory
+        )
+        size = 0
+        for entry in root_tree.iteritems():
+            name, entry = entry.path, entry.in_path(directory)
+            if entry.mode & stat.S_IFDIR:
+                size += self._size(entry.path)
+            else:
+                size += self.context['repo'].get_blob_or_tree(
+                    self.context['commit'], entry.path
+                ).raw_length()
+                #see https://en.wikipedia.org/wiki/Tar_%28file_format%29#File_header
+                size += 512 + 512  # info + padding
+        return size + 512
+
+    def _generator(self):
+        buf = BytesIO()
+        tar = tarfile.open("repo.tar", "w", buf)
+        for fl, f, mode in self._walker():
+            info = tarfile.TarInfo(name=fl)
+            info.size = self._io_len(f)
+            info.mode = mode
+            info.mtime = self.context['commit'].commit_time
+            tar.addfile(info, f)
+            yield buf.getvalue()
+            buf.truncate(0)
+            buf.seek(0)
+        tar.close()
+        yield buf.getvalue()
+
+
 #                                     TODO v
 history = HistoryView.as_view('history', 'history', 'history.html')
 commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
 blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
 raw = RawView.as_view('raw', 'raw')
+download = DownloadView.as_view('download', 'download')
