@@ -13,8 +13,6 @@ from klaus import markup
 from klaus.utils import parent_directory, subpaths, pygmentize, \
                         force_unicode, guess_is_binary, guess_is_image
 
-from mimetypes import guess_type
-
 def repo_list():
     """Shows a list of all repos and can be sorted by last update. """
     if 'by-last-update' in request.args:
@@ -229,10 +227,7 @@ class RawView(BlobViewMixin, BaseRepoView):
     """
     def get_response(self):
         data = self.context['blob_or_tree']
-        if guess_is_binary(data):
-            return Response(data.chunked, mimetype=guess_type(self.context['filename'])[0])
-        else:
-            return Response(data.chunked)
+        return Response(data.chunked, mimetype="")
 
 
 #                                     TODO v
