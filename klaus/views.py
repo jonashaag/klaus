@@ -13,7 +13,6 @@ from klaus import markup
 from klaus.utils import parent_directory, subpaths, pygmentize, \
                         force_unicode, guess_is_binary, guess_is_image
 
-
 def repo_list():
     """Shows a list of all repos and can be sorted by last update. """
     if 'by-last-update' in request.args:
@@ -227,7 +226,8 @@ class RawView(BlobViewMixin, BaseRepoView):
     served through a static file server)
     """
     def get_response(self):
-        return Response(self.context['blob_or_tree'].chunked)
+        data = self.context['blob_or_tree']
+        return Response(data.chunked, mimetype="")
 
 
 #                                     TODO v
