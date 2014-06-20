@@ -227,7 +227,10 @@ class RawView(BlobViewMixin, BaseRepoView):
     served through a static file server)
     """
     def get_response(self):
-        return Response(self.context['blob_or_tree'].chunked)
+        # Explicitly set an empty mimetype. This should work well for most
+        # browsers as they do file type recognition anyway.
+        # The correct way would be to implement proper file type recognition here.
+        return Response(self.context['blob_or_tree'].chunked, mimetype='')
 
 
 #                                     TODO v
