@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotFound
 
 from dulwich.objects import Blob
 
-from klaus import markup
+from klaus import markup, tarutils
 from klaus.utils import parent_directory, subpaths, pygmentize, \
                         force_unicode, guess_is_binary, guess_is_image
 
@@ -233,8 +233,31 @@ class RawView(BlobViewMixin, BaseRepoView):
         return Response(self.context['blob_or_tree'].chunked, mimetype='')
 
 
-#                                     TODO v
+class DownloadView(BaseRepoView):
+    """
+    Download a repo as a tar file
+    """
+    def get_response(self):
+        tarname = "%s@%s.tar" % (self.context['repo'].name, self.context['rev'])
+        headers = {
+            'Content-Disposition': "attachment; filename=%s" % tarname,
+            'Cache-Control': "no-store",  # Disables browser caching
+        }
+
+        tar_stream = tarutils.tar_stream(
+            self.context['repo'],
+            self.context['blob_or_tree'],
+            self.context['commit'].commit_time
+        )
+        return Response(
+            tar_stream,
+            mimetype="application/tar",
+            headers=headers
+        )
+
+
 history = HistoryView.as_view('history', 'history', 'history.html')
 commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
 blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
 raw = RawView.as_view('raw', 'raw')
+download = DownloadView.as_view('download', 'download')
