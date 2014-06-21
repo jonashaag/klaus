@@ -5,7 +5,9 @@ Changelog
 -----------
 * #87, #98: Add favicon (@lb1a)
 * #35, #95: Add default robots.txt file (@lb1a)
+* #93, #94, #101: Add "download as .tar.gz archive" feature. (@Mechazawa, Jonas Haag)
 * Bug #90: htdigest file handling broken in contrib.wsgi. (Philip Dexter)
+* Bug #99/#53: Misbehaving mimetype recognition (@Mechazawa)
 
 0.4.6 (Mar 5, 2014)
 -------------------
