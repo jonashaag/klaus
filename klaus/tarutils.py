@@ -39,7 +39,7 @@ class ListBytesIO(object):
         return b''.join(buf)
 
 
-def tar_stream(repo, tree, mtime):
+def tar_stream(repo, tree, mtime, format=''):
     """
     Returns a generator that lazily assembles a .tar.gz archive, yielding it in
     pieces (bytestrings). To obtain the complete .tar.gz binary file, simply
@@ -50,7 +50,7 @@ def tar_stream(repo, tree, mtime):
     time of all files in the resulting .tar.gz archive.
     """
     buf = BytesIO()
-    with tarfile.open(None, "w", buf) as tar:
+    with tarfile.open(None, "w:%s" % format, buf) as tar:
         for entry_abspath, entry in walk_tree(repo, tree):
             blob = repo[entry.sha]
             data = ListBytesIO(blob.chunked)

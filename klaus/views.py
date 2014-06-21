@@ -235,10 +235,10 @@ class RawView(BlobViewMixin, BaseRepoView):
 
 class DownloadView(BaseRepoView):
     """
-    Download a repo as a tar file
+    Download a repo as a tar.gz file
     """
     def get_response(self):
-        tarname = "%s@%s.tar" % (self.context['repo'].name, self.context['rev'])
+        tarname = "%s@%s.tar.gz" % (self.context['repo'].name, self.context['rev'])
         headers = {
             'Content-Disposition': "attachment; filename=%s" % tarname,
             'Cache-Control': "no-store",  # Disables browser caching
@@ -247,11 +247,12 @@ class DownloadView(BaseRepoView):
         tar_stream = tarutils.tar_stream(
             self.context['repo'],
             self.context['blob_or_tree'],
-            self.context['commit'].commit_time
+            self.context['commit'].commit_time,
+            format="gz"
         )
         return Response(
             tar_stream,
-            mimetype="application/tar",
+            mimetype="application/x-tgz",
             headers=headers
         )
 

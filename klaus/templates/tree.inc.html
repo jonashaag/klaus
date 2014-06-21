@@ -1,6 +1,6 @@
 <div class=tree>
   <h2>Tree @<a href="{{ url_for('commit', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
-    <span>(<a href="{{ url_for('download', repo=repo.name, rev=rev) }}">Download tar</a>)</span>
+    <span>(<a href="{{ url_for('download', repo=repo.name, rev=rev) }}">Download .tar.gz</a>)</span>
   </h2>
   <ul>
     {% for _, name, fullpath in root_tree.dirs %}
