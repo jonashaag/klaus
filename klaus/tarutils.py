@@ -52,7 +52,11 @@ def tar_stream(repo, tree, mtime, format=''):
     buf = BytesIO()
     with tarfile.open(None, "w:%s" % format, buf) as tar:
         for entry_abspath, entry in walk_tree(repo, tree):
-            blob = repo[entry.sha]
+            try:
+                blob = repo[entry.sha]
+            except KeyError:
+                # Entry probably refers to a submodule, which we don't yet support.
+                continue
             data = ListBytesIO(blob.chunked)
 
             info = tarfile.TarInfo()
