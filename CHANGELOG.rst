@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.4.7 (TBA)
------------
+0.4.7 (June 22, 2014)
+---------------------
 * #87, #98: Add favicon (@lb1a)
 * #35, #95: Add default robots.txt file (@lb1a)
 * #93, #94, #101: Add "download as .tar.gz archive" feature. (@Mechazawa, Jonas Haag)
