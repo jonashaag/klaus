@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.4.8 (June 22, 2014)
+---------------------
+* Fix .tar.gz download if repository contains git submodule.
+
 0.4.7 (June 22, 2014)
 ---------------------
 * #87, #98: Add favicon (@lb1a)
