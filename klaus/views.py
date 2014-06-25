@@ -25,9 +25,11 @@ def repo_list():
     repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
+
 def robots_txt():
     """Serves the robots.txt file to manage the indexing of the site by search enginges"""
     return current_app.send_static_file('robots.txt')
+
 
 class BaseRepoView(View):
     """
@@ -47,14 +49,19 @@ class BaseRepoView(View):
         self.template_name = template_name
         self.context = {}
 
-    def dispatch_request(self, repo, rev=None, path=''):
-        self.make_template_context(repo, rev, path.strip('/'))
+    def dispatch_request(self, repo, rev=None, path=None):
+        if rev:
+            rev = rev.rstrip("/")
+        if path:
+            rev += "/" + path.rstrip("/")
+        self.make_template_context(repo, rev)
         return self.get_response()
 
     def get_response(self):
         return render_template(self.template_name, **self.context)
 
-    def make_template_context(self, repo, rev, path):
+    def make_template_context(self, repo, rev):
+
         try:
             repo = current_app.repo_map[repo]
         except KeyError:
@@ -64,9 +71,18 @@ class BaseRepoView(View):
             rev = repo.get_default_branch()
             if rev is None:
                 raise NotFound("Empty repository")
-        try:
-            commit = repo.get_commit(rev)
-        except KeyError:
+
+        i = len(rev)
+        while i > 0:
+            try:
+                commit = repo.get_commit(rev[:i])
+                path = rev[i:].strip("/")
+                rev = rev[:i]
+            except (KeyError, IOError):
+                i = rev.rfind("/", 0, i)
+            else:
+                break
+        else:
             raise NotFound("No such commit %r" % rev)
 
         try:
@@ -238,7 +254,7 @@ class DownloadView(BaseRepoView):
     Download a repo as a tar.gz file
     """
     def get_response(self):
-        tarname = "%s@%s.tar.gz" % (self.context['repo'].name, self.context['rev'])
+        tarname = "%s@%s.tar.gz" % (self.context['repo'].name, self.context['rev'].replace("/", "-"))
         headers = {
             'Content-Disposition': "attachment; filename=%s" % tarname,
             'Cache-Control': "no-store",  # Disables browser caching
