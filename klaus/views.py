@@ -21,7 +21,7 @@ else:
 from klaus import markup
 from klaus.highlighting import highlight_or_render
 from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
-                        guess_is_image, replace_dupes
+                        guess_is_image, replace_dupes, sanitize_branch_name
 
 
 README_FILENAMES = [b'README', b'README.md', b'README.rst']
@@ -39,12 +39,16 @@ def repo_list():
     return render_template('repo_list.html', repos=repos, base_href=None)
 
 
+
 def robots_txt():
     """Serve the robots.txt file to manage the indexing of the site by search engines."""
     return current_app.send_static_file('robots.txt')
 
 
-def _get_repo_and_rev(repo, rev=None):
+def _get_repo_and_rev(repo, rev=None, path=None):
+    if path and rev:
+        rev += "/" + path.rstrip("/")
+
     try:
         repo = current_app.repos[repo]
     except KeyError:
@@ -54,12 +58,21 @@ def _get_repo_and_rev(repo, rev=None):
         rev = repo.get_default_branch()
         if rev is None:
             raise NotFound("Empty repository")
-    try:
-        commit = repo.get_commit(rev)
-    except KeyError:
+
+    i = len(rev)
+    while i > 0:
+        try:
+            commit = repo.get_commit(rev[:i])
+            path = rev[i:].strip("/")
+            rev = rev[:i]
+        except (KeyError, IOError):
+            i = rev.rfind("/", 0, i)
+        else:
+            break
+    else:
         raise NotFound("No such commit %r" % rev)
 
-    return repo, rev, commit
+    return repo, rev, path, commit
 
 
 class BaseRepoView(View):
@@ -79,6 +92,18 @@ class BaseRepoView(View):
         self.context = {}
 
     def dispatch_request(self, repo, rev=None, path=''):
+        """Dispatch repository, revision (if any) and path (if any). To retain
+        compatibility with :func:`url_for`, view routing uses two arguments:
+        rev and path, although a single path is sufficient (from Git's point of
+        view, '/foo/bar/baz' may be a branch '/foo/bar' containing baz, or a
+        branch '/foo' containing 'bar/baz', but never both [1].
+
+        Hence, rebuild rev and path to a single path argument, which is then
+        later split into rev and path again, but revision now may contain
+        slashes.
+
+        [1] https://github.com/jonashaag/klaus/issues/36#issuecomment-23990266
+        """
         self.make_template_context(repo, rev, path.strip('/'))
         return self.get_response()
 
@@ -86,7 +111,8 @@ class BaseRepoView(View):
         return render_template(self.template_name, **self.context)
 
     def make_template_context(self, repo, rev, path):
-        repo, rev, commit = _get_repo_and_rev(repo, rev)
+        repo, rev, path, commit = _get_repo_and_rev(repo, rev, path)
+
         try:
             blob_or_tree = repo.get_blob_or_tree(commit, path)
         except KeyError:
@@ -354,7 +380,8 @@ class RawView(BaseBlobView):
 class DownloadView(BaseRepoView):
     """Download a repo as a tar.gz file."""
     def get_response(self):
-        tarname = "%s@%s.tar.gz" % (self.context['repo'].name, self.context['rev'])
+        tarname = "%s@%s.tar.gz" % (self.context['repo'].name,
+                                    sanitize_branch_name(self.context['rev']))
         headers = {
             'Content-Disposition': "attachment; filename=%s" % tarname,
             'Cache-Control': "no-store",  # Disables browser caching

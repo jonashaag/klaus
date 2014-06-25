@@ -246,3 +246,9 @@ def guess_git_revision():
         # Either the git executable couldn't be found in the OS's PATH
         # or no ".git" directory exists, i.e. this is no "bleeding-edge" installation.
         return None
+
+
+def sanitize_branch_name(name, chars='./', repl='-'):
+    for char in chars:
+        name = name.replace(char, repl)
+    return name

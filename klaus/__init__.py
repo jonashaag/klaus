@@ -50,20 +50,20 @@ class Klaus(flask.Flask):
         for endpoint, rule in [
             ('repo_list',   '/'),
             ('robots_txt',  '/robots.txt/'),
-            ('blob',        '/<repo>/blob/<rev>/'),
+            ('blob',        '/<repo>/blob/'),
             ('blob',        '/<repo>/blob/<rev>/<path:path>'),
-            ('blame',       '/<repo>/blame/<rev>/'),
+            ('blame',       '/<repo>/blame/'),
             ('blame',       '/<repo>/blame/<rev>/<path:path>'),
-            ('raw',         '/<repo>/raw/<rev>/'),
+            ('raw',         '/<repo>/raw/<path:path>/'),
             ('raw',         '/<repo>/raw/<rev>/<path:path>'),
-            ('commit',      '/<repo>/commit/<rev>/'),
-            ('patch',       '/<repo>/commit/<rev>.diff'),
-            ('patch',       '/<repo>/commit/<rev>.patch'),
+            ('commit',      '/<repo>/commit/<path:rev>/'),
+            ('patch',       '/<repo>/commit/<path:rev>.diff'),
+            ('patch',       '/<repo>/commit/<path:rev>.patch'),
             ('index',       '/<repo>/'),
             ('index',       '/<repo>/<path:rev>'),
-            ('history',     '/<repo>/tree/<rev>/'),
+            ('history',     '/<repo>/tree/<rev>'),
             ('history',     '/<repo>/tree/<rev>/<path:path>'),
-            ('download',    '/<repo>/tarball/<rev>/'),
+            ('download',    '/<repo>/tarball/<path:rev>/'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
