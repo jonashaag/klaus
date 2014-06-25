@@ -48,13 +48,13 @@ class Klaus(flask.Flask):
         for endpoint, rule in [
             ('repo_list',   '/'),
             ('blob',        '/<repo>/blob/'),
-            ('blob',        '/<repo>/blob/<path:rev>/<path:path>'),
+            ('blob',        '/<repo>/blob/<rev>/<path:path>'),
             ('raw',         '/<repo>/raw/<path:path>'),
-            ('raw',         '/<repo>/raw/<path:rev>/<path:path>'),
+            ('raw',         '/<repo>/raw/<rev>/<path:path>'),
             ('commit',      '/<repo>/commit/<path:rev>'),
             ('history',     '/<repo>/'),
-            ('history',     '/<repo>/tree/<path:rev>'),
-            ('history',     '/<repo>/tree/<path:rev>/<path:path>'),
+            ('history',     '/<repo>/tree/<rev>'),
+            ('history',     '/<repo>/tree/<rev>/<path:path>'),
             ('download',    '/<repo>/tarball/<path:rev>'),
             ('robots_txt',  '/robots.txt/'),
         ]:

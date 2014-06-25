@@ -199,3 +199,9 @@ def guess_git_revision():
             ['git', 'log', '--format=%h', '-n', '1'],
             cwd=git_dir
         ).strip()
+
+
+def sanitize_branch_name(name, chars='./', repl='-'):
+    for char in chars:
+        name = name.replace(char, repl)
+    return name

@@ -11,7 +11,8 @@ from dulwich.objects import Blob
 
 from klaus import markup, tarutils
 from klaus.utils import parent_directory, subpaths, pygmentize, \
-                        force_unicode, guess_is_binary, guess_is_image
+                        force_unicode, guess_is_binary, guess_is_image, \
+                        sanitize_branch_name
 
 
 def repo_list():
@@ -50,10 +51,20 @@ class BaseRepoView(View):
         self.context = {}
 
     def dispatch_request(self, repo, rev=None, path=None):
-        if rev:
-            rev = rev.rstrip("/")
+        """Dispatch repository, revision (if any) and path (if any). To retain
+        compatibility with :func:`url_for`, view routing uses two arguments:
+        rev and path, although a single path is sufficient (from Git's point of
+        view, '/foo/bar/baz' may be a branch '/foo/bar' containing baz, or a
+        branch '/foo' containing 'bar/baz', but never both [1].
+
+        Hence, rebuild rev and path to a single path argument, which is then
+        later split into rev and path again, but revision now may contain
+        slashes.
+
+        [1] https://github.com/jonashaag/klaus/issues/36#issuecomment-23990266
+        """
         if path:
-            rev += "/" + path.rstrip("/")
+            rev += "/" + path
         self.make_template_context(repo, rev)
         return self.get_response()
 
@@ -254,9 +265,11 @@ class DownloadView(BaseRepoView):
     Download a repo as a tar.gz file
     """
     def get_response(self):
-        tarname = "%s@%s.tar.gz" % (self.context['repo'].name, self.context['rev'].replace("/", "-"))
+        tarname = "{0}@{1}.tar.gz".format(
+            self.context['repo'].name,
+            sanitize_branch_name(self.context['rev']))
         headers = {
-            'Content-Disposition': "attachment; filename=%s" % tarname,
+            'Content-Disposition': "attachment; filename=" + tarname,
             'Cache-Control': "no-store",  # Disables browser caching
         }
 
