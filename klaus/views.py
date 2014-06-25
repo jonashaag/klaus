@@ -11,7 +11,8 @@ from dulwich.objects import Blob
 
 from klaus import markup, tarutils
 from klaus.utils import parent_directory, subpaths, pygmentize, \
-                        force_unicode, guess_is_binary, guess_is_image
+                        force_unicode, guess_is_binary, guess_is_image, \
+                        sanitize_branch_name
 
 
 def repo_list():
@@ -25,9 +26,11 @@ def repo_list():
     repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
+
 def robots_txt():
     """Serves the robots.txt file to manage the indexing of the site by search enginges"""
     return current_app.send_static_file('robots.txt')
+
 
 class BaseRepoView(View):
     """
@@ -47,14 +50,29 @@ class BaseRepoView(View):
         self.template_name = template_name
         self.context = {}
 
-    def dispatch_request(self, repo, rev=None, path=''):
-        self.make_template_context(repo, rev, path.strip('/'))
+    def dispatch_request(self, repo, rev=None, path=None):
+        """Dispatch repository, revision (if any) and path (if any). To retain
+        compatibility with :func:`url_for`, view routing uses two arguments:
+        rev and path, although a single path is sufficient (from Git's point of
+        view, '/foo/bar/baz' may be a branch '/foo/bar' containing baz, or a
+        branch '/foo' containing 'bar/baz', but never both [1].
+
+        Hence, rebuild rev and path to a single path argument, which is then
+        later split into rev and path again, but revision now may contain
+        slashes.
+
+        [1] https://github.com/jonashaag/klaus/issues/36#issuecomment-23990266
+        """
+        if path:
+            rev += "/" + path
+        self.make_template_context(repo, rev)
         return self.get_response()
 
     def get_response(self):
         return render_template(self.template_name, **self.context)
 
-    def make_template_context(self, repo, rev, path):
+    def make_template_context(self, repo, rev):
+
         try:
             repo = current_app.repo_map[repo]
         except KeyError:
@@ -64,9 +82,18 @@ class BaseRepoView(View):
             rev = repo.get_default_branch()
             if rev is None:
                 raise NotFound("Empty repository")
-        try:
-            commit = repo.get_commit(rev)
-        except KeyError:
+
+        i = len(rev)
+        while i > 0:
+            try:
+                commit = repo.get_commit(rev[:i])
+                path = rev[i:].strip("/")
+                rev = rev[:i]
+            except (KeyError, IOError):
+                i = rev.rfind("/", 0, i)
+            else:
+                break
+        else:
             raise NotFound("No such commit %r" % rev)
 
         try:
@@ -238,9 +265,11 @@ class DownloadView(BaseRepoView):
     Download a repo as a tar.gz file
     """
     def get_response(self):
-        tarname = "%s@%s.tar.gz" % (self.context['repo'].name, self.context['rev'])
+        tarname = "{0}@{1}.tar.gz".format(
+            self.context['repo'].name,
+            sanitize_branch_name(self.context['rev']))
         headers = {
-            'Content-Disposition': "attachment; filename=%s" % tarname,
+            'Content-Disposition': "attachment; filename=" + tarname,
             'Cache-Control': "no-store",  # Disables browser caching
         }
 

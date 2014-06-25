@@ -47,16 +47,16 @@ class Klaus(flask.Flask):
     def setup_routes(self):
         for endpoint, rule in [
             ('repo_list',   '/'),
-            ('blob',        '/<repo>/blob/<rev>/'),
+            ('blob',        '/<repo>/blob/'),
             ('blob',        '/<repo>/blob/<rev>/<path:path>'),
-            ('raw',         '/<repo>/raw/<rev>/'),
+            ('raw',         '/<repo>/raw/<path:path>'),
             ('raw',         '/<repo>/raw/<rev>/<path:path>'),
-            ('commit',      '/<repo>/commit/<rev>/'),
+            ('commit',      '/<repo>/commit/<path:rev>'),
             ('history',     '/<repo>/'),
-            ('history',     '/<repo>/tree/<rev>/'),
+            ('history',     '/<repo>/tree/<rev>'),
             ('history',     '/<repo>/tree/<rev>/<path:path>'),
+            ('download',    '/<repo>/tarball/<path:rev>'),
             ('robots_txt',  '/robots.txt/'),
-            ('download',    '/<repo>/tarball/<rev>/'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
