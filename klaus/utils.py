@@ -193,12 +193,18 @@ except ImportError:
 
 
 def guess_git_revision():
+    """
+    Try to guess whether this instance of klaus is run directly from a klaus
+    git checkout.  If it is, guess and return the currently checked-out commit
+    SHA.  If it's not (installed using pip, setup.py or the like), return None.
+    """
     git_dir = os.path.join(os.path.dirname(__file__), '..', '.git')
-    if os.path.exists(git_dir):
-        try:
-            return check_output(
-                ['git', 'log', '--format=%h', '-n', '1'],
-                cwd=git_dir
-            ).strip()
-        except WindowsError:
-            return None
+    try:
+        return check_output(
+            ['git', 'log', '--format=%h', '-n', '1'],
+            cwd=git_dir
+        ).strip()
+    except OSError:
+        # Either the git executable couldn't be found in the OS's PATH
+        # or no ".git" directory exists, i.e. this is no "bleeding-edge" installation.
+        return None
