@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.4.9 (TBA)
+-----------
+* Bug #104: "git" executable unnecessarily required to be available (@Mechazawa)
+
 0.4.8 (June 22, 2014)
 ---------------------
 * Fix .tar.gz download if repository contains git submodule.
