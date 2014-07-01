@@ -197,6 +197,9 @@ def guess_git_revision():
     Try to guess whether this instance of klaus is run directly from a klaus
     git checkout.  If it is, guess and return the currently checked-out commit
     SHA.  If it's not (installed using pip, setup.py or the like), return None.
+
+    This is used to display the "powered by klaus $VERSION" footer on each page,
+    $VERSION being either the SHA guessed by this function or the latest release number.
     """
     git_dir = os.path.join(os.path.dirname(__file__), '..', '.git')
     try:
