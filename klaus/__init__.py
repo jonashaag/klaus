@@ -42,7 +42,6 @@ class Klaus(flask.Flask):
         env.globals['KLAUS_VERSION'] = KLAUS_VERSION
         env.globals['USE_SMARTHTTP'] = self.use_smarthttp
         env.globals['SITE_NAME'] = self.site_name
-        env.globals['GIT_BIN'] = self.git_bin
 
         return env
 
