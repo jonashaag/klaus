@@ -17,9 +17,17 @@ class Klaus(flask.Flask):
 
     def __init__(self, repo_paths, site_name, clone_urls, use_smarthttp):
         self.repos = map(FancyRepo, repo_paths)
-        self.repo_map = dict((repo.name, repo) for repo in self.repos)
+        d = dict()
+        u = clone_urls[::-1]
+        for repo in self.repos:
+            if u:
+                repo.cloneurl = u.pop()
+            else:
+                repo.cloneurl = None
+            print(repo.cloneurl)
+            d[repo.name] = repo
+        self.repo_map = d
         self.site_name = site_name
-        self.clone_urls = clone_urls
         self.use_smarthttp = use_smarthttp
 
         flask.Flask.__init__(self, __name__)
