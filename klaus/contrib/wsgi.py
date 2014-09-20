@@ -6,6 +6,8 @@ if 'KLAUS_HTDIGEST_FILE' in os.environ:
         application = make_app(
             os.environ['KLAUS_REPOS'].split(),
             os.environ['KLAUS_SITE_NAME'],
+            os.environ['KLAUS_GIT_BIN'],
+            os.environ['KLAUS_CLONE_URLS'].split(),
             os.environ.get('KLAUS_USE_SMARTHTTP'),
             file,
         )
@@ -13,6 +15,8 @@ else:
     application = make_app(
         os.environ['KLAUS_REPOS'].split(),
         os.environ['KLAUS_SITE_NAME'],
+        os.environ['KLAUS_GIT_BIN'],
+        os.environ['KLAUS_CLONE_URLS'].split(),
         os.environ.get('KLAUS_USE_SMARTHTTP'),
         None,
     )

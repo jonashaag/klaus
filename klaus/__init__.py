@@ -15,10 +15,21 @@ class Klaus(flask.Flask):
         'undefined': jinja2.StrictUndefined
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp):
+    def __init__(self, repo_paths, site_name, git_bin, clone_urls, use_smarthttp):
         self.repos = map(FancyRepo, repo_paths)
-        self.repo_map = dict((repo.name, repo) for repo in self.repos)
+        d = dict()
+        u = clone_urls[::-1]
+        for repo in self.repos:
+            if u:
+                repo.cloneurl = u.pop()
+            else:
+                repo.cloneurl = None
+            print(repo.cloneurl)
+            d[repo.name] = repo
+        self.repo_map = d
         self.site_name = site_name
+        self.git_bin = git_bin
+        self.clone_urls = clone_urls
         self.use_smarthttp = use_smarthttp
 
         flask.Flask.__init__(self, __name__)
@@ -61,7 +72,7 @@ class Klaus(flask.Flask):
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
 
-def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None):
+def make_app(repos, site_name, git_bin, clone_urls, use_smarthttp=False, htdigest_file=None):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
     already patched in.
@@ -69,6 +80,8 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None):
     app = Klaus(
         repos,
         site_name,
+        git_bin,
+        clone_urls,
         use_smarthttp,
     )
     app.wsgi_app = utils.SubUri(app.wsgi_app)

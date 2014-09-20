@@ -20,7 +20,14 @@
           href="{{ url_for('history', repo=repo.name) }}"
         {% endif %}
       >
-        <div class=name>{{ repo.name }}</div>
+        <span class=name>{{ repo.name }}</span>
+	</a>
+        {% if repo.cloneurl %}
+	 - [<a href="{{ repo.cloneurl }}">Clone</a>]
+        {% endif %}
+
+
+
         {% if description %}
           <div class=description>{{ description }}</div>
         {% endif %}
@@ -31,7 +38,6 @@
           no commits yet
         {% endif %}
         </div>
-      </a>
     </li>
   {% endfor %}
 </ul>
