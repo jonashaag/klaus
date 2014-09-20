@@ -83,7 +83,7 @@ class FancyRepo(dulwich.repo.Repo):
         """ Returns a sorted list of tag names. """
         return self.get_sorted_ref_names('refs/tags')
 
-    def history(self, commit, git_bin, path=None, max_commits=None, skip=0):
+    def history(self, commit, path=None, max_commits=None, skip=0):
         """
         Returns a list of all commits that infected `path`, starting at branch
         or commit `commit`. `skip` can be used for pagination, `max_commits`
@@ -98,7 +98,7 @@ class FancyRepo(dulwich.repo.Repo):
         #     Therefore we use `git log` here until dulwich gets faster.
         #     For the pure-Python implementation, see the 'purepy-hist' branch.
 
-        cmd = [git_bin, 'log', '--format=%H']
+        cmd = ['git', 'log', '--format=%H']
         if skip:
             cmd.append('--skip=%d' % skip)
         if max_commits:

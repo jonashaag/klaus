@@ -154,7 +154,6 @@ class HistoryView(TreeViewMixin, BaseRepoView):
 
         history = self.context['repo'].history(
             self.context['rev'],
-            current_app.git_bin,
             self.context['path'],
             history_length + 1,
             skip
