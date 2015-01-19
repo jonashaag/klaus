@@ -4,6 +4,7 @@ Changelog
 0.4.9 (TBA)
 -----------
 * Bug #104: "git" executable unnecessarily required to be available (@Mechazawa)
+* Add option to auto-launch a web-browser on startup (@rjw57)
 
 0.4.8 (June 22, 2014)
 ---------------------
