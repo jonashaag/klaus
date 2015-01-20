@@ -32,7 +32,7 @@ def make_parser():
     parser.add_argument('-b', '--browser', help="open klaus in default browser on server start. Optional argument: browser executable to use",
                         default=None, const='__default_browser__', nargs='?')
 
-    parser.add_argument('repos', help='repositories to serve',
+    parser.add_argument('repos', help='repositories to serve or, if omitted, use current directory',
                         metavar='DIR', nargs='*', type=git_repository)
 
     grp = parser.add_argument_group("Git Smart HTTP")
@@ -51,7 +51,8 @@ def main():
     args = make_parser().parse_args()
 
     if not args.repos:
-        print >> sys.stderr, "WARNING: No repositories supplied -- syntax is 'klaus dir1 dir2...'."
+        print >> sys.stderr, "WARNING: No repositories supplied -- using current directory as default"
+        args.repos = [os.getcwd()]
 
     if not args.site_name:
         args.site_name = '%s:%d' % (args.host, args.port)
