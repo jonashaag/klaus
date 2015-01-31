@@ -91,7 +91,7 @@ def timesince(when, now=time.time):
 
 
 def formattimestamp(timestamp):
-    return datetime.datetime.fromtimestamp(timestamp).strftime('%b %d, %Y - %H:%M:%S')
+    return datetime.datetime.fromtimestamp(timestamp).strftime('%b %d, %Y %H:%M:%S')
 
 
 def guess_is_binary(dulwich_blob):
