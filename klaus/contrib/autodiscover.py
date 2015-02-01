@@ -1,7 +1,6 @@
 import os
 import dulwich
 import logging
-import functools
 
 from klaus.repo import FancyRepo
 from klaus import Klaus, make_app
@@ -12,7 +11,6 @@ try:
         FileSystemEventHandler,
         DirCreatedEvent,
         DirDeletedEvent,
-        DirMovedEvent
     )
 except ImportError:
     import sys
@@ -119,7 +117,7 @@ class KlausAutoDiscover(Klaus):
     """
     Instead of the normal Klaus behaviour of receiving a list of git repositories
     as `os.environ['KLAUS_REPOS']`, this app searches `os.environ['KLAUS_REPOS']`
-    for valid git repositories and updates the application automatically when any 
+    for valid git repositories and updates the application automatically when any
     changes are made.
     This simplifies administration significantly, but may cause problems with
     large repositories.
