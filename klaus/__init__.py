@@ -17,13 +17,16 @@ class Klaus(flask.Flask):
 
     def __init__(self, repo_paths, site_name, use_smarthttp):
         self.repos = map(FancyRepo, repo_paths)
-        self.repo_map = dict((repo.name, repo) for repo in self.repos)
+        self.update_repos_list()
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
 
         flask.Flask.__init__(self, __name__)
 
         self.setup_routes()
+
+    def update_repos_list(self):
+        self.repo_map = dict((repo.name, repo) for repo in self.repos)
 
     def create_jinja_environment(self):
         """ Called by Flask.__init__ """
@@ -61,12 +64,12 @@ class Klaus(flask.Flask):
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
 
-def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None):
+def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None, klass=Klaus):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
     already patched in.
     """
-    app = Klaus(
+    app = klass(
         repos,
         site_name,
         use_smarthttp,
