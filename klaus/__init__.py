@@ -16,7 +16,7 @@ class Klaus(flask.Flask):
     }
 
     def __init__(self, repo_paths, site_name, use_smarthttp, **kwargs):
-        self.repo_map = dict((repo.path, repo) for repo in map(FancyRepo, repo_paths))
+        self.repo_map = dict((path, FancyRepo(path)) for path in repo_paths)
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
 
