@@ -15,18 +15,14 @@ class Klaus(flask.Flask):
         'undefined': jinja2.StrictUndefined
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp):
-        self.repos = map(FancyRepo, repo_paths)
-        self.update_repos_list()
+    def __init__(self, repo_paths, site_name, use_smarthttp, **kwargs):
+        self.repo_map = dict((repo.path, repo) for repo in map(FancyRepo, repo_paths))
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
 
         flask.Flask.__init__(self, __name__)
 
         self.setup_routes()
-
-    def update_repos_list(self):
-        self.repo_map = dict((repo.name, repo) for repo in self.repos)
 
     def create_jinja_environment(self):
         """ Called by Flask.__init__ """
@@ -64,7 +60,7 @@ class Klaus(flask.Flask):
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
 
-def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None, klass=Klaus):
+def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None, klass=Klaus, **kwargs):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
     already patched in.
@@ -73,13 +69,14 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None, klass=Kl
         repos,
         site_name,
         use_smarthttp,
+        **kwargs
     )
     app.wsgi_app = utils.SubUri(app.wsgi_app)
 
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
-            dict(('/'+repo.name, repo) for repo in app.repos)
+            dict(('/'+repo.name, repo) for repo in app.repo_map.itervalues())
         )
         # Dulwich takes care of all Git related requests/URLs
         # and passes through everything else to klaus

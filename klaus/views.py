@@ -22,7 +22,7 @@ def repo_list():
     else:
         sort_key = lambda repo: repo.name
         reverse = False
-    repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
+    repos = sorted(current_app.repo_map.values(), key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
 def robots_txt():
