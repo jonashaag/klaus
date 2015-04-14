@@ -124,7 +124,16 @@
             {% endif %}
 
           {% else %}
+            {% if file.old_filename == '/dev/null' %}
+            <div class=emptydiff>(New empty file)</div>
+            {% else %}
+            {# This case happens if a file has undergone only mode changes.
+               In the future, if we have rename recognition, it may also happen
+               if the file has been renamed without having its content changed.
+               Currently, renames are always reported by dulwich as a file
+               deletion and addition. #}
             <div class=emptydiff>(No changes)</div>
+            {% endif %}
           {%- endfor -%} {# chunks #}
         </table>
       {% endif %}
