@@ -27,18 +27,16 @@ class DiffRenderer(object):
         """:param udiff:   a text in udiff format"""
         self.lines = [escape(line) for line in udiff.splitlines()]
 
-    def _extract_rev(self, line1, line2):
-        def _extract(line):
-            parts = line.split(None, 1)
-            if parts[0].startswith(('a/', 'b/')):
-                parts[0] = parts[0][2:]
-            return parts[0], (len(parts) == 2 and parts[1] or None)
-        try:
-            if line1.startswith('--- ') and line2.startswith('+++ '):
-                return _extract(line1[4:]), _extract(line2[4:])
-        except (ValueError, IndexError):
-            pass
-        return (None, None), (None, None)
+    def _extract_filename(self, line):
+        """
+        Extract file name from unified diff line:
+            --- a/foo/bar   ==>   foo/bar
+            +++ b/foo/bar   ==>   foo/bar
+        """
+        if line.startswith(("--- /dev/null", "+++ /dev/null")):
+            return line[len("--- "):]
+        else:
+            return line[len("--- a/"):]
 
     def _highlight_line(self, line, next):
         """Highlight inline changes in both lines."""
@@ -91,14 +89,11 @@ class DiffRenderer(object):
 
                 in_header = False
                 chunks = []
-                old, new = self._extract_rev(line, lineiter.next())
                 adds, dels = 0, 0
                 files.append({
                     'is_header':        False,
-                    'old_filename':     old[0],
-                    'old_revision':     old[1],
-                    'new_filename':     new[0],
-                    'new_revision':     new[1],
+                    'old_filename':     self._extract_filename(line),
+                    'new_filename':     self._extract_filename(lineiter.next()),
                     'additions':        adds,
                     'deletions':        dels,
                     'chunks':           chunks
