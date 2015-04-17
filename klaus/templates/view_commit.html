@@ -126,6 +126,8 @@
           {% else %}
             {% if file.old_filename == '/dev/null' %}
             <div class=emptydiff>(New empty file)</div>
+            {% elif file.new_filename == '/dev/null' %}
+            <div class=emptydiff>(Empty file)</div>
             {% else %}
             {# This case happens if a file has undergone only mode changes.
                In the future, if we have rename recognition, it may also happen
