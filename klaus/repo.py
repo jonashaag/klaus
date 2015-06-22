@@ -112,8 +112,8 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_blob_or_tree(self, commit, path):
         """ Returns the Git tree or blob object for `path` at `commit`. """
-        tree_or_blob = self[commit.tree]  # Still a tree here but may turn into
-                                          # a blob somewhere in the loop.
+        tree_or_blob = self[getattr(commit, 'tree', commit.id)]  # Still a tree here but may turn into
+                                                                 # a blob somewhere in the loop.
         for part in path.strip('/').split('/'):
             if part:
                 if isinstance(tree_or_blob, dulwich.objects.Blob):
