@@ -55,7 +55,10 @@ def test_no_smarthttp_no_require_browser_auth():
     with testserver():
         assert can_reach_site_unauthorized()
         assert can_reach_site_authorized()
-        assert_cannot_clone()
+
+        assert not can_clone_unauthorized()
+        assert not can_clone_authorized()
+
         assert not can_push_unauthorized()
         assert not can_push_authorized()
 
@@ -67,14 +70,24 @@ def test_smarthttp_no_require_browser_auth():
         testserver(use_smarthttp=True, htdigest_file=open(HTDIGEST_FILE), disable_push=True)
     ]:
         with server:
+            assert can_reach_site_unauthorized()
+            assert can_reach_site_authorized()
+
             assert can_clone_unauthorized()
+            assert can_clone_authorized()
+
             assert not can_push_unauthorized()
             assert not can_push_authorized()
 
 
 def test_smarthttp_push_no_require_browser_auth():
     with testserver(use_smarthttp=True, htdigest_file=open(HTDIGEST_FILE)):
+        assert can_reach_site_unauthorized()
+        assert can_reach_site_authorized()
+
         assert can_clone_unauthorized()
+        assert can_clone_authorized()
+
         assert not can_push_unauthorized()
         assert can_push_authorized()
 
@@ -83,69 +96,36 @@ def test_no_smarthttp_require_browser_auth():
     with testserver_require_auth():
         assert not can_reach_site_unauthorized()
         assert can_reach_site_authorized()
+
         assert not can_clone_unauthorized()
         assert not can_clone_authorized()
+
         assert not can_push_unauthorized()
         assert not can_push_authorized()
 
 
 def test_smarthttp_require_browser_auth():
     with testserver_require_auth(use_smarthttp=True, disable_push=True):
+        assert not can_reach_site_unauthorized()
+        assert can_reach_site_authorized()
+
         assert not can_clone_unauthorized()
         assert can_clone_authorized()
+
         assert not can_push_unauthorized()
         assert not can_push_authorized()
 
 
 def test_smarthttp_push_require_browser_auth():
     with testserver_require_auth(use_smarthttp=True):
+        assert not can_reach_site_unauthorized()
+        assert can_reach_site_authorized()
+
         assert not can_clone_unauthorized()
         assert can_clone_authorized()
+
         assert not can_push_unauthorized()
         assert can_push_authorized()
-
-
-def assert_cannot_clone():
-    assert "git clone" not in GET_unauthorized(TEST_REPO_URL).content
-    assert 404 == GET_unauthorized(TEST_REPO_URL + "info/refs?service=git-upload-pack").status_code
-    assert 128 == subprocess.call(["git", "clone", AUTHORIZED_TEST_REPO_URL])
-
-
-def assert_cannot_push_authorized(expected_status):
-    assert expected_status == GET_authorized(TEST_REPO_URL + "info/refs?service=git-receive-pack").status_code
-    assert expected_status == GET_authorized(TEST_REPO_URL + "git-receive-pack").status_code
-    assert 128 == subprocess.call(["git", "push", AUTHORIZED_TEST_REPO_URL, "master"], cwd=TEST_REPO)
-
-
-def assert_cannot_push_unauthorized(expected_status):
-    assert expected_status == GET_unauthorized(TEST_REPO_URL + "info/refs?service=git-receive-pack").status_code
-    assert expected_status == GET_unauthorized(TEST_REPO_URL + "git-receive-pack").status_code
-    # XXX 'git push' asks for a new username/password and blocks
-    # assert 128 == subprocess.call(["git", "push", UNAUTHORIZED_TEST_REPO_URL, "master"], cwd=TEST_REPO)
-
-
-# Clone
-def can_clone_unauthorized():
-    tmp = tempfile.mkdtemp()
-    try:
-        return subprocess.call(["git", "clone", UNAUTHORIZED_TEST_REPO_URL, tmp]) == 0
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
-
-def can_clone_authorized():
-    tmp = tempfile.mkdtemp()
-    try:
-        return subprocess.call(["git", "clone", AUTHORIZED_TEST_REPO_URL, tmp]) == 0
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
-
-
-# Push
-def can_push_unauthorized():
-    return subprocess.call(["git", "push", UNAUTHORIZED_TEST_REPO_URL, "master"], cwd=TEST_REPO) == 0
-
-def can_push_authorized():
-    return subprocess.call(["git", "push", AUTHORIZED_TEST_REPO_URL, "master"], cwd=TEST_REPO) == 0
 
 
 # Reach
@@ -154,3 +134,37 @@ def can_reach_site_unauthorized():
 
 def can_reach_site_authorized():
     return GET_authorized(TEST_REPO_URL).status_code == 200
+
+
+# Clone
+def can_clone_unauthorized():
+  return _can_clone(GET_unauthorized, UNAUTHORIZED_TEST_REPO_URL)
+
+def can_clone_authorized():
+  return _can_clone(GET_authorized, AUTHORIZED_TEST_REPO_URL)
+
+def _can_clone(get, url):
+    tmp = tempfile.mkdtemp()
+    try:
+        return any([
+            "git clone" in get(TEST_REPO_URL).content,
+            get(TEST_REPO_URL + "info/refs?service=git-upload-pack").status_code == 200,
+            subprocess.call(["git", "clone", url, tmp]) == 0,
+        ])
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+# Push
+def can_push_unauthorized():
+    return _can_push(GET_unauthorized, UNAUTHORIZED_TEST_REPO_URL)
+
+def can_push_authorized():
+    return _can_push(GET_authorized, AUTHORIZED_TEST_REPO_URL)
+
+def _can_push(get, url):
+    return any([
+      get(TEST_REPO_URL + "info/refs?service=git-receive-pack").status_code == 200,
+      get(TEST_REPO_URL + "git-receive-pack").status_code == 200,
+      subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
+    ])
