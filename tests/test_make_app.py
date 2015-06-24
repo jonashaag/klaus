@@ -42,7 +42,7 @@ def testserver(*args, **kwargs):
         server.server_close()
         if 'TRAVIS' in os.environ:
             # This fixes some "Address already in use" cases on Travis.
-            time.sleep(0.3)
+            time.sleep(1)
 
 
 def testserver_require_auth(*args, **kwargs):
