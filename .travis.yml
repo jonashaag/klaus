@@ -5,6 +5,7 @@ python:
 install:
   - "pip install ."
   - "pip install requests"
-script: git config --global user.email "you@example.com"
-        git config --global user.name "Your Name"
-        ./runtests.sh
+script:
+  - git config --global user.email "you@example.com"
+  - git config --global user.name "Your Name"
+  - ./runtests.sh
