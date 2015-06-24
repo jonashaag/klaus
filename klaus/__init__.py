@@ -62,7 +62,7 @@ class Klaus(flask.Flask):
 
 
 def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None,
-             require_browser_auth=False, disable_push=False):
+             require_browser_auth=False, disable_push=False, unauthenticated_push=False):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
     already patched in.
@@ -79,7 +79,18 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None,
         `use_smarthttp` and `require_browser_auth` (and thus `htdigest_file`)
         are set, but push should not be supported.
     :param htdigest_file: A *file-like* object that contains the HTTP auth credentials.
+    :param unauthenticated_push: Allow push'ing without authentication. DANGER ZONE!
     """
+    if unauthenticated_push:
+        if not use_smarthttp:
+            raise ValueError("'unauthenticated_push' set without 'use_smarthttp'")
+        if disable_push:
+            raise ValueError("'unauthenticated_push' set with 'disable_push'")
+        if require_browser_auth:
+            raise ValueError("Incompatible options 'unauthenticated_push' and 'require_browser_auth'")
+    if htdigest_file and not (require_browser_auth or use_smarthttp):
+        raise ValueError("'htdigest_file' set without 'use_smarthttp' or 'require_browser_auth'")
+
     app = Klaus(
         repos,
         site_name,
@@ -115,7 +126,10 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None,
         # failed for /info/refs, but since it's used to upload stuff to the server
         # we must secure it anyway for security reasons.
         PATTERN = r'^/[^/]+/(info/refs\?service=git-receive-pack|git-receive-pack)$'
-        if htdigest_file and not disable_push:
+        if unauthenticated_push:
+            # DANGER ZONE: Don't require authentication for push'ing
+            app.wsgi_app = dulwich_wrapped_app
+        elif htdigest_file and not disable_push:
             # .htdigest file given. Use it to read the push-er credentials from.
             if require_browser_auth:
                 # No need to secure push'ing if we already require HTTP auth

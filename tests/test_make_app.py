@@ -4,10 +4,11 @@ import contextlib
 import subprocess
 import tempfile
 import shutil
-import requests
-import requests.auth
 import klaus
 
+import pytest
+import requests
+import requests.auth
 import werkzeug.serving
 import threading
 
@@ -51,6 +52,26 @@ def testserver_require_auth(*args, **kwargs):
     return testserver(*args, **kwargs)
 
 
+def test_htdigest_file_without_smarthttp_or_require_browser_auth():
+    with pytest.raises(ValueError):
+        klaus.make_app([], None, htdigest_file=object())
+
+
+def test_unauthenticated_push_and_require_browser_auth():
+    with pytest.raises(ValueError):
+        klaus.make_app([], None, use_smarthttp=True, unauthenticated_push=True, require_browser_auth=True)
+
+
+def test_unauthenticated_push_without_use_smarthttp():
+    with pytest.raises(ValueError):
+        klaus.make_app([], None, unauthenticated_push=True)
+
+
+def test_unauthenticated_push_with_disable_push():
+    with pytest.raises(ValueError):
+        klaus.make_app([], None, unauthenticated_push=True, disable_push=True)
+
+
 def test_no_smarthttp_no_require_browser_auth():
     with testserver():
         assert can_reach_site_unauthorized()
@@ -89,6 +110,18 @@ def test_smarthttp_push_no_require_browser_auth():
         assert can_clone_authorized()
 
         assert not can_push_unauthorized()
+        assert can_push_authorized()
+
+
+def test_unauthenticated_push():
+    with testserver(use_smarthttp=True, unauthenticated_push=True):
+        assert can_reach_site_unauthorized()
+        assert can_reach_site_authorized()
+
+        assert can_clone_unauthorized()
+        assert can_clone_authorized()
+
+        assert can_push_unauthorized()
         assert can_push_authorized()
 
 
