@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/jonashaag/klaus.svg?branch=master
+    :target: https://travis-ci.org/jonashaag/klaus
+
 klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
 ================================================================
 
