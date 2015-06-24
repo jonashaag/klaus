@@ -1,4 +1,5 @@
 import os
+import time
 import contextlib
 import subprocess
 import tempfile
@@ -34,12 +35,12 @@ def testserver(*args, **kwargs):
     app = klaus.make_app([TEST_REPO], TEST_SITE_NAME, *args, **kwargs)
     server = werkzeug.serving.make_server("localhost", 9876, app)
     thread = threading.Thread(target=server.serve_forever)
-    thread.daemon = True
     thread.start()
     try:
         yield
     finally:
         server.server_close()
+        time.sleep(1)
 
 
 def testserver_require_auth(*args, **kwargs):
