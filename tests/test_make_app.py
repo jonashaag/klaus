@@ -17,33 +17,10 @@ TEST_REPO = os.path.abspath("tests/repos/test_repo")
 TEST_REPO_URL = "test_repo/"
 TEST_SITE_NAME = "Some site"
 HTDIGEST_FILE = "tests/credentials.htdigest"
-
-UNAUTHORIZED_TEST_SERVER = "http://invalid:password@localhost:9876/"
-UNAUTHORIZED_TEST_REPO_URL = UNAUTHORIZED_TEST_SERVER + TEST_REPO_URL
-AUTHORIZED_TEST_SERVER = "http://testuser:testpassword@localhost:9876/"
-AUTHORIZED_TEST_REPO_URL = AUTHORIZED_TEST_SERVER + TEST_REPO_URL
-
-
-def GET_unauthorized(url=""):
-    return requests.get(UNAUTHORIZED_TEST_SERVER + url, auth=requests.auth.HTTPDigestAuth("invalid", "password"))
-
-def GET_authorized(url=""):
-    return requests.get(AUTHORIZED_TEST_SERVER + url, auth=requests.auth.HTTPDigestAuth("testuser", "testpassword"))
-
-
-@contextlib.contextmanager
-def testserver(*args, **kwargs):
-    app = klaus.make_app([TEST_REPO], TEST_SITE_NAME, *args, **kwargs)
-    server = werkzeug.serving.make_server("localhost", 9876, app)
-    thread = threading.Thread(target=server.serve_forever)
-    thread.start()
-    try:
-        yield
-    finally:
-        server.server_close()
-        if 'TRAVIS' in os.environ:
-            # This fixes some "Address already in use" cases on Travis.
-            time.sleep(1)
+UNAUTH_TEST_SERVER = "http://invalid:password@localhost:9876/"
+UNAUTH_TEST_REPO_URL = UNAUTH_TEST_SERVER + TEST_REPO_URL
+AUTH_TEST_SERVER = "http://testuser:testpassword@localhost:9876/"
+AUTH_TEST_REPO_URL = AUTH_TEST_SERVER + TEST_REPO_URL
 
 
 def testserver_require_auth(*args, **kwargs):
@@ -72,116 +49,86 @@ def test_unauthenticated_push_with_disable_push():
         klaus.make_app([], None, unauthenticated_push=True, disable_push=True)
 
 
-def test_no_smarthttp_no_require_browser_auth():
-    with testserver():
-        assert can_reach_site_unauthorized()
-        assert can_reach_site_authorized()
-
-        assert not can_clone_unauthorized()
-        assert not can_clone_authorized()
-
-        assert not can_push_unauthorized()
-        assert not can_push_authorized()
-
-
-def test_smarthttp_no_require_browser_auth():
-    # Push is disabled either if no credentials are given or the 'disable_push' option is set:
-    for server in [
-        testserver(use_smarthttp=True),
-        testserver(use_smarthttp=True, htdigest_file=open(HTDIGEST_FILE), disable_push=True)
-    ]:
-        with server:
-            assert can_reach_site_unauthorized()
-            assert can_reach_site_authorized()
-
-            assert can_clone_unauthorized()
-            assert can_clone_authorized()
-
-            assert not can_push_unauthorized()
-            assert not can_push_authorized()
+def options_test(make_app_args, expected_permissions):
+    def test():
+        with testserver(**make_app_args):
+            for action, permitted in expected_permissions.items():
+                if action.endswith('auth'):
+                    actions = [action]
+                else:
+                    actions = [action + '_unauth', action + '_auth']
+                for action in actions:
+                    funcname = 'can_%s' % action
+                    assert globals()[funcname]() == permitted
+    return test
 
 
-def test_smarthttp_push_no_require_browser_auth():
-    with testserver(use_smarthttp=True, htdigest_file=open(HTDIGEST_FILE)):
-        assert can_reach_site_unauthorized()
-        assert can_reach_site_authorized()
-
-        assert can_clone_unauthorized()
-        assert can_clone_authorized()
-
-        assert not can_push_unauthorized()
-        assert can_push_authorized()
-
-
-def test_unauthenticated_push():
-    with testserver(use_smarthttp=True, unauthenticated_push=True):
-        assert can_reach_site_unauthorized()
-        assert can_reach_site_authorized()
-
-        assert can_clone_unauthorized()
-        assert can_clone_authorized()
-
-        assert can_push_unauthorized()
-        assert can_push_authorized()
-
-
-def test_no_smarthttp_require_browser_auth():
-    with testserver_require_auth():
-        assert not can_reach_site_unauthorized()
-        assert can_reach_site_authorized()
-
-        assert not can_clone_unauthorized()
-        assert not can_clone_authorized()
-
-        assert not can_push_unauthorized()
-        assert not can_push_authorized()
+test_nosmart_noauth = options_test(
+    {},
+    {'reach': True, 'clone': False, 'push': False}
+)
+test_smart_noauth = options_test(
+    {'use_smarthttp': True},
+    {'reach': True, 'clone': True, 'push': False}
+)
+test_smart_push = options_test(
+    {'use_smarthttp': True, 'htdigest_file': open(HTDIGEST_FILE)},
+    {'reach': True, 'clone': True, 'push_auth': True, 'push_unauth': False}
+)
+test_unauthenticated_push = options_test(
+    {'use_smarthttp': True, 'unauthenticated_push': True},
+    {'reach': True, 'clone': True, 'push': True}
+)
+test_nosmart_auth = options_test(
+    {'require_browser_auth': True, 'htdigest_file': open(HTDIGEST_FILE)},
+    {'reach_auth': True, 'reach_unauth': False, 'clone': False, 'push': False}
+)
+test_smart_auth = options_test(
+    {'require_browser_auth': True, 'use_smarthttp': True, 'htdigest_file': open(HTDIGEST_FILE)},
+    {'reach_auth': True, 'reach_unauth': False, 'clone_auth': True, 'clone_unauth': False, 'push_unauth': False, 'push_auth': True}
+)
+test_smart_auth_disable_push = options_test(
+    {'require_browser_auth': True, 'use_smarthttp': True, 'disable_push': True, 'htdigest_file': open(HTDIGEST_FILE)},
+    {'reach_auth': True, 'reach_unauth': False, 'clone_auth': True, 'clone_unauth': False, 'push': False}
+)
 
 
-def test_smarthttp_require_browser_auth():
-    with testserver_require_auth(use_smarthttp=True, disable_push=True):
-        assert not can_reach_site_unauthorized()
-        assert can_reach_site_authorized()
-
-        assert not can_clone_unauthorized()
-        assert can_clone_authorized()
-
-        assert not can_push_unauthorized()
-        assert not can_push_authorized()
-
-
-def test_smarthttp_push_require_browser_auth():
-    with testserver_require_auth(use_smarthttp=True):
-        assert not can_reach_site_unauthorized()
-        assert can_reach_site_authorized()
-
-        assert not can_clone_unauthorized()
-        assert can_clone_authorized()
-
-        assert not can_push_unauthorized()
-        assert can_push_authorized()
+@contextlib.contextmanager
+def testserver(*args, **kwargs):
+    app = klaus.make_app([TEST_REPO], TEST_SITE_NAME, *args, **kwargs)
+    server = werkzeug.serving.make_server("localhost", 9876, app)
+    thread = threading.Thread(target=server.serve_forever)
+    thread.start()
+    try:
+        yield
+    finally:
+        server.server_close()
+        if 'TRAVIS' in os.environ:
+            # This fixes some "Address already in use" cases on Travis.
+            time.sleep(1)
 
 
 # Reach
-def can_reach_site_unauthorized():
-    return GET_unauthorized("test_repo").status_code == 200
+def can_reach_unauth():
+    return _check_http200(_GET_unauth, "test_repo")
 
-def can_reach_site_authorized():
-    return GET_authorized(TEST_REPO_URL).status_code == 200
+def can_reach_auth():
+    return _check_http200(_GET_auth, "test_repo")
 
 
 # Clone
-def can_clone_unauthorized():
-  return _can_clone(GET_unauthorized, UNAUTHORIZED_TEST_REPO_URL)
+def can_clone_unauth():
+  return _can_clone(_GET_unauth, UNAUTH_TEST_REPO_URL)
 
-def can_clone_authorized():
-  return _can_clone(GET_authorized, AUTHORIZED_TEST_REPO_URL)
+def can_clone_auth():
+  return _can_clone(_GET_auth, AUTH_TEST_REPO_URL)
 
-def _can_clone(get, url):
+def _can_clone(http_get, url):
     tmp = tempfile.mkdtemp()
     try:
         return any([
-            "git clone" in get(TEST_REPO_URL).content,
-            get(TEST_REPO_URL + "info/refs?service=git-upload-pack").status_code == 200,
+            "git clone" in http_get(TEST_REPO_URL).content,
+            _check_http200(http_get, TEST_REPO_URL + "info/refs?service=git-upload-pack"),
             subprocess.call(["git", "clone", url, tmp]) == 0,
         ])
     finally:
@@ -189,15 +136,28 @@ def _can_clone(get, url):
 
 
 # Push
-def can_push_unauthorized():
-    return _can_push(GET_unauthorized, UNAUTHORIZED_TEST_REPO_URL)
+def can_push_unauth():
+    return _can_push(_GET_unauth, UNAUTH_TEST_REPO_URL)
 
-def can_push_authorized():
-    return _can_push(GET_authorized, AUTHORIZED_TEST_REPO_URL)
+def can_push_auth():
+    return _can_push(_GET_auth, AUTH_TEST_REPO_URL)
 
-def _can_push(get, url):
+def _can_push(http_get, url):
     return any([
-      get(TEST_REPO_URL + "info/refs?service=git-receive-pack").status_code == 200,
-      get(TEST_REPO_URL + "git-receive-pack").status_code == 200,
+      _check_http200(http_get, TEST_REPO_URL + "info/refs?service=git-receive-pack"),
+      _check_http200(http_get, TEST_REPO_URL + "git-receive-pack"),
       subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
     ])
+
+
+def _GET_unauth(url=""):
+    return requests.get(UNAUTH_TEST_SERVER + url, auth=requests.auth.HTTPDigestAuth("invalid", "password"))
+
+def _GET_auth(url=""):
+    return requests.get(AUTH_TEST_SERVER + url, auth=requests.auth.HTTPDigestAuth("testuser", "testpassword"))
+
+def _check_http200(http_get, url):
+    try:
+        return http_get(url).status_code == 200
+    except:
+        return False
