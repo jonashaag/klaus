@@ -52,6 +52,10 @@ def make_parser():
 def main():
     args = make_parser().parse_args()
 
+    if args.htdigest and not args.smarthttp:
+        print >> sys.stderr, "--htdigest option has no effect without --smarthttp enabled"
+        return 1
+
     if not args.repos:
         print >> sys.stderr, "WARNING: No repositories supplied -- syntax is 'klaus dir1 dir2...'."
 
@@ -85,4 +89,4 @@ def _open_browser(args):
 
 
 if __name__ == '__main__':
-    main()
+    exit(main())
