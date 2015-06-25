@@ -33,7 +33,7 @@ def test_unauthenticated_push_with_disable_push():
 
 def options_test(make_app_args, expected_permissions):
     def test():
-        with testserver(**make_app_args):
+        with serve(**make_app_args):
             for action, permitted in expected_permissions.items():
                 if action.endswith('auth'):
                     actions = [action]
