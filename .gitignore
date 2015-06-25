@@ -4,3 +4,7 @@ env/
 .idea
 *.swp
 tests/repos/
+*.egg-info
+build/
+dist/
+.DS_Store
