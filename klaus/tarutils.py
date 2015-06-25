@@ -2,6 +2,7 @@ import os
 import stat
 import tarfile
 from io import BytesIO
+from contextlib import closing
 
 
 class ListBytesIO(object):
@@ -50,7 +51,7 @@ def tar_stream(repo, tree, mtime, format=''):
     time of all files in the resulting .tar.gz archive.
     """
     buf = BytesIO()
-    with tarfile.open(None, "w:%s" % format, buf) as tar:
+    with closing(tarfile.open(None, "w:%s" % format, buf)) as tar:
         for entry_abspath, entry in walk_tree(repo, tree):
             try:
                 blob = repo[entry.sha]
