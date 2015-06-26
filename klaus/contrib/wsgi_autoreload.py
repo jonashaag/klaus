@@ -1,8 +1,9 @@
 import os
 import time
 import threading
-from klaus import make_app
+import warnings
 
+from klaus import make_app
 
 # Shared state between poller and application wrapper
 class _:
@@ -49,18 +50,20 @@ def make_autoreloading_app(repos_root, *args, **kwargs):
     return app
 
 
+if 'KLAUS_REPOS' in os.environ:
+    warnings.warn("use KLAUS_REPOS_ROOT instead of KLAUS_REPOS for the autoreloader apps", DeprecationWarning)
+
 if 'KLAUS_HTDIGEST_FILE' in os.environ:
     with open(os.environ['KLAUS_HTDIGEST_FILE']) as file:
-        application = make_app(
-            os.environ['KLAUS_REPOS'],
+        application = make_autoreloading_app(
+            os.environ.get('KLAUS_REPOS_ROOT') or os.environ['KLAUS_REPOS'],
             os.environ['KLAUS_SITE_NAME'],
             os.environ.get('KLAUS_USE_SMARTHTTP'),
             file,
         )
 else:
     application = make_autoreloading_app(
-        os.environ['KLAUS_REPOS'],
+        os.environ.get('KLAUS_REPOS_ROOT') or os.environ['KLAUS_REPOS'],
         os.environ['KLAUS_SITE_NAME'],
         os.environ.get('KLAUS_USE_SMARTHTTP'),
-        None,
     )

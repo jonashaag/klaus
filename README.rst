@@ -85,6 +85,6 @@ Gunicorn example::
             --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." \
             klaus.contrib.wsgi
 
-See also `deploymeny section in the wiki <https://github.com/jonashaag/klaus/wiki#deployment>`_.
+See also `deployment section in the wiki <https://github.com/jonashaag/klaus/wiki#deployment>`_.
 
 .. _wsgiref: http://docs.python.org/library/wsgiref.html
