@@ -1,6 +1,8 @@
 import os
 import stat
 
+import dulwich
+
 from flask import request, render_template, current_app
 from flask.views import View
 
@@ -119,7 +121,7 @@ class TreeViewMixin(object):
         if root_directory:
             dirs.insert(0, (None, '..', parent_directory(root_directory)))
 
-        return {'dirs' : dirs, 'files' : files}
+        return {'dirs' : dirs, 'files' : files, 'sha1' : root_tree.id}
 
     def get_root_directory(self):
         root_directory = self.context['path']
@@ -221,7 +223,7 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
             })
 
 
-class RawView(BlobViewMixin, BaseRepoView):
+class RawView(TreeViewMixin, BlobViewMixin, BaseRepoView):
     """
     Shows a single file in raw for (as if it were a normal filesystem file
     served through a static file server)
@@ -230,7 +232,10 @@ class RawView(BlobViewMixin, BaseRepoView):
         # Explicitly set an empty mimetype. This should work well for most
         # browsers as they do file type recognition anyway.
         # The correct way would be to implement proper file type recognition here.
-        return Response(self.context['blob_or_tree'].chunked, mimetype='')
+        if isinstance(self.context['blob_or_tree'], dulwich.objects.Blob):
+            return Response(self.context['blob_or_tree'].chunked, mimetype='')
+        else:
+            return render_template(self.template_name, **self.context)
 
 
 class DownloadView(BaseRepoView):
@@ -260,5 +265,5 @@ class DownloadView(BaseRepoView):
 history = HistoryView.as_view('history', 'history', 'history.html')
 commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
 blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
-raw = RawView.as_view('raw', 'raw')
+raw = RawView.as_view('raw', 'raw', 'raw_tree.html')
 download = DownloadView.as_view('download', 'download')
