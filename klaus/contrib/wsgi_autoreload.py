@@ -26,7 +26,7 @@ def poll_for_changes(interval, dir):
         new_contents = os.listdir(dir)
         if new_contents != old_contents:
             # Directory contents changed => should_reload
-            new_contents = old_contents
+            old_contents = new_contents
             _.should_reload = True
 
 
