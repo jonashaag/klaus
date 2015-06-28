@@ -1,5 +1,5 @@
 import os
-import cStringIO
+from six.moves import cStringIO
 
 import dulwich, dulwich.patch
 
@@ -17,7 +17,7 @@ class FancyRepo(dulwich.repo.Repo):
         return self.path.replace(".git", "").rstrip(os.sep).split(os.sep)[-1]
 
     def get_last_updated_at(self):
-        refs = [self[ref_hash] for ref_hash in self.get_refs().itervalues()]
+        refs = [self[ref_hash] for ref_hash in self.get_refs().values()]
         refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
                   reverse=True)
         if refs:
@@ -73,7 +73,7 @@ class FancyRepo(dulwich.repo.Repo):
                 return obj.tag_time
             return obj.commit_time
 
-        return sorted(refs.iterkeys(), key=get_commit_time, reverse=True)
+        return sorted(refs.keys(), key=get_commit_time, reverse=True)
 
     def get_branch_names(self, exclude=None):
         """ Returns a sorted list of branch names. """

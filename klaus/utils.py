@@ -5,6 +5,7 @@ import time
 import datetime
 import mimetypes
 import locale
+import six
 try:
     import chardet
 except ImportError:
@@ -108,7 +109,7 @@ def guess_is_image(filename):
 def force_unicode(s):
     """ Does all kind of magic to turn `s` into unicode """
     # It's already unicode, don't do anything:
-    if isinstance(s, unicode):
+    if isinstance(s, six.text_type):
         return s
 
     # Try some default encodings:

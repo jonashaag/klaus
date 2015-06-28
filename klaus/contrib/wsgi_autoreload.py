@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import time
 import threading
@@ -34,7 +35,7 @@ def make_autoreloading_app(repos_root, *args, **kwargs):
     def app(environ, start_response):
         if _.should_reload:
             # Refresh inner application with new repo list
-            print "Reloading repository list..."
+            print("Reloading repository list...")
             _.inner_app = make_app(
                 [os.path.join(repos_root, x) for x in os.listdir(repos_root)],
                 *args, **kwargs
