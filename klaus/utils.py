@@ -96,7 +96,7 @@ def formattimestamp(timestamp):
 
 
 def guess_is_binary(dulwich_blob):
-    return any('\0' in chunk for chunk in dulwich_blob.chunked)
+    return any(b'\0' in chunk for chunk in dulwich_blob.chunked)
 
 
 def guess_is_image(filename):
@@ -104,6 +104,16 @@ def guess_is_image(filename):
     if mime is None:
         return False
     return mime.startswith('image/')
+
+
+def encode_for_git(s):
+    # XXX This assumes everything to be UTF-8 encoded
+    return s.encode('utf8')
+
+
+def decode_from_git(b):
+    # XXX This assumes everything to be UTF-8 encoded
+    return b.decode('utf8')
 
 
 def force_unicode(s):

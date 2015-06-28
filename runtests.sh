@@ -8,4 +8,4 @@
   git commit -a -m "First commit"
 )
 
-py.test tests/
+py.test tests/ -v

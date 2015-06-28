@@ -1,5 +1,4 @@
 import os
-import stat
 
 from flask import request, render_template, current_app
 from flask.views import View
@@ -10,7 +9,7 @@ from werkzeug.exceptions import NotFound
 from dulwich.objects import Blob
 
 from klaus import markup, tarutils
-from klaus.utils import parent_directory, subpaths, pygmentize, \
+from klaus.utils import parent_directory, subpaths, pygmentize, encode_for_git, \
                         force_unicode, guess_is_binary, guess_is_image
 
 
@@ -101,25 +100,10 @@ class TreeViewMixin(object):
         selected commit
         """
         root_directory = self.get_root_directory()
-        root_tree = self.context['repo'].get_blob_or_tree(
+        return self.context['repo'].listdir(
             self.context['commit'],
             root_directory
         )
-
-        dirs, files = [], []
-        for entry in root_tree.iteritems():
-            name, entry = entry.path, entry.in_path(root_directory)
-            if entry.mode & stat.S_IFDIR:
-                dirs.append((name.lower(), name, entry.path))
-            else:
-                files.append((name.lower(), name, entry.path))
-        files.sort()
-        dirs.sort()
-
-        if root_directory:
-            dirs.insert(0, (None, '..', parent_directory(root_directory)))
-
-        return {'dirs' : dirs, 'files' : files}
 
     def get_root_directory(self):
         root_directory = self.context['path']

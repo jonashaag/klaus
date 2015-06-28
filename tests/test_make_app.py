@@ -94,7 +94,7 @@ def _can_clone(http_get, url):
     tmp = tempfile.mkdtemp()
     try:
         return any([
-            "git clone" in http_get(TEST_REPO_URL).content,
+            b"git clone" in http_get(TEST_REPO_URL).content,
             _check_http200(http_get, TEST_REPO_URL + "info/refs?service=git-upload-pack"),
             subprocess.call(["git", "clone", url, tmp]) == 0,
         ])

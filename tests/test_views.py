@@ -11,4 +11,4 @@ def test_download():
         response_body = BytesIO(response.raw.read())
         tarball = tarfile.TarFile.gzopen("test.tar.gz", fileobj=response_body)
         with contextlib.closing(tarball):
-            assert tarball.extractfile('README').read() == 'Hello World\n'
+            assert tarball.extractfile('README').read() == b'Hello World\n'
