@@ -1,0 +1,12 @@
+#!/bin/bash
+git init
+
+echo 1 > test
+echo -n 2 >> test
+git add test
+git commit -m old
+
+echo 1 > test
+echo 2 >> test
+git add test
+git commit -m new
