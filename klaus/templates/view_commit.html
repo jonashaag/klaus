@@ -111,7 +111,7 @@
                   {%- endif -%}
 
                   {#- the actual line of code -#}
-                  <span class=line>{% autoescape false %}{{ line.line|force_unicode }}{% endautoescape %}</span>
+                  <span class=line>{% autoescape false %}{{ line.line|force_unicode }}{% endautoescape %}{% if line.no_newline %}<span class="hastooltip no-newline-marker" title="No newline at end of file">⏎</span>{% endif %}</span>
                 </td>
 
               </tr>

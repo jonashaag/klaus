@@ -89,13 +89,12 @@ class DiffRenderer(object):
 
                 in_header = False
                 chunks = []
-                adds, dels = 0, 0
                 files.append({
                     'is_header':        False,
                     'old_filename':     self._extract_filename(line),
                     'new_filename':     self._extract_filename(next(lineiter)),
-                    'additions':        adds,
-                    'deletions':        dels,
+                    'additions':        0,
+                    'deletions':        0,
                     'chunks':           chunks
                 })
 
@@ -127,11 +126,11 @@ class DiffRenderer(object):
                         if command == '+':
                             affects_new = True
                             action = 'add'
-                            adds += 1
+                            files[-1]['additions'] += 1
                         elif command == '-':
                             affects_old = True
                             action = 'del'
-                            dels += 1
+                            files[-1]['deletions'] += 1
                         else:
                             affects_old = affects_new = True
                             action = 'unmod'
@@ -142,13 +141,15 @@ class DiffRenderer(object):
                             'old_lineno':   affects_old and old_line or u'',
                             'new_lineno':   affects_new and new_line or u'',
                             'action':       action,
-                            'line':         line
+                            'line':         line,
+                            'no_newline':   False,
                         })
-                        # Make sure to store the stats before a
-                        # StopIteration is raised
-                        files[-1]['additions'] = adds
-                        files[-1]['deletions'] = dels
+
+                        # Skip "no newline at end of file" markers
                         line = next(lineiter)
+                        if line == "\ No newline at end of file":
+                            lines[-1]['no_newline'] = True
+                            line = next(lineiter)
 
         except StopIteration:
             pass

@@ -3,7 +3,7 @@
 env/
 .idea
 *.swp
-tests/repos/
+tests/repos/build
 *.egg-info
 build/
 dist/

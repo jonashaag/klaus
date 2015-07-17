@@ -254,6 +254,7 @@ a.commit { color: black !important; }
 .diff tr:last-of-type td { padding-bottom: 7px; }
 .diff table .del { background-color: #ffdddd; }
 .diff table .add { background-color: #ddffdd; }
+.diff table .no-newline-marker { font-size: 50%; margin-left: 5px; color: red; }
 .diff table del { background-color: #ee9999; text-decoration: none; }
 .diff table ins { background-color: #99ee99; text-decoration: none; }
 .diff .sep > td {
