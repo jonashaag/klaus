@@ -1,6 +1,10 @@
 import jinja2
 import flask
-import httpauth
+try:
+    import httpauth
+except ImportError:
+    # Debian packages flask-httpauth as flask_httpauth
+    import flask_httpauth as httpauth
 import dulwich.web
 from klaus import views, utils
 from klaus.repo import FancyRepo
