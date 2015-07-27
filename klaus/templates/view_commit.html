@@ -16,12 +16,13 @@
       <span>{{ commit.message|force_unicode }}</span>
     </span>
     <span class="line2 separated-by-dots">
-      <span>
-        {{ commit.author|force_unicode|extract_author_name }}
-      </span>
-      <span class=hastooltip title="{{ commit.commit_time|formattimestamp  }}">
-        {{ commit.commit_time|timesince }}
-      </span>
+      {% if commit.author != commit.committer %}
+        <span>{{ commit.author|force_unicode|extract_author_name }} authored <span class=hastooltip title="{{ commit.author_time|formattimestamp  }}">{{ commit.author_time|timesince }}</span></span>
+        <span>{{ commit.committer|force_unicode|extract_author_name }} committed <span class=hastooltip title="{{ commit.commit_time|formattimestamp  }}">{{ commit.commit_time|timesince }}</span></span>
+      {% else %}
+        <span>{{ commit.committer|force_unicode|extract_author_name }}</span>
+        <span class=hastooltip title="{{ commit.commit_time|formattimestamp  }}">{{ commit.commit_time|timesince }}</span>
+      {% endif %}
     </span>
     <span class=clearfloat></span>
   </div>
