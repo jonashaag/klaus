@@ -10,7 +10,6 @@
 
 {% set summary, file_changes = repo.commit_diff(commit) %}
 <div class=full-commit>
-  {# TODO code duplication in history.html #}
   <div class=commit>
     <span class=line1>
       <span>{{ commit.message|force_unicode }}</span>

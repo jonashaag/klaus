@@ -8,63 +8,40 @@
 
 {% include 'tree.inc.html' %}
 
-{% set raw_url = url_for('raw', repo=repo.name, rev=rev, path=path) %}
-{% macro not_shown(reason) %}
-  <div>
-    ({{ reason }} not shown &mdash; <a href="{{ raw_url }}">Download file</a>)
-  </div>
-{% endmacro %}
-
-{% macro blame(authors) -%}
-  {% set last = None %}
-  {%- for commit in authors %}
-    {%- if commit.id == last %}
-<span>&nbsp;</span>
-    {%- else %}
-<a href="{{ url_for('commit', repo=repo.name, rev=commit.id) }}">{{ commit.id | shorten_sha1 }}</a>
-      {%- set last = commit.id -%}
-    {% endif -%}
-  {% endfor -%}
-{%- endmacro %}
-
 <div class=blobview>
   <h2>
     {{ filename|force_unicode }}
     <span>
       @<a href="{{ url_for('commit', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
-      &mdash;
-      <a href="{{ raw_url }}">raw</a>
-      &middot; <a href="{{ url_for('history', repo=repo.name, rev=rev, path=path) }}">history</a>
-        &middot; <a href="{{ url_for('blame', repo=repo.name, rev=rev, path=path) }}">blame</a>
     </span>
   </h2>
-  {% if is_binary %}
-    {% if is_image %}
-      <a href="{{ raw_url }}"><img src="{{ raw_url }}"></a>
-    {% else %}
-      {{ not_shown("Binary data") }}
-    {% endif %}
+  {% if not can_render %}
+    (Can't show blame: File is binary or too large)
   {% else %}
-    {% if too_large %}
-      {{ not_shown("Large file") }}
-    {% else %}
-      <table class="highlighttable">
-        <tbody>
-          <tr>
-            <td class="linenos">
-              <div class="linenodiv">
-                <pre>{{- blame(authors) -}}</pre>
-              </div>
-            </td>
-            <td class="code">
-              {% autoescape false %}
-                {{ rendered_code }}
-              {% endautoescape %}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    {% endif %}
+    <table class="highlighttable">
+      <tbody>
+        <tr>
+          <td class="linenos">
+            <div class="linenodiv">
+              <pre>
+                {%- for commit in line_commits -%}
+                  {%- if commit == None %}
+<span>&nbsp;</span>
+                  {%- else %}
+<a href="{{ url_for('commit', repo=repo.name, rev=commit.id) }}">{{ commit.id | shorten_sha1 }}</a>
+                  {%- endif -%}
+                {%- endfor -%}
+              </pre>
+            </div>
+          </td>
+          <td class="code">
+            {% autoescape false %}
+              {{ rendered_code }}
+            {% endautoescape %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   {% endif %}
 </div>
 

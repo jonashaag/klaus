@@ -10,7 +10,7 @@ from dulwich.objects import Blob
 
 from klaus import markup, tarutils
 from klaus.utils import parent_directory, subpaths, pygmentize, encode_for_git, \
-                        force_unicode, guess_is_binary, guess_is_image
+                        force_unicode, guess_is_binary, guess_is_image, replace_dupes
 
 
 def repo_list():
@@ -139,7 +139,7 @@ class HistoryView(TreeViewMixin, BaseRepoView):
             skip = 0
 
         history = self.context['repo'].history(
-            self.context['rev'],
+            self.context['commit'],
             self.context['path'],
             history_length + 1,
             skip
@@ -158,40 +158,45 @@ class HistoryView(TreeViewMixin, BaseRepoView):
         })
 
 
-class BlobViewMixin(object):
+class BaseBlobView(BaseRepoView):
     def make_template_context(self, *args):
-        super(BlobViewMixin, self).make_template_context(*args)
+        super(BaseBlobView, self).make_template_context(*args)
+        if not isinstance(self.context['blob_or_tree'], Blob):
+            raise NotFound("Not a blob")
         self.context['filename'] = os.path.basename(self.context['path'])
 
 
-class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
-    """ Shows a file rendered using ``pygmentize`` """
+class BaseFileView(TreeViewMixin, BaseBlobView):
+    """Base for FileView and BlameView"""
     def make_template_context(self, *args):
-        super(BlobView, self).make_template_context(*args)
-
-        if not isinstance(self.context['blob_or_tree'], Blob):
-            raise NotFound("Not a blob")
+        super(BaseFileView, self).make_template_context(*args)
+        self.context.update({
+            'can_render': True,
+            'is_binary': False,
+            'too_large': False,
+            'is_markup': False,
+        })
 
         binary = guess_is_binary(self.context['blob_or_tree'])
         too_large = sum(map(len, self.context['blob_or_tree'].chunked)) > 100*1024
-
         if binary:
             self.context.update({
-                'is_markup': False,
+                'can_render': False,
                 'is_binary': True,
-                'is_image': False,
+                'is_image': guess_is_image(self.context['filename']),
             })
-            if guess_is_image(self.context['filename']):
-                self.context.update({
-                    'is_image': True,
-                })
         elif too_large:
             self.context.update({
+                'can_render': False,
                 'too_large': True,
-                'is_markup': False,
-                'is_binary': False,
             })
-        else:
+
+
+class FileView(BaseFileView):
+    """ Shows a file rendered using ``pygmentize`` """
+    def make_template_context(self, *args):
+        super(FileView, self).make_template_context(*args)
+        if self.context['can_render']:
             render_markup = 'markup' not in request.args
             rendered_code = pygmentize(
                 force_unicode(self.context['blob_or_tree'].data),
@@ -199,55 +204,31 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
                 render_markup
             )
             self.context.update({
-                'too_large': False,
                 'is_markup': markup.can_render(self.context['filename']),
                 'render_markup': render_markup,
                 'rendered_code': rendered_code,
-                'is_binary': False,
             })
 
 
-class BlameView(BlobViewMixin, TreeViewMixin, BaseRepoView):
-
+class BlameView(BaseFileView):
     def make_template_context(self, *args):
         super(BlameView, self).make_template_context(*args)
-
-        if not isinstance(self.context['blob_or_tree'], Blob):
-            raise NotFound("Not a blob")
-
-        binary = guess_is_binary(self.context['blob_or_tree'])
-        too_large = sum(map(len, self.context['blob_or_tree'].chunked)) > 100*1024
-
-        if binary:
+        if self.context['can_render']:
+            rendered_code = pygmentize(
+                force_unicode(self.context['blob_or_tree'].data),
+                self.context['filename'],
+                render_markup=False,
+                linenos=False
+            )
+            line_commits = self.context['repo'].blame(self.context['commit'], self.context['path'])
+            replace_dupes(line_commits, None)
             self.context.update({
-                'is_markup': False,
-                'is_binary': True,
-                'is_image': False,
-            })
-            if guess_is_image(self.context['filename']):
-                self.context.update({
-                    'is_image': True,
-                })
-        elif too_large:
-            self.context.update({
-                'too_large': True,
-                'is_markup': False,
-                'is_binary': False,
-            })
-        else:
-            self.context.update({
-                'too_large': False,
-                'is_markup': markup.can_render(self.context['filename']),
-                'is_binary': False,
-                'rendered_code': pygmentize(
-                    force_unicode(self.context['blob_or_tree'].data),
-                    self.context['filename'],
-                    render_markup=False , linenos=False),
-                'authors': list(self.context["repo"].blame(self.context["commit"], self.context["path"]))
+                'rendered_code': rendered_code,
+                'line_commits': line_commits,
             })
 
 
-class RawView(BlobViewMixin, BaseRepoView):
+class RawView(BaseBlobView):
     """
     Shows a single file in raw for (as if it were a normal filesystem file
     served through a static file server)
@@ -286,6 +267,6 @@ class DownloadView(BaseRepoView):
 history = HistoryView.as_view('history', 'history', 'history.html')
 commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
 blame = BlameView.as_view('blame', 'blame', 'blame_blob.html')
-blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
+blob = FileView.as_view('blob', 'blob', 'view_blob.html')
 raw = RawView.as_view('raw', 'raw')
 download = DownloadView.as_view('download', 'download')

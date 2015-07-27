@@ -87,7 +87,7 @@ class FancyRepo(dulwich.repo.Repo):
 
     def history(self, commit, path=None, max_commits=None, skip=0):
         """
-        Returns a list of all commits that infected `path`, starting at branch
+        Returns a list of all commits that affected `path`, starting at branch
         or commit `commit`. `skip` can be used for pagination, `max_commits`
         to limit the number of commits returned.
 
@@ -105,20 +105,23 @@ class FancyRepo(dulwich.repo.Repo):
             cmd.append('--skip=%d' % skip)
         if max_commits:
             cmd.append('--max-count=%d' % max_commits)
-        cmd.append(commit)
+        cmd.append(commit.id)
         if path:
             cmd.extend(['--', path])
 
-        sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
-        return [self[sha1] for sha1 in sha1_sums.strip().split(b'\n')]
+        output = check_output(cmd, cwd=os.path.abspath(self.path))
+        sha1_sums = output.strip().split(b'\n')
+        return [self[sha1] for sha1 in sha1_sums]
 
     def blame(self, commit, path):
-        """"""
+        """
+        Returns a 'git blame' list for the file at `path`: For each line in the
+        file, the list contains the commit that last changed that line.
+        """
         cmd = ['git', 'blame', '-ls', '--root', commit.id, '--', path]
-        sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
-        for line in sha1_sums.split("\n"):
-            if line:
-                yield self.get_commit(line.split(" ", 1)[0].lstrip("^"))
+        output = check_output(cmd, cwd=os.path.abspath(self.path))
+        sha1_sums = [line[:40] for line in output.strip().split(b'\n')]
+        return [self[sha1] for sha1 in sha1_sums]
 
     def get_blob_or_tree(self, commit, path):
         """ Returns the Git tree or blob object for `path` at `commit`. """

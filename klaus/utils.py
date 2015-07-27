@@ -184,6 +184,23 @@ def shorten_message(msg):
     return msg.split('\n')[0]
 
 
+def replace_dupes(ls, replacement):
+    """
+    Replaces items in `ls` that are equal to their predecessors with `replacement`.
+
+    >>> ls = [1, 2, 2, 3, 2, 2, 2]
+    >>> replace_dupes(x, 'x')
+    >>> ls
+    [1, 2, 'x', 3, 2, 'x', 'x']
+    """
+    last = object()
+    for i, elem in enumerate(ls):
+        if last == elem:
+            ls[i] = replacement
+        else:
+            last = elem
+
+
 try:
     from subprocess import check_output
 except ImportError:
