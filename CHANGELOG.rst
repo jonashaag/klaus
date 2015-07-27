@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.5.0 (July 27, 2015)
+---------------------
+* Experimental support for Python 3.
+* #126: Show committer if different from author
+* Bug #130: Fix highlighting for "No newline at the end of file"
+
 0.4.10 (June 28, 2015)
 ----------------------
 * Add option to require HTTP authentication for all parts of the Web interface
