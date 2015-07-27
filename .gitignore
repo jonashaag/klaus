@@ -2,3 +2,9 @@
 /bin/
 env/
 .idea
+*.swp
+tests/repos/build
+*.egg-info
+build/
+dist/
+.DS_Store

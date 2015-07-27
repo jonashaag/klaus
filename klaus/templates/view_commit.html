@@ -16,12 +16,13 @@
       <span>{{ commit.message|force_unicode }}</span>
     </span>
     <span class="line2 separated-by-dots">
-      <span>
-        {{ commit.author|force_unicode|extract_author_name }}
-      </span>
-      <span class=hastooltip title="{{ commit.commit_time|formattimestamp  }}">
-        {{ commit.commit_time|timesince }}
-      </span>
+      {% if commit.author != commit.committer %}
+        <span>{{ commit.author|force_unicode|extract_author_name }} authored <span class=hastooltip title="{{ commit.author_time|formattimestamp  }}">{{ commit.author_time|timesince }}</span></span>
+        <span>{{ commit.committer|force_unicode|extract_author_name }} committed <span class=hastooltip title="{{ commit.commit_time|formattimestamp  }}">{{ commit.commit_time|timesince }}</span></span>
+      {% else %}
+        <span>{{ commit.committer|force_unicode|extract_author_name }}</span>
+        <span class=hastooltip title="{{ commit.commit_time|formattimestamp  }}">{{ commit.commit_time|timesince }}</span>
+      {% endif %}
     </span>
     <span class=clearfloat></span>
   </div>
@@ -111,7 +112,7 @@
                   {%- endif -%}
 
                   {#- the actual line of code -#}
-                  <span class=line>{% autoescape false %}{{ line.line|force_unicode }}{% endautoescape %}</span>
+                  <span class=line>{% autoescape false %}{{ line.line|force_unicode }}{% endautoescape %}{% if line.no_newline %}<span class="hastooltip no-newline-marker" title="No newline at end of file">⏎</span>{% endif %}</span>
                 </td>
 
               </tr>
@@ -124,7 +125,18 @@
             {% endif %}
 
           {% else %}
+            {% if file.old_filename == '/dev/null' %}
+            <div class=emptydiff>(New empty file)</div>
+            {% elif file.new_filename == '/dev/null' %}
+            <div class=emptydiff>(Empty file)</div>
+            {% else %}
+            {# This case happens if a file has undergone only mode changes.
+               In the future, if we have rename recognition, it may also happen
+               if the file has been renamed without having its content changed.
+               Currently, renames are always reported by dulwich as a file
+               deletion and addition. #}
             <div class=emptydiff>(No changes)</div>
+            {% endif %}
           {%- endfor -%} {# chunks #}
         </table>
       {% endif %}

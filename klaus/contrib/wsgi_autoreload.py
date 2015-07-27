@@ -1,8 +1,10 @@
+from __future__ import print_function
 import os
 import time
 import threading
-from klaus import make_app
+import warnings
 
+from klaus import make_app
 
 # Shared state between poller and application wrapper
 class _:
@@ -25,7 +27,7 @@ def poll_for_changes(interval, dir):
         new_contents = os.listdir(dir)
         if new_contents != old_contents:
             # Directory contents changed => should_reload
-            new_contents = old_contents
+            old_contents = new_contents
             _.should_reload = True
 
 
@@ -33,7 +35,7 @@ def make_autoreloading_app(repos_root, *args, **kwargs):
     def app(environ, start_response):
         if _.should_reload:
             # Refresh inner application with new repo list
-            print "Reloading repository list..."
+            print("Reloading repository list...")
             _.inner_app = make_app(
                 [os.path.join(repos_root, x) for x in os.listdir(repos_root)],
                 *args, **kwargs
@@ -49,18 +51,20 @@ def make_autoreloading_app(repos_root, *args, **kwargs):
     return app
 
 
+if 'KLAUS_REPOS' in os.environ:
+    warnings.warn("use KLAUS_REPOS_ROOT instead of KLAUS_REPOS for the autoreloader apps", DeprecationWarning)
+
 if 'KLAUS_HTDIGEST_FILE' in os.environ:
     with open(os.environ['KLAUS_HTDIGEST_FILE']) as file:
-        application = make_app(
-            os.environ['KLAUS_REPOS'].split(),
+        application = make_autoreloading_app(
+            os.environ.get('KLAUS_REPOS_ROOT') or os.environ['KLAUS_REPOS'],
             os.environ['KLAUS_SITE_NAME'],
             os.environ.get('KLAUS_USE_SMARTHTTP'),
             file,
         )
 else:
     application = make_autoreloading_app(
-        os.environ['KLAUS_REPOS'].split(),
+        os.environ.get('KLAUS_REPOS_ROOT') or os.environ['KLAUS_REPOS'],
         os.environ['KLAUS_SITE_NAME'],
         os.environ.get('KLAUS_USE_SMARTHTTP'),
-        None,
     )

@@ -2,6 +2,9 @@ import os
 import stat
 import tarfile
 from io import BytesIO
+from contextlib import closing
+
+from klaus.utils import encode_for_git, decode_from_git
 
 
 class ListBytesIO(object):
@@ -50,7 +53,7 @@ def tar_stream(repo, tree, mtime, format=''):
     time of all files in the resulting .tar.gz archive.
     """
     buf = BytesIO()
-    with tarfile.open(None, "w:%s" % format, buf) as tar:
+    with closing(tarfile.open(None, "w:%s" % format, buf)) as tar:
         for entry_abspath, entry in walk_tree(repo, tree):
             try:
                 blob = repo[entry.sha]
@@ -78,7 +81,7 @@ def walk_tree(repo, tree, root=''):
     TreeEntry) along the way.
     """
     for entry in tree.iteritems():
-        entry_abspath = os.path.join(root, entry.path)
+        entry_abspath = os.path.join(root, decode_from_git(entry.path))
         if stat.S_ISDIR(entry.mode):
             for _ in walk_tree(repo, repo[entry.sha], entry_abspath):
                 yield _

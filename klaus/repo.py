@@ -1,9 +1,10 @@
 import os
-import cStringIO
+import io
+import stat
 
 import dulwich, dulwich.patch
 
-from klaus.utils import check_output, force_unicode
+from klaus.utils import check_output, force_unicode, parent_directory, encode_for_git, decode_from_git
 from klaus.diff import prepare_udiff
 
 
@@ -17,8 +18,8 @@ class FancyRepo(dulwich.repo.Repo):
         return self.path.replace(".git", "").rstrip(os.sep).split(os.sep)[-1]
 
     def get_last_updated_at(self):
-        refs = [self[ref_hash] for ref_hash in self.get_refs().itervalues()]
-        refs.sort(key=lambda obj:getattr(obj, 'commit_time', None),
+        refs = [self[ref_hash] for ref_hash in self.get_refs().values()]
+        refs.sort(key=lambda obj:getattr(obj, 'commit_time', float('-inf')),
                   reverse=True)
         if refs:
             return refs[0].commit_time
@@ -31,15 +32,15 @@ class FancyRepo(dulwich.repo.Repo):
         """
         description = super(FancyRepo, self).get_description()
         if description:
+            description = force_unicode(description)
             if not description.startswith("Unnamed repository;"):
                 return force_unicode(description)
 
     def get_commit(self, rev):
-        rev = str(rev)  # https://github.com/jelmer/dulwich/issues/144
         for prefix in ['refs/heads/', 'refs/tags/', '']:
             key = prefix + rev
             try:
-                obj = self[key]
+                obj = self[encode_for_git(key)]
                 if isinstance(obj, dulwich.objects.Tag):
                     obj = self[obj.object[1]]
                 return obj
@@ -63,7 +64,7 @@ class FancyRepo(dulwich.repo.Repo):
             return None
 
     def get_sorted_ref_names(self, prefix, exclude=None):
-        refs = self.refs.as_dict(prefix)
+        refs = self.refs.as_dict(encode_for_git(prefix))
         if exclude:
             refs.pop(prefix + exclude, None)
 
@@ -73,7 +74,8 @@ class FancyRepo(dulwich.repo.Repo):
                 return obj.tag_time
             return obj.commit_time
 
-        return sorted(refs.iterkeys(), key=get_commit_time, reverse=True)
+        return [decode_from_git(ref) for ref in
+                sorted(refs.keys(), key=get_commit_time, reverse=True)]
 
     def get_branch_names(self, exclude=None):
         """ Returns a sorted list of branch names. """
@@ -108,7 +110,7 @@ class FancyRepo(dulwich.repo.Repo):
             cmd.extend(['--', path])
 
         sha1_sums = check_output(cmd, cwd=os.path.abspath(self.path))
-        return [self[sha1] for sha1 in sha1_sums.strip().split('\n')]
+        return [self[sha1] for sha1 in sha1_sums.strip().split(b'\n')]
 
     def blame(self, commit, path):
         """"""
@@ -127,11 +129,27 @@ class FancyRepo(dulwich.repo.Repo):
                 if isinstance(tree_or_blob, dulwich.objects.Blob):
                     # Blobs don't have sub-files/folders.
                     raise KeyError
-                tree_or_blob = self[tree_or_blob[part][1]]
+                tree_or_blob = self[tree_or_blob[encode_for_git(part)][1]]
         return tree_or_blob
 
+    def listdir(self, commit, path):
+        dirs, files = [], []
+        for entry in self.get_blob_or_tree(commit, path).items():
+            name, entry = entry.path, entry.in_path(encode_for_git(path))
+            if entry.mode & stat.S_IFDIR:
+                dirs.append((name.lower(), name, entry.path))
+            else:
+                files.append((name.lower(), name, entry.path))
+        files.sort()
+        dirs.sort()
+
+        if path:
+            dirs.insert(0, (None, '..', parent_directory(path)))
+
+        return {'dirs' : dirs, 'files' : files}
+
     def commit_diff(self, commit):
-        from klaus.utils import guess_is_binary, force_unicode
+        from klaus.utils import guess_is_binary
 
         if commit.parents:
             parent_tree = self[commit.parents[0]].tree
@@ -161,12 +179,11 @@ class FancyRepo(dulwich.repo.Repo):
                 # Dulwich will handle that.
                 pass
 
-            stringio = cStringIO.StringIO()
-            dulwich.patch.write_object_diff(stringio, self.object_store,
+            bytesio = io.BytesIO()
+            dulwich.patch.write_object_diff(bytesio, self.object_store,
                                             (oldpath, oldmode, oldsha),
                                             (newpath, newmode, newsha))
-            files = prepare_udiff(force_unicode(stringio.getvalue()),
-                                  want_header=False)
+            files = prepare_udiff(decode_from_git(bytesio.getvalue()), want_header=False)
             if not files:
                 # the diff module doesn't handle deletions/additions
                 # of empty files correctly.

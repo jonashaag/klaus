@@ -1,6 +1,27 @@
 Changelog
 =========
 
+0.5.0 (July 27, 2015)
+---------------------
+* Experimental support for Python 3.
+* #126: Show committer if different from author
+* Bug #130: Fix highlighting for "No newline at the end of file"
+
+0.4.10 (June 28, 2015)
+----------------------
+* Add option to require HTTP authentication for all parts of the Web interface
+* Add option to disable authentication entirely for Smart HTTP -- DANGER ZONE!
+* Add some unit tests; Travis
+* Bugs #116, #124, #128: Fix ``klaus.contrib.wsgi_autoreload`` (William Hughes, Yed Podtrzitko)
+* Bug #113: Fix filenames containing whitespace in diffs. (Jonas Haag)
+* Bug #115: In diffs, it now says "(new empty file)" rather than "(no changes)" when an empty file has been added. (Jonas Haag)
+* Bug #125: Fix tarball download on Python 2.6 (Dana Runge)
+
+0.4.9 (April 13, 2015)
+----------------------
+* Add option to auto-launch a web-browser on startup (@rjw57)
+* Bug #104: "git" executable unnecessarily required to be available (@Mechazawa)
+
 0.4.8 (June 22, 2014)
 ---------------------
 * Fix .tar.gz download if repository contains git submodule.

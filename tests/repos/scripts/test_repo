@@ -1,0 +1,6 @@
+#!/bin/bash -e
+git init
+
+echo Hello World > README
+git add README
+git commit -m "First commit"
