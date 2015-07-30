@@ -8,4 +8,9 @@
   done
 )
 
-py.test tests/ -v
+tests="$1"
+if [ -z "$tests" ]; then
+  tests="tests/"
+fi
+
+py.test $tests -v

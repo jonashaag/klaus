@@ -19,7 +19,10 @@ AUTH_TEST_REPO_URL = AUTH_TEST_SERVER + TEST_REPO_URL
 TEST_REPO_NO_NEWLINE = os.path.abspath("tests/repos/build/no-newline-at-end-of-file")
 TEST_REPO_NO_NEWLINE_URL = UNAUTH_TEST_SERVER + "no-newline-at-end-of-file/"
 
-ALL_TEST_REPOS = [TEST_REPO, TEST_REPO_NO_NEWLINE]
+TEST_REPO_DONT_RENDER = os.path.abspath("tests/repos/build/dont-render")
+TEST_REPO_DONT_RENDER_URL = UNAUTH_TEST_SERVER + "dont-render/"
+
+ALL_TEST_REPOS = [TEST_REPO, TEST_REPO_NO_NEWLINE, TEST_REPO_DONT_RENDER]
 
 
 @contextlib.contextmanager
