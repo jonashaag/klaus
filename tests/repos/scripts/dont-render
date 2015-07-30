@@ -1,0 +1,16 @@
+#!/bin/bash -e
+git init
+
+# Create binary
+echo -e 'abc \x0 def' > binary
+git add binary
+
+# Create image
+echo -e 'abc \x0 def' > image.jpg
+git add image.jpg
+
+# Create too large file
+yes | head -n 102400 > toolarge
+git add toolarge
+
+git commit -am first
