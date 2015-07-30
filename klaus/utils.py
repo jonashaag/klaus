@@ -58,7 +58,7 @@ class SubUri(object):
 class KlausFormatter(HtmlFormatter):
     def __init__(self):
         HtmlFormatter.__init__(self, linenos='table', lineanchors='L',
-                               anchorlinenos=True)
+                               linespans='L', anchorlinenos=True)
 
     def _format_lines(self, tokensource):
         for tag, line in HtmlFormatter._format_lines(self, tokensource):

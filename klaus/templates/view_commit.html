@@ -100,18 +100,18 @@
                 {% endif %}
 
                 {#- right column: code -#}
-                <td class={{line.action}}>
-                  {#- lineno anchors -#}
-                  {%- if line.old_lineno -%}
-                    <a name="{{fileno}}-L-{{line.old_lineno}}"
-                       id="{{fileno}}-L-{{line.old_lineno}}"></a>
-                  {%- else -%}
-                    <a name="{{fileno}}-R-{{line.new_lineno}}"
-                       id="{{fileno}}-R-{{line.new_lineno}}"></a>
-                  {%- endif -%}
-
-                  {#- the actual line of code -#}
-                  <span class=line>{% autoescape false %}{{ line.line|force_unicode }}{% endautoescape %}{% if line.no_newline %}<span class="hastooltip no-newline-marker" title="No newline at end of file">⏎</span>{% endif %}</span>
+                {%- if line.old_lineno -%}
+                  {%- set line_id = "%s-L-%s"|format(fileno, line.old_lineno) -%}
+                {%- else -%}
+                  {%- set line_id = "%s-R-%s"|format(fileno, line.new_lineno) -%}
+                {%- endif -%}
+                <td class="{{ line.action }}">
+                  <span id="{{ line_id }}">
+                    {#- lineno anchors -#}
+                    <a name="{{ line_id }}"></a>
+                    {#- the actual line of code -#}
+                    <span class=line>{% autoescape false %}{{ line.line|force_unicode }}{% endautoescape %}{% if line.no_newline %}<span class="hastooltip no-newline-marker" title="No newline at end of file">⏎</span>{% endif %}</span>
+                  </span>
                 </td>
 
               </tr>
@@ -147,17 +147,7 @@
 </div>
 
 <script>
-  highlight_linenos({
-    linksSelector: '.linenos a',
-    getLineFromAnchor: function(anchor) {
-      /* If we got the first (old_lineno) anchor, the span we're looking for is
-         the second-next sibling, otherwise it's the next. */
-      if (anchor.nextSibling instanceof HTMLSpanElement)
-        return anchor.nextSibling;
-      else
-        return anchor.nextSibling.nextSibling;
-    }
-  });
+  highlight_linenos({linksSelector: '.linenos a'});
 </script>
 
 {% endblock %}
