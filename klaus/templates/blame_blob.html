@@ -8,7 +8,7 @@
 
 {% include 'tree.inc.html' %}
 
-<div class=blobview>
+<div class=blameview>
   <h2>
     {{ filename|force_unicode }}
     <span>
@@ -18,21 +18,19 @@
   {% if not can_render %}
     (Can't show blame: File is binary or too large)
   {% else %}
-    <table class="highlighttable">
+    <table>
       <tbody>
         <tr>
-          <td class="linenos">
-            <div class="linenodiv">
-              <pre>
-                {%- for commit in line_commits -%}
-                  {%- if commit == None %}
-<span>&nbsp;</span>
-                  {%- else %}
+          <td class="line-info">
+            <pre>
+              {%- for commit in line_commits -%}
+                {%- if commit == None %}
+&nbsp;
+                {%- else %}
 <a href="{{ url_for('commit', repo=repo.name, rev=commit.id) }}">{{ commit.id | shorten_sha1 }}</a>
-                  {%- endif -%}
-                {%- endfor -%}
-              </pre>
-            </div>
+                {%- endif -%}
+              {%- endfor -%}
+            </pre>
           </td>
           <td class="code">
             {% autoescape false %}

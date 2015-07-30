@@ -56,8 +56,8 @@ class SubUri(object):
 
 
 class KlausFormatter(HtmlFormatter):
-    def __init__(self, linenos):
-        HtmlFormatter.__init__(self, linenos=linenos, lineanchors='L',
+    def __init__(self):
+        HtmlFormatter.__init__(self, linenos='table', lineanchors='L',
                                anchorlinenos=True)
 
     def _format_lines(self, tokensource):
@@ -68,7 +68,7 @@ class KlausFormatter(HtmlFormatter):
             yield tag, line
 
 
-def pygmentize(code, filename=None, render_markup=True, linenos='table'):
+def pygmentize(code, filename=None, render_markup=True):
     """
     Renders code using Pygments, markup (markdown, rst, ...) using the
     corresponding renderer, if available.
@@ -83,7 +83,7 @@ def pygmentize(code, filename=None, render_markup=True, linenos='table'):
             lexer = guess_lexer(code)
         except ClassNotFound:
             lexer = TextLexer()
-    return highlight(code, lexer, KlausFormatter(linenos))
+    return highlight(code, lexer, KlausFormatter())
 
 
 def timesince(when, now=time.time):
@@ -159,7 +159,7 @@ def extract_author_name(email):
 
 def shorten_sha1(sha1):
     if re.match('[a-z\d]{20,40}', sha1):
-        sha1 = sha1[:10]
+        sha1 = sha1[:7]
     return sha1
 
 

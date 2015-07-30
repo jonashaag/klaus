@@ -218,7 +218,6 @@ class BlameView(BaseFileView):
                 force_unicode(self.context['blob_or_tree'].data),
                 self.context['filename'],
                 render_markup=False,
-                linenos=False
             )
             line_commits = self.context['repo'].blame(self.context['commit'], self.context['path'])
             replace_dupes(line_commits, None)
