@@ -4,19 +4,19 @@ Changelog
 0.6.0 (TBA)
 -----------
 * Basic blame view (Martin Zimmermann, Jonas Haag)
-* Bug #133: Fix line highlighter
+* Bug #133: Fix line highlighter (Jonas Haag)
 
 0.5.0 (July 27, 2015)
 ---------------------
-* Experimental support for Python 3.
-* #126: Show committer if different from author
-* Bug #130: Fix highlighting for "No newline at the end of file"
+* Experimental support for Python 3. (Jonas Haag)
+* #126: Show committer if different from author (Jonas Haag)
+* Bug #130: Fix highlighting for "No newline at the end of file" (Jonas Haag)
 
 0.4.10 (June 28, 2015)
 ----------------------
-* Add option to require HTTP authentication for all parts of the Web interface
-* Add option to disable authentication entirely for Smart HTTP -- DANGER ZONE!
-* Add some unit tests; Travis
+* Add option to require HTTP authentication for all parts of the Web interface (Jonas Haag)
+* Add option to disable authentication entirely for Smart HTTP -- DANGER ZONE! (Jonas Haag)
+* Add some unit tests; Travis (Jonas Haag)
 * Bugs #116, #124, #128: Fix ``klaus.contrib.wsgi_autoreload`` (William Hughes, Yed Podtrzitko)
 * Bug #113: Fix filenames containing whitespace in diffs. (Jonas Haag)
 * Bug #115: In diffs, it now says "(new empty file)" rather than "(no changes)" when an empty file has been added. (Jonas Haag)
@@ -29,7 +29,7 @@ Changelog
 
 0.4.8 (June 22, 2014)
 ---------------------
-* Fix .tar.gz download if repository contains git submodule.
+* Fix .tar.gz download if repository contains git submodule. (Jonas Haag)
 
 0.4.7 (June 22, 2014)
 ---------------------
