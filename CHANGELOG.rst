@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.6.0 (TBA)
+-----------
+* Basic blame view (Martin Zimmermann, Jonas Haag)
+* Bug #133: Fix line highlighter
+
 0.5.0 (July 27, 2015)
 ---------------------
 * Experimental support for Python 3.
