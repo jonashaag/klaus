@@ -6,7 +6,7 @@ from klaus import views, utils
 from klaus.repo import FancyRepo
 
 
-KLAUS_VERSION = utils.guess_git_revision() or '0.4.8'
+KLAUS_VERSION = utils.guess_git_revision() or '0.5.0'
 
 
 class Klaus(flask.Flask):
@@ -15,8 +15,9 @@ class Klaus(flask.Flask):
         'undefined': jinja2.StrictUndefined
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp, **kwargs):
-        self.repo_map = dict((path, FancyRepo(path)) for path in repo_paths)
+    def __init__(self, repo_paths, site_name, use_smarthttp):
+        self.repos = [FancyRepo(path) for path in repo_paths]
+        self.repo_map = dict((repo.name, repo) for repo in self.repos)
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
 
@@ -48,6 +49,8 @@ class Klaus(flask.Flask):
             ('repo_list',   '/'),
             ('blob',        '/<repo>/blob/<rev>/'),
             ('blob',        '/<repo>/blob/<rev>/<path:path>'),
+            ('blame',       '/<repo>/blame/<rev>/'),
+            ('blame',       '/<repo>/blame/<rev>/<path:path>'),
             ('raw',         '/<repo>/raw/<rev>/'),
             ('raw',         '/<repo>/raw/<rev>/<path:path>'),
             ('commit',      '/<repo>/commit/<rev>/'),
@@ -60,12 +63,42 @@ class Klaus(flask.Flask):
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
 
-def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None, klass=Klaus, **kwargs):
+def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None,
+             require_browser_auth=False, disable_push=False,
+             unauthenticated_push=False, klaus_class=Klaus, **kwargs):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
     already patched in.
+
+    :param repos: List of paths of repositories to serve.
+    :param site_name: Name of the Web site (e.g. "John Doe's Git Repositories")
+    :param use_smarthttp: Enable Git Smart HTTP mode, which makes it possible to
+        pull from the served repositories. If `htdigest_file` is set as well,
+        also allow to push for authenticated users.
+    :param require_browser_auth: Require HTTP authentication according to the
+        credentials in `htdigest_file` for ALL access to the Web interface.
+        Requires the `htdigest_file` option to be set.
+    :param disable_push: Disable push support. This is required in case both
+        `use_smarthttp` and `require_browser_auth` (and thus `htdigest_file`)
+        are set, but push should not be supported.
+    :param htdigest_file: A *file-like* object that contains the HTTP auth credentials.
+    :param unauthenticated_push: Allow push'ing without authentication. DANGER ZONE!
+    :param klaus_class: Use a custom subclass to construct the Klaus instance.
+        If not given, defaults to `klaus.Klaus`
+    :param kwargs: any extra kwargs are passed directly to the `klaus_class`
+    constructor.
     """
-    app = klass(
+    if unauthenticated_push:
+        if not use_smarthttp:
+            raise ValueError("'unauthenticated_push' set without 'use_smarthttp'")
+        if disable_push:
+            raise ValueError("'unauthenticated_push' set with 'disable_push'")
+        if require_browser_auth:
+            raise ValueError("Incompatible options 'unauthenticated_push' and 'require_browser_auth'")
+    if htdigest_file and not (require_browser_auth or use_smarthttp):
+        raise ValueError("'htdigest_file' set without 'use_smarthttp' or 'require_browser_auth'")
+
+    app = klaus_class(
         repos,
         site_name,
         use_smarthttp,
@@ -76,7 +109,7 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None, klass=Kl
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
-            dict(('/'+repo.name, repo) for repo in app.repo_map.itervalues())
+            dict(('/'+repo.name, repo) for repo in app.repos)
         )
         # Dulwich takes care of all Git related requests/URLs
         # and passes through everything else to klaus
@@ -84,6 +117,7 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None, klass=Kl
             backend=dulwich_backend,
             fallback_app=app.wsgi_app,
         )
+        dulwich_wrapped_app = utils.SubUri(dulwich_wrapped_app)
 
         # `receive-pack` is requested by the "client" on a push
         # (the "server" is asked to *receive* packs), i.e. we need to secure
@@ -100,21 +134,36 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None, klass=Kl
         # failed for /info/refs, but since it's used to upload stuff to the server
         # we must secure it anyway for security reasons.
         PATTERN = r'^/[^/]+/(info/refs\?service=git-receive-pack|git-receive-pack)$'
-        if htdigest_file:
+        if unauthenticated_push:
+            # DANGER ZONE: Don't require authentication for push'ing
+            app.wsgi_app = dulwich_wrapped_app
+        elif htdigest_file and not disable_push:
             # .htdigest file given. Use it to read the push-er credentials from.
-            app.wsgi_app = httpauth.DigestFileHttpAuthMiddleware(
-                htdigest_file,
-                wsgi_app=utils.SubUri(dulwich_wrapped_app),
-                routes=[PATTERN],
-            )
+            if require_browser_auth:
+                # No need to secure push'ing if we already require HTTP auth
+                # for all of the Web interface.
+                app.wsgi_app = dulwich_wrapped_app
+            else:
+                # Web interface isn't already secured. Require authentication for push'ing.
+                app.wsgi_app = httpauth.DigestFileHttpAuthMiddleware(
+                    htdigest_file,
+                    wsgi_app=dulwich_wrapped_app,
+                    routes=[PATTERN],
+                )
         else:
-            # no .htdigest file given. Disable push-ing.  Semantically we should
+            # No .htdigest file given. Disable push-ing.  Semantically we should
             # use HTTP 403 here but since that results in freaky error messages
             # (see above) we keep asking for authentication (401) instead.
             # Git will print a nice error message after a few tries.
             app.wsgi_app = httpauth.AlwaysFailingAuthMiddleware(
-                wsgi_app=utils.SubUri(dulwich_wrapped_app),
+                wsgi_app=dulwich_wrapped_app,
                 routes=[PATTERN],
             )
+
+    if require_browser_auth:
+        app.wsgi_app = httpauth.DigestFileHttpAuthMiddleware(
+            htdigest_file,
+            wsgi_app=app.wsgi_app
+        )
 
     return app

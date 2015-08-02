@@ -1,5 +1,4 @@
 import os
-import stat
 
 from flask import request, render_template, current_app
 from flask.views import View
@@ -10,8 +9,8 @@ from werkzeug.exceptions import NotFound
 from dulwich.objects import Blob
 
 from klaus import markup, tarutils
-from klaus.utils import parent_directory, subpaths, pygmentize, \
-                        force_unicode, guess_is_binary, guess_is_image
+from klaus.utils import parent_directory, subpaths, pygmentize, encode_for_git, \
+                        force_unicode, guess_is_binary, guess_is_image, replace_dupes
 
 
 def repo_list():
@@ -25,9 +24,11 @@ def repo_list():
     repos = sorted(current_app.repo_map.values(), key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
+
 def robots_txt():
     """Serves the robots.txt file to manage the indexing of the site by search enginges"""
     return current_app.send_static_file('robots.txt')
+
 
 class BaseRepoView(View):
     """
@@ -101,25 +102,10 @@ class TreeViewMixin(object):
         selected commit
         """
         root_directory = self.get_root_directory()
-        root_tree = self.context['repo'].get_blob_or_tree(
+        return self.context['repo'].listdir(
             self.context['commit'],
             root_directory
         )
-
-        dirs, files = [], []
-        for entry in root_tree.iteritems():
-            name, entry = entry.path, entry.in_path(root_directory)
-            if entry.mode & stat.S_IFDIR:
-                dirs.append((name.lower(), name, entry.path))
-            else:
-                files.append((name.lower(), name, entry.path))
-        files.sort()
-        dirs.sort()
-
-        if root_directory:
-            dirs.insert(0, (None, '..', parent_directory(root_directory)))
-
-        return {'dirs' : dirs, 'files' : files}
 
     def get_root_directory(self):
         root_directory = self.context['path']
@@ -145,15 +131,15 @@ class HistoryView(TreeViewMixin, BaseRepoView):
             history_length = 30
             skip = (self.context['page']-1) * 30 + 10
             if page > 7:
-                self.context['previous_pages'] = [0, 1, 2, None] + range(page)[-3:]
+                self.context['previous_pages'] = [0, 1, 2, None] + list(range(page))[-3:]
             else:
-                self.context['previous_pages'] = xrange(page)
+                self.context['previous_pages'] = range(page)
         else:
             history_length = 10
             skip = 0
 
         history = self.context['repo'].history(
-            self.context['rev'],
+            self.context['commit'],
             self.context['path'],
             history_length + 1,
             skip
@@ -172,40 +158,45 @@ class HistoryView(TreeViewMixin, BaseRepoView):
         })
 
 
-class BlobViewMixin(object):
+class BaseBlobView(BaseRepoView):
     def make_template_context(self, *args):
-        super(BlobViewMixin, self).make_template_context(*args)
+        super(BaseBlobView, self).make_template_context(*args)
+        if not isinstance(self.context['blob_or_tree'], Blob):
+            raise NotFound("Not a blob")
         self.context['filename'] = os.path.basename(self.context['path'])
 
 
-class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
-    """ Shows a file rendered using ``pygmentize`` """
+class BaseFileView(TreeViewMixin, BaseBlobView):
+    """Base for FileView and BlameView"""
     def make_template_context(self, *args):
-        super(BlobView, self).make_template_context(*args)
-
-        if not isinstance(self.context['blob_or_tree'], Blob):
-            raise NotFound("Not a blob")
+        super(BaseFileView, self).make_template_context(*args)
+        self.context.update({
+            'can_render': True,
+            'is_binary': False,
+            'too_large': False,
+            'is_markup': False,
+        })
 
         binary = guess_is_binary(self.context['blob_or_tree'])
         too_large = sum(map(len, self.context['blob_or_tree'].chunked)) > 100*1024
-
         if binary:
             self.context.update({
-                'is_markup': False,
+                'can_render': False,
                 'is_binary': True,
-                'is_image': False,
+                'is_image': guess_is_image(self.context['filename']),
             })
-            if guess_is_image(self.context['filename']):
-                self.context.update({
-                    'is_image': True,
-                })
         elif too_large:
             self.context.update({
+                'can_render': False,
                 'too_large': True,
-                'is_markup': False,
-                'is_binary': False,
             })
-        else:
+
+
+class FileView(BaseFileView):
+    """ Shows a file rendered using ``pygmentize`` """
+    def make_template_context(self, *args):
+        super(FileView, self).make_template_context(*args)
+        if self.context['can_render']:
             render_markup = 'markup' not in request.args
             rendered_code = pygmentize(
                 force_unicode(self.context['blob_or_tree'].data),
@@ -213,15 +204,30 @@ class BlobView(BlobViewMixin, TreeViewMixin, BaseRepoView):
                 render_markup
             )
             self.context.update({
-                'too_large': False,
                 'is_markup': markup.can_render(self.context['filename']),
                 'render_markup': render_markup,
                 'rendered_code': rendered_code,
-                'is_binary': False,
             })
 
 
-class RawView(BlobViewMixin, BaseRepoView):
+class BlameView(BaseFileView):
+    def make_template_context(self, *args):
+        super(BlameView, self).make_template_context(*args)
+        if self.context['can_render']:
+            rendered_code = pygmentize(
+                force_unicode(self.context['blob_or_tree'].data),
+                self.context['filename'],
+                render_markup=False,
+            )
+            line_commits = self.context['repo'].blame(self.context['commit'], self.context['path'])
+            replace_dupes(line_commits, None)
+            self.context.update({
+                'rendered_code': rendered_code,
+                'line_commits': line_commits,
+            })
+
+
+class RawView(BaseBlobView):
     """
     Shows a single file in raw for (as if it were a normal filesystem file
     served through a static file server)
@@ -259,6 +265,7 @@ class DownloadView(BaseRepoView):
 
 history = HistoryView.as_view('history', 'history', 'history.html')
 commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
-blob = BlobView.as_view('blob', 'blob', 'view_blob.html')
+blame = BlameView.as_view('blame', 'blame', 'blame_blob.html')
+blob = FileView.as_view('blob', 'blob', 'view_blob.html')
 raw = RawView.as_view('raw', 'raw')
 download = DownloadView.as_view('download', 'download')

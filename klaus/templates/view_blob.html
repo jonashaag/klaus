@@ -31,6 +31,9 @@
       {% endif %}
       <a href="{{ raw_url }}">raw</a>
       &middot; <a href="{{ url_for('history', repo=repo.name, rev=rev, path=path) }}">history</a>
+      {% if not is_binary and not too_large %}
+      &middot; <a href="{{ url_for('blame', repo=repo.name, rev=rev, path=path) }}">blame</a>
+      {% endif %}
     </span>
   </h2>
   {% if is_binary %}
@@ -39,26 +42,21 @@
     {% else %}
       {{ not_shown("Binary data") }}
     {% endif %}
+  {% elif too_large %}
+    {{ not_shown("Large file") }}
   {% else %}
-    {% if too_large %}
-      {{ not_shown("Large file") }}
-    {% else %}
-      {% autoescape false %}
-        {% if is_markup and render_markup %}
-          <div class=markup>{{ rendered_code }}</div>
-        {% else %}
-          {{ rendered_code }}
-        {% endif %}
-      {% endautoescape %}
-    {% endif %}
+    {% autoescape false %}
+      {% if is_markup and render_markup %}
+        <div class=markup>{{ rendered_code }}</div>
+      {% else %}
+        {{ rendered_code }}
+      {% endif %}
+    {% endautoescape %}
   {% endif %}
 </div>
 
 <script>
-  highlight_linenos({
-    linksSelector: '.highlighttable .linenos a',
-    getLineFromAnchor: function(anchor) { return anchor.nextSibling }
-  })
+  highlight_linenos({linksSelector: '.highlighttable .linenos a'});
 </script>
 
 {% endblock %}

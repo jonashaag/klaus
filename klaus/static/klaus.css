@@ -174,24 +174,26 @@ a.commit { color: black !important; }
 }
 
 
-/* Common for diff and blob view */
+/* Blob, Blame, Diff View */
 .line { display: block; }
 .linenos { background-color: #f9f9f9; text-align: right; }
 .linenos a { color: #888; }
 .linenos a:hover { text-decoration: none; }
-.highlight-line { background-color: #fefed0; }
+.highlight-line, .highlight-line .line { background-color: #fefed0; }
 .linenos a { padding: 0 6px 0 6px; }
+
+
+/* Blob, Blame View */
+.blobview table, .blameview table { min-width: 100%; }
+.blobview table, .blameview table { border: 1px solid #e0e0e0; }
+.blobview .code, .blameview .code { padding: 0; width: 100%; }
+.blobview .code .line, .blameview .code .line { padding: 0 5px 0 10px; }
+.blobview .linenos, .blameview .linenos { border: 1px solid #e0e0e0; padding: 0; }
 
 
 /* Blob View */
 .blobview img { max-width: 100%; padding: 1px; }
-.blobview table { min-width: 100%; }
-.blobview table, .blobview img, .blobview .markup {
-  border: 1px solid #e0e0e0;
-}
-.blobview .linenos { border: 1px solid #e0e0e0; padding: 0; }
-.blobview .code { padding: 0; width: 100%; }
-.blobview .code .line { padding: 0 5px 0 10px; }
+.blobview img, .blobview .markup { border: 1px solid #e0e0e0; }
 .blobview .markup h1:first-child { margin-top: 8px; }
 .blobview .markup { padding: 0 10px; }
 .blobview .markup pre {
@@ -199,6 +201,13 @@ a.commit { color: black !important; }
   background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
 }
+
+
+/* Blame View */
+.blameview .highlighttable { border-top: 0; border-bottom: 0; border-left: 0; }
+.blameview .linenos { border-top: 0; border-bottom: 0; border-left: 0; }
+.blameview .line-info a { padding: 0 6px 0 6px; }
+.blameview .line-info { background-color: #f9f9f9; }
 
 
 /* Commit View */
@@ -245,15 +254,15 @@ a.commit { color: black !important; }
   padding: 0;
   border-left: 1px solid #e0e0e0;
 }
-.diff td .line { padding: 1px 10px; display: block; min-height: 1.2em; }
+.diff td .line { padding: 1px 10px; display: block; min-height: 1.2em; white-space: pre-wrap; }
 .diff .linenos { font-size: 85%; padding: 0; vertical-align: top; }
 .diff .linenos a { display: block; padding-top: 1px; padding-bottom: 1px; }
 .diff td + td + td { width: 100%; }
-.diff td + td + td > span { white-space: pre-wrap; }
 .diff tr:first-of-type td { padding-top: 7px; }
 .diff tr:last-of-type td { padding-bottom: 7px; }
 .diff table .del { background-color: #ffdddd; }
 .diff table .add { background-color: #ddffdd; }
+.diff table .no-newline-marker { font-size: 50%; margin-left: 5px; color: red; }
 .diff table del { background-color: #ee9999; text-decoration: none; }
 .diff table ins { background-color: #99ee99; text-decoration: none; }
 .diff .sep > td {

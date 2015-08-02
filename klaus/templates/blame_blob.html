@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ path }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+{% include 'tree.inc.html' %}
+
+<div class=blameview>
+  <h2>
+    {{ filename|force_unicode }}
+    <span>
+      @<a href="{{ url_for('commit', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
+    </span>
+  </h2>
+  {% if not can_render %}
+    (Can't show blame: File is binary or too large)
+  {% else %}
+    <table>
+      <tbody>
+        <tr>
+          <td class="line-info">
+            <pre>
+              {%- for commit in line_commits -%}
+                {%- if commit == None %}
+&nbsp;
+                {%- else %}
+<a href="{{ url_for('commit', repo=repo.name, rev=commit.id) }}">{{ commit.id | shorten_sha1 }}</a>
+                {%- endif -%}
+              {%- endfor -%}
+            </pre>
+          </td>
+          <td class="code">
+            {% autoescape false %}
+              {{ rendered_code }}
+            {% endautoescape %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+
+<script>
+  highlight_linenos({
+    linksSelector: '.highlighttable .linenos a',
+    getLineFromAnchor: function(anchor) { return anchor.nextSibling }
+  })
+</script>
+
+{% endblock %}

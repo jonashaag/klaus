@@ -27,18 +27,16 @@ class DiffRenderer(object):
         """:param udiff:   a text in udiff format"""
         self.lines = [escape(line) for line in udiff.splitlines()]
 
-    def _extract_rev(self, line1, line2):
-        def _extract(line):
-            parts = line.split(None, 1)
-            if parts[0].startswith(('a/', 'b/')):
-                parts[0] = parts[0][2:]
-            return parts[0], (len(parts) == 2 and parts[1] or None)
-        try:
-            if line1.startswith('--- ') and line2.startswith('+++ '):
-                return _extract(line1[4:]), _extract(line2[4:])
-        except (ValueError, IndexError):
-            pass
-        return (None, None), (None, None)
+    def _extract_filename(self, line):
+        """
+        Extract file name from unified diff line:
+            --- a/foo/bar   ==>   foo/bar
+            +++ b/foo/bar   ==>   foo/bar
+        """
+        if line.startswith(("--- /dev/null", "+++ /dev/null")):
+            return line[len("--- "):]
+        else:
+            return line[len("--- a/"):]
 
     def _highlight_line(self, line, next):
         """Highlight inline changes in both lines."""
@@ -75,13 +73,13 @@ class DiffRenderer(object):
         lineiter = iter(self.lines)
         files = []
         try:
-            line = lineiter.next()
+            line = next(lineiter)
             while 1:
                 # continue until we found the old file
                 if not line.startswith('--- '):
                     if in_header:
                         header.append(line)
-                    line = lineiter.next()
+                    line = next(lineiter)
                     continue
 
                 if header and all(x.strip() for x in header):
@@ -91,20 +89,16 @@ class DiffRenderer(object):
 
                 in_header = False
                 chunks = []
-                old, new = self._extract_rev(line, lineiter.next())
-                adds, dels = 0, 0
                 files.append({
                     'is_header':        False,
-                    'old_filename':     old[0],
-                    'old_revision':     old[1],
-                    'new_filename':     new[0],
-                    'new_revision':     new[1],
-                    'additions':        adds,
-                    'deletions':        dels,
+                    'old_filename':     self._extract_filename(line),
+                    'new_filename':     self._extract_filename(next(lineiter)),
+                    'additions':        0,
+                    'deletions':        0,
                     'chunks':           chunks
                 })
 
-                line = lineiter.next()
+                line = next(lineiter)
                 while line:
                     match = self._chunk_re.match(line)
                     if not match:
@@ -120,7 +114,7 @@ class DiffRenderer(object):
                     new_line -= 1
                     old_end += old_line
                     new_end += new_line
-                    line = lineiter.next()
+                    line = next(lineiter)
 
                     while old_line < old_end or new_line < new_end:
                         if line:
@@ -132,11 +126,11 @@ class DiffRenderer(object):
                         if command == '+':
                             affects_new = True
                             action = 'add'
-                            adds += 1
+                            files[-1]['additions'] += 1
                         elif command == '-':
                             affects_old = True
                             action = 'del'
-                            dels += 1
+                            files[-1]['deletions'] += 1
                         else:
                             affects_old = affects_new = True
                             action = 'unmod'
@@ -147,13 +141,15 @@ class DiffRenderer(object):
                             'old_lineno':   affects_old and old_line or u'',
                             'new_lineno':   affects_new and new_line or u'',
                             'action':       action,
-                            'line':         line
+                            'line':         line,
+                            'no_newline':   False,
                         })
-                        # Make sure to store the stats before a
-                        # StopIteration is raised
-                        files[-1]['additions'] = adds
-                        files[-1]['deletions'] = dels
-                        line = lineiter.next()
+
+                        # Skip "no newline at end of file" markers
+                        line = next(lineiter)
+                        if line == "\ No newline at end of file":
+                            lines[-1]['no_newline'] = True
+                            line = next(lineiter)
 
         except StopIteration:
             pass
@@ -166,9 +162,9 @@ class DiffRenderer(object):
                 lineiter = iter(chunk)
                 try:
                     while True:
-                        line = lineiter.next()
+                        line = next(lineiter)
                         if line['action'] != 'unmod':
-                            nextline = lineiter.next()
+                            nextline = next(lineiter)
                             if nextline['action'] == 'unmod' or \
                                nextline['action'] == line['action']:
                                 continue

@@ -31,19 +31,18 @@ var highlight_linenos = function(opts) {
 
   forEach(links, function(a) {
     var lineno = a.getAttribute('href').substr(1),
-        anchor = document.getElementById(lineno),
-        associatedLine = opts.getLineFromAnchor(anchor);
+        associatedLine = document.getElementById(lineno);
 
     var highlight = function() {
       a.className = 'highlight-line';
-      associatedLine.className = 'line highlight-line';
+      associatedLine.className = 'highlight-line';
       currentHighlight = a;
     }
 
     var unhighlight = function() {
       if (a.getAttribute('href') != location.hash) {
         a.className = '';
-        associatedLine.className = 'line';
+        associatedLine.className = '';
       }
     }
 

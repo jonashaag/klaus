@@ -5,6 +5,7 @@ import time
 import datetime
 import mimetypes
 import locale
+import six
 try:
     import chardet
 except ImportError:
@@ -57,7 +58,7 @@ class SubUri(object):
 class KlausFormatter(HtmlFormatter):
     def __init__(self):
         HtmlFormatter.__init__(self, linenos='table', lineanchors='L',
-                               anchorlinenos=True)
+                               linespans='L', anchorlinenos=True)
 
     def _format_lines(self, tokensource):
         for tag, line in HtmlFormatter._format_lines(self, tokensource):
@@ -95,7 +96,7 @@ def formattimestamp(timestamp):
 
 
 def guess_is_binary(dulwich_blob):
-    return any('\0' in chunk for chunk in dulwich_blob.chunked)
+    return any(b'\0' in chunk for chunk in dulwich_blob.chunked)
 
 
 def guess_is_image(filename):
@@ -105,10 +106,20 @@ def guess_is_image(filename):
     return mime.startswith('image/')
 
 
+def encode_for_git(s):
+    # XXX This assumes everything to be UTF-8 encoded
+    return s.encode('utf8')
+
+
+def decode_from_git(b):
+    # XXX This assumes everything to be UTF-8 encoded
+    return b.decode('utf8')
+
+
 def force_unicode(s):
     """ Does all kind of magic to turn `s` into unicode """
     # It's already unicode, don't do anything:
-    if isinstance(s, unicode):
+    if isinstance(s, six.text_type):
         return s
 
     # Try some default encodings:
@@ -148,7 +159,7 @@ def extract_author_name(email):
 
 def shorten_sha1(sha1):
     if re.match('[a-z\d]{20,40}', sha1):
-        sha1 = sha1[:10]
+        sha1 = sha1[:7]
     return sha1
 
 
@@ -171,6 +182,23 @@ def subpaths(path):
 
 def shorten_message(msg):
     return msg.split('\n')[0]
+
+
+def replace_dupes(ls, replacement):
+    """
+    Replaces items in `ls` that are equal to their predecessors with `replacement`.
+
+    >>> ls = [1, 2, 2, 3, 2, 2, 2]
+    >>> replace_dupes(x, 'x')
+    >>> ls
+    [1, 2, 'x', 3, 2, 'x', 'x']
+    """
+    last = object()
+    for i, elem in enumerate(ls):
+        if last == elem:
+            ls[i] = replacement
+        else:
+            last = elem
 
 
 try:
