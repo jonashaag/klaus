@@ -1,7 +1,9 @@
 import os
-import dulwich
 import logging
 import threading
+import sys
+
+import dulwich
 
 from klaus.repo import FancyRepo
 from klaus import Klaus, make_app
@@ -10,13 +12,13 @@ try:
     from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler
 except ImportError:
-    import sys
-    print("To automatically detect and reload repositories as they change, watchdog must be installed.")
-    print("See https://pypi.python.org/pypi/watchdog/ for installation instructions.")
-    sys.exit()
+    sys.stderr.write("To automatically detect and reload repositories as they "
+                     "change, watchdog must be installed.\n")
+    sys.stderr.write("See https://pypi.python.org/pypi/watchdog/\n")
+    sys.exit(1)
 
+logger = logging.getLogger(__name__)
 
-logger = logging.getLogger(__file__)
 
 def is_subdirectory(haystack, needle):
     """
@@ -29,7 +31,7 @@ def is_subdirectory(haystack, needle):
     return needle.startswith(haystack)
 
 
-class KlausEventHandler(FileSystemEventHandler):
+class KlausFSEventHandler(FileSystemEventHandler):
     """
     Basic file-system event handler for a klaus app.
     When directories are created, moved or deleted, we will be notified here.
@@ -38,7 +40,7 @@ class KlausEventHandler(FileSystemEventHandler):
     """
     def __init__(self, klausapp, *args, **kwargs):
         self._klausapp = klausapp
-        return super(KlausEventHandler, self).__init__(*args, **kwargs)
+        return super(KlausFSEventHandler, self).__init__(*args, **kwargs)
 
     def on_modified(self, event):
         if not event.is_directory:
@@ -65,16 +67,15 @@ class KlausEventHandler(FileSystemEventHandler):
         subset of any of the watched trees. In that case we need to consider it
         a deletion, and remove it from the list of watched repos; otherwise we
         need to update its path. This is a potentially expensive operation,
-        because the only reliable way to detect whether it is a subset
-        (including symlinks etc) is to walk the path. In practice, this
-        shouldn't affect performance in the general case, as moving a repository
-        is a rare event.
+        but shouldn't affect performance in the general case, as moving a
+        repository is a rare event.
         """
         logger.debug(
-            "Received move event:'%s'->'%s'",
+            "Received repository move event:'%s'->'%s'",
             event.src_path,
             event.dest_path
         )
+        # first unregister old repository
         if not self._klausapp.remove_repo(event.src_path):
             logger.debug(
                 "ignored non-repo move, %s -> %s",
@@ -82,7 +83,6 @@ class KlausEventHandler(FileSystemEventHandler):
             )
             return
 
-        # first unregister old repositories
         # then see if the new destination is part of the klaus watchlist
         for directory in self._klausapp.basedirs:
             if is_subdirectory(directory, event.dest_path):
@@ -114,7 +114,7 @@ class KlausAutoDiscover(Klaus):
     platforms (Linux, win32, OS X).
     """
     def __init__(self, basedirs, site_name, use_smarthttp, **kwargs):
-        recursive = kwargs.pop('recursive', False)
+        recursive = kwargs.pop('discover_recursive', False)
         super(KlausAutoDiscover, self).__init__([], site_name, use_smarthttp, **kwargs)
         self._lock = threading.RLock()
         self._basedirs = basedirs
@@ -127,7 +127,7 @@ class KlausAutoDiscover(Klaus):
                 self.add_repo(path)
 
         # Then create a handler to notify us of any changes within those dirs.
-        fs_event_handler = KlausEventHandler(self)
+        fs_event_handler = KlausFSEventHandler(self)
         for directory in basedirs:
             self._observer.schedule(fs_event_handler, directory, recursive=recursive)
 
@@ -177,22 +177,18 @@ class KlausAutoDiscover(Klaus):
         self._observer.join()
 
 
-if 'KLAUS_HTDIGEST_FILE' in os.environ:
-    with open(os.environ['KLAUS_HTDIGEST_FILE']) as file:
-        application = make_app(
-            os.environ['KLAUS_REPOS'].split(),
-            os.environ['KLAUS_SITE_NAME'],
-            os.environ.get('KLAUS_USE_SMARTHTTP'),
-            file,
-            KlausAutoDiscover,
-            recursive=os.environ.get('KLAUS_DISCOVER_RECURSIVE')
-        )
-else:
-    application = make_app(
+def _app(htdigest_file=None):
+    return make_app(
         os.environ['KLAUS_REPOS'].split(),
         os.environ['KLAUS_SITE_NAME'],
         os.environ.get('KLAUS_USE_SMARTHTTP'),
-        None,
-        KlausAutoDiscover,
-        recursive=os.environ.get('KLAUS_DISCOVER_RECURSIVE')
+        htdigest_file,
+        klaus_class=KlausAutoDiscover,
+        discover_recursive=os.environ.get('KLAUS_DISCOVER_RECURSIVE')
     )
+
+if 'KLAUS_HTDIGEST_FILE' in os.environ:
+    with open(os.environ['KLAUS_HTDIGEST_FILE']) as htdigest_file:
+        application = _app(htdigest_file)
+else:
+    application = _app()
