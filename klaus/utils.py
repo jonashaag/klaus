@@ -21,8 +21,7 @@ from klaus import markup
 
 
 class SubUri(object):
-    """
-    WSGI middleware that tweaks the WSGI environ so that it's possible to serve
+    """WSGI middleware to tweak the WSGI environ so that it's possible to serve
     the wrapped app (klaus) under a sub-URL and/or to use a different HTTP
     scheme (http:// vs. https://) for proxy communication.
 
@@ -69,8 +68,7 @@ class KlausFormatter(HtmlFormatter):
 
 
 def pygmentize(code, filename=None, render_markup=True):
-    """
-    Renders code using Pygments, markup (markdown, rst, ...) using the
+    """Render code using Pygments, markup (markdown, rst, ...) using the
     corresponding renderer, if available.
     """
     if render_markup and markup.can_render(filename):
@@ -87,7 +85,7 @@ def pygmentize(code, filename=None, render_markup=True):
 
 
 def timesince(when, now=time.time):
-    """ Returns the difference between `when` and `now` in human readable form. """
+    """Return the difference between `when` and `now` in human readable form."""
     return naturaltime(now() - when)
 
 
@@ -117,7 +115,7 @@ def decode_from_git(b):
 
 
 def force_unicode(s):
-    """ Does all kind of magic to turn `s` into unicode """
+    """Do all kinds of magic to turn `s` into unicode"""
     # It's already unicode, don't do anything:
     if isinstance(s, six.text_type):
         return s
@@ -142,12 +140,11 @@ def force_unicode(s):
 
 
 def extract_author_name(email):
-    """
-    Extracts the name from an email address...
+    """Extract the name from an email address --
     >>> extract_author_name("John <john@example.com>")
     "John"
 
-    ... or returns the address if none is given.
+    -- or return the address if none is given.
     >>> extract_author_name("noname@example.com")
     "noname@example.com"
     """
@@ -168,8 +165,7 @@ def parent_directory(path):
 
 
 def subpaths(path):
-    """
-    Yields a `(last part, subpath)` tuple for all possible sub-paths of `path`.
+    """Yield a `(last part, subpath)` tuple for all possible sub-paths of `path`.
 
     >>> list(subpaths("foo/bar/spam"))
     [('foo', 'foo'), ('bar', 'foo/bar'), ('spam', 'foo/bar/spam')]
@@ -185,8 +181,7 @@ def shorten_message(msg):
 
 
 def replace_dupes(ls, replacement):
-    """
-    Replaces items in `ls` that are equal to their predecessors with `replacement`.
+    """Replace items in `ls` that are equal to their predecessors with `replacement`.
 
     >>> ls = [1, 2, 2, 3, 2, 2, 2]
     >>> replace_dupes(x, 'x')
@@ -221,8 +216,7 @@ except ImportError:
 
 
 def guess_git_revision():
-    """
-    Try to guess whether this instance of klaus is run directly from a klaus
+    """Try to guess whether this instance of klaus is run directly from a klaus
     git checkout.  If it is, guess and return the currently checked-out commit
     SHA.  If it's not (installed using pip, setup.py or the like), return None.
 

@@ -14,7 +14,7 @@ from klaus.utils import parent_directory, subpaths, pygmentize, encode_for_git, 
 
 
 def repo_list():
-    """Shows a list of all repos and can be sorted by last update. """
+    """Show a list of all repos and can be sorted by last update."""
     if 'by-last-update' in request.args:
         sort_key = lambda repo: repo.get_last_updated_at()
         reverse = True
@@ -26,13 +26,12 @@ def repo_list():
 
 
 def robots_txt():
-    """Serves the robots.txt file to manage the indexing of the site by search enginges"""
+    """Serve the robots.txt file to manage the indexing of the site by search enginges."""
     return current_app.send_static_file('robots.txt')
 
 
 class BaseRepoView(View):
-    """
-    Base for all views with a repo context.
+    """Base for all views with a repo context.
 
     The arguments `repo`, `rev`, `path` (see `dispatch_request`) define the
     repository, branch/commit and directory/file context, respectively --
@@ -89,18 +88,13 @@ class BaseRepoView(View):
 
 
 class TreeViewMixin(object):
-    """
-    Implements the logic required for displaying the current directory in the sidebar
-    """
+    """The logic required for displaying the current directory in the sidebar."""
     def make_template_context(self, *args):
         super(TreeViewMixin, self).make_template_context(*args)
         self.context['root_tree'] = self.listdir()
 
     def listdir(self):
-        """
-        Returns a list of directories and files in the current path of the
-        selected commit
-        """
+        """Return a list of directories and files in the current path of the selected commit."""
         root_directory = self.get_root_directory()
         return self.context['repo'].listdir(
             self.context['commit'],
@@ -116,7 +110,7 @@ class TreeViewMixin(object):
 
 
 class HistoryView(TreeViewMixin, BaseRepoView):
-    """ Show commits of a branch + path, just like `git log`. With pagination. """
+    """Show commits of a branch + path, just like `git log`. With pagination."""
     def make_template_context(self, *args):
         super(HistoryView, self).make_template_context(*args)
 
@@ -167,7 +161,7 @@ class BaseBlobView(BaseRepoView):
 
 
 class BaseFileView(TreeViewMixin, BaseBlobView):
-    """Base for FileView and BlameView"""
+    """Base for FileView and BlameView."""
     def make_template_context(self, *args):
         super(BaseFileView, self).make_template_context(*args)
         self.context.update({
@@ -193,7 +187,7 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
 
 
 class FileView(BaseFileView):
-    """ Shows a file rendered using ``pygmentize`` """
+    """Shows a file rendered using ``pygmentize``."""
     def make_template_context(self, *args):
         super(FileView, self).make_template_context(*args)
         if self.context['can_render']:
@@ -228,9 +222,8 @@ class BlameView(BaseFileView):
 
 
 class RawView(BaseBlobView):
-    """
-    Shows a single file in raw for (as if it were a normal filesystem file
-    served through a static file server)
+    """Show a single file in raw for (as if it were a normal filesystem file
+    served through a static file server).
     """
     def get_response(self):
         # Explicitly set an empty mimetype. This should work well for most
@@ -240,9 +233,7 @@ class RawView(BaseBlobView):
 
 
 class DownloadView(BaseRepoView):
-    """
-    Download a repo as a tar.gz file
-    """
+    """Download a repo as a tar.gz file."""
     def get_response(self):
         tarname = "%s@%s.tar.gz" % (self.context['repo'].name, self.context['rev'])
         headers = {

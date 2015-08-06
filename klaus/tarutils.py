@@ -8,8 +8,7 @@ from klaus.utils import encode_for_git, decode_from_git
 
 
 class ListBytesIO(object):
-    """
-    Turns a list of bytestrings into a file-like object.
+    """Turn a list of bytestrings into a file-like object.
 
     This is similar to creating a `BytesIO` from a concatenation of the
     bytestring list, but saves memory by NOT creating one giant bytestring first::
@@ -43,8 +42,7 @@ class ListBytesIO(object):
 
 
 def tar_stream(repo, tree, mtime, format=''):
-    """
-    Returns a generator that lazily assembles a .tar.gz archive, yielding it in
+    """Return a generator that lazily assembles a .tar.gz archive, yielding it in
     pieces (bytestrings). To obtain the complete .tar.gz binary file, simply
     concatenate these chunks.
 
@@ -76,9 +74,8 @@ def tar_stream(repo, tree, mtime, format=''):
 
 
 def walk_tree(repo, tree, root=''):
-    """
-    Recursively walk a dulwich Tree, yielding tuples of (absolute path,
-    TreeEntry) along the way.
+    """Recursively walk a dulwich Tree, yielding tuples of
+    (absolute path, TreeEntry) along the way.
     """
     for entry in tree.iteritems():
         entry_abspath = os.path.join(root, decode_from_git(entry.path))

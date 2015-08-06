@@ -9,15 +9,20 @@ from klaus.diff import prepare_udiff
 
 
 class FancyRepo(dulwich.repo.Repo):
+    """A wrapper around Dulwich's Repo that adds some helper methods."""
     # TODO: factor out stuff into dulwich
     @property
     def name(self):
-        # 1. /x/y.git -> /x/y  and  /x/y/.git/ -> /x/y//
-        # 2. /x/y/ -> /x/y
-        # 3. /x/y -> y
+        """Get repository name from path.
+
+        1. /x/y.git -> /x/y  and  /x/y/.git/ -> /x/y//
+        2. /x/y/ -> /x/y
+        3. /x/y -> y
+        """
         return self.path.replace(".git", "").rstrip(os.sep).split(os.sep)[-1]
 
     def get_last_updated_at(self):
+        """Get datetime of last commit to this repository."""
         refs = [self[ref_hash] for ref_hash in self.get_refs().values()]
         refs.sort(key=lambda obj:getattr(obj, 'commit_time', float('-inf')),
                   reverse=True)
@@ -26,9 +31,8 @@ class FancyRepo(dulwich.repo.Repo):
         return None
 
     def get_description(self):
-        """
-        Like Dulwich's `get_description`, but returns None if the file contains
-        Git's default text "Unnamed repository[...]"
+        """Like Dulwich's `get_description`, but returns None if the file
+        contains Git's default text "Unnamed repository[...]".
         """
         description = super(FancyRepo, self).get_description()
         if description:
@@ -37,6 +41,7 @@ class FancyRepo(dulwich.repo.Repo):
                 return force_unicode(description)
 
     def get_commit(self, rev):
+        """Get commit object identified by `rev` (SHA or branch or tag name)."""
         for prefix in ['refs/heads/', 'refs/tags/', '']:
             key = prefix + rev
             try:
@@ -49,9 +54,7 @@ class FancyRepo(dulwich.repo.Repo):
         raise KeyError(rev)
 
     def get_default_branch(self):
-        """
-        Tries to guess the default repo branch name.
-        """
+        """Tries to guess the default repo branch name."""
         for candidate in ['master', 'trunk', 'default', 'gh-pages']:
             try:
                 self.get_commit(candidate)
@@ -63,7 +66,10 @@ class FancyRepo(dulwich.repo.Repo):
         except IndexError:
             return None
 
-    def get_sorted_ref_names(self, prefix, exclude=None):
+    def get_ref_names_ordered_by_last_commit(self, prefix, exclude=None):
+        """Return a list of ref names that begin with `prefix`, ordered by the
+        time they have been committed to last.
+        """
         refs = self.refs.as_dict(encode_for_git(prefix))
         if exclude:
             refs.pop(prefix + exclude, None)
@@ -78,16 +84,17 @@ class FancyRepo(dulwich.repo.Repo):
                 sorted(refs.keys(), key=get_commit_time, reverse=True)]
 
     def get_branch_names(self, exclude=None):
-        """ Returns a sorted list of branch names. """
-        return self.get_sorted_ref_names('refs/heads', exclude)
+        """Return a list of branch names of this repo, ordered by the time they
+        have been committed to last.
+        """
+        return self.get_ref_names_ordered_by_last_commit('refs/heads', exclude)
 
     def get_tag_names(self):
-        """ Returns a sorted list of tag names. """
-        return self.get_sorted_ref_names('refs/tags')
+        """Return a list of tag names of this repo, ordered by creation time."""
+        return self.get_ref_names_ordered_by_last_commit('refs/tags')
 
     def history(self, commit, path=None, max_commits=None, skip=0):
-        """
-        Returns a list of all commits that affected `path`, starting at branch
+        """Return a list of all commits that affected `path`, starting at branch
         or commit `commit`. `skip` can be used for pagination, `max_commits`
         to limit the number of commits returned.
 
@@ -114,17 +121,17 @@ class FancyRepo(dulwich.repo.Repo):
         return [self[sha1] for sha1 in sha1_sums]
 
     def blame(self, commit, path):
+        """Return a 'git blame' list for the file at `path`: For each line in
+        the file, the list contains the commit that last changed that line.
         """
-        Returns a 'git blame' list for the file at `path`: For each line in the
-        file, the list contains the commit that last changed that line.
-        """
+        # XXX see comment in `.history()`
         cmd = ['git', 'blame', '-ls', '--root', commit.id, '--', path]
         output = check_output(cmd, cwd=os.path.abspath(self.path))
         sha1_sums = [line[:40] for line in output.strip().split(b'\n')]
         return [self[sha1] for sha1 in sha1_sums]
 
     def get_blob_or_tree(self, commit, path):
-        """ Returns the Git tree or blob object for `path` at `commit`. """
+        """Return the Git tree or blob object for `path` at `commit`."""
         tree_or_blob = self[commit.tree]  # Still a tree here but may turn into
                                           # a blob somewhere in the loop.
         for part in path.strip('/').split('/'):
@@ -136,6 +143,7 @@ class FancyRepo(dulwich.repo.Repo):
         return tree_or_blob
 
     def listdir(self, commit, path):
+        """Return a list of directories and files in given directory."""
         dirs, files = [], []
         for entry in self.get_blob_or_tree(commit, path).items():
             name, entry = entry.path, entry.in_path(encode_for_git(path))
@@ -152,6 +160,7 @@ class FancyRepo(dulwich.repo.Repo):
         return {'dirs' : dirs, 'files' : files}
 
     def commit_diff(self, commit):
+        """Return the list of changes introduced by `commit`."""
         from klaus.utils import guess_is_binary
 
         if commit.parents:
