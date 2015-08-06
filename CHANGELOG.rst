@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.6.0 (TBA)
------------
+0.6.0 (Aug 6, 2015)
+--------------------
 * Basic blame view (Martin Zimmermann, Jonas Haag)
 * Bug #133: Fix line highlighter (Jonas Haag)
 
