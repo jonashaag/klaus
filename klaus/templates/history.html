@@ -65,7 +65,7 @@
             <span>
               {{ commit.author|force_unicode|extract_author_name }}
               {% if commit.author != commit.committer %}
-                (committed by: {{ commit.committer|force_unicode|extract_author_name }})
+                (commit: {{ commit.committer|force_unicode|extract_author_name }})
               {% endif %}
             </span>
             <span title="{{ commit.commit_time|formattimestamp  }}">
