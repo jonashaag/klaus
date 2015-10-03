@@ -213,3 +213,12 @@ class FancyRepo(dulwich.repo.Repo):
                 file_changes.append(change)
 
         return summary, file_changes
+
+    def raw_commit_diff(self, commit):
+        if commit.parents:
+            parent_tree = self[commit.parents[0]].tree
+        else:
+            parent_tree = None
+        bytesio = io.BytesIO()
+        dulwich.patch.write_tree_diff(bytesio, self.object_store, parent_tree, commit.tree)
+        return bytesio.getvalue()

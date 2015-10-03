@@ -54,6 +54,8 @@ class Klaus(flask.Flask):
             ('raw',         '/<repo>/raw/<rev>/'),
             ('raw',         '/<repo>/raw/<rev>/<path:path>'),
             ('commit',      '/<repo>/commit/<rev>/'),
+            ('patch',       '/<repo>/commit/<rev>.diff'),
+            ('patch',       '/<repo>/commit/<rev>.patch'),
             ('history',     '/<repo>/'),
             ('history',     '/<repo>/tree/<rev>/'),
             ('history',     '/<repo>/tree/<rev>/<path:path>'),

@@ -90,6 +90,14 @@ class CommitView(BaseRepoView):
     template_name = 'view_commit.html'
 
 
+class PatchView(BaseRepoView):
+    def get_response(self):
+        return Response(
+            self.context['repo'].raw_commit_diff(self.context['commit']),
+            mimetype='text/plain',
+        )
+
+
 class TreeViewMixin(object):
     """The logic required for displaying the current directory in the sidebar."""
     def make_template_context(self, *args):
