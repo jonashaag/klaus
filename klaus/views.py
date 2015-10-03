@@ -42,9 +42,8 @@ class BaseRepoView(View):
     is "/foo/bar", only commits related to "/foo/bar" are displayed, and if
     `rev` is "master", the history of the "master" branch is displayed.
     """
-    def __init__(self, view_name, template_name=None):
+    def __init__(self, view_name):
         self.view_name = view_name
-        self.template_name = template_name
         self.context = {}
 
     def dispatch_request(self, repo, rev=None, path=''):
@@ -87,6 +86,10 @@ class BaseRepoView(View):
         }
 
 
+class CommitView(BaseRepoView):
+    template_name = 'view_commit.html'
+
+
 class TreeViewMixin(object):
     """The logic required for displaying the current directory in the sidebar."""
     def make_template_context(self, *args):
@@ -111,6 +114,8 @@ class TreeViewMixin(object):
 
 class HistoryView(TreeViewMixin, BaseRepoView):
     """Show commits of a branch + path, just like `git log`. With pagination."""
+    template_name = 'history.html'
+
     def make_template_context(self, *args):
         super(HistoryView, self).make_template_context(*args)
 
@@ -188,6 +193,8 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
 
 class FileView(BaseFileView):
     """Shows a file rendered using ``pygmentize``."""
+    template_name = 'view_blob.html'
+
     def make_template_context(self, *args):
         super(FileView, self).make_template_context(*args)
         if self.context['can_render']:
@@ -205,6 +212,8 @@ class FileView(BaseFileView):
 
 
 class BlameView(BaseFileView):
+    template_name = 'blame_blob.html'
+
     def make_template_context(self, *args):
         super(BlameView, self).make_template_context(*args)
         if self.context['can_render']:
@@ -254,9 +263,10 @@ class DownloadView(BaseRepoView):
         )
 
 
-history = HistoryView.as_view('history', 'history', 'history.html')
-commit = BaseRepoView.as_view('commit', 'commit', 'view_commit.html')
-blame = BlameView.as_view('blame', 'blame', 'blame_blob.html')
-blob = FileView.as_view('blob', 'blob', 'view_blob.html')
+history = HistoryView.as_view('history', 'history')
+commit = CommitView.as_view('commit', 'commit')
+patch = PatchView.as_view('patch', 'patch')
+blame = BlameView.as_view('blame', 'blame')
+blob = FileView.as_view('blob', 'blob')
 raw = RawView.as_view('raw', 'raw')
 download = DownloadView.as_view('download', 'download')
