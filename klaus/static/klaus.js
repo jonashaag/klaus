@@ -48,6 +48,11 @@ var highlight_linenos = function(opts) {
 
     a.onmouseover = associatedLine.onmouseover = highlight;
     a.onmouseout  = associatedLine.onmouseout  = unhighlight;
+
+    // Initial highlight
+    if (a.getAttribute('href') == location.hash) {
+      highlight();
+    }
   });
 
 
