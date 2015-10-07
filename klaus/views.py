@@ -8,10 +8,20 @@ from werkzeug.exceptions import NotFound
 
 from dulwich.objects import Blob
 
+try:
+    import ctags
+    from klaus import ctagscache
+except ImportError:
+    ctags = None
+
 from klaus import markup, tarutils
 from klaus.highlighting import pygmentize
 from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
                         guess_is_image, replace_dupes
+
+
+if ctags:
+    CTAGS_CACHE = ctagscache.CTagsCache()
 
 
 def repo_list():
@@ -177,10 +187,31 @@ class BaseBlobView(BaseRepoView):
 class BaseFileView(TreeViewMixin, BaseBlobView):
     """Base for FileView and BlameView."""
     def render_code(self, render_markup):
+        should_use_ctags = current_app.should_use_ctags(self.context['repo'],
+                                                        self.context['commit'])
+        if should_use_ctags:
+            ctags_base_url = url_for(
+                self.view_name,
+                repo=self.context['repo'].name,
+                rev=self.context['rev'],
+                path=''
+            )
+            ctags_tagsfile = CTAGS_CACHE.get_tagsfile(
+                self.context['repo'].path,
+                self.context['commit'].id
+            )
+            ctags_args = {
+                'ctags': ctags.CTags(ctags_tagsfile),
+                'ctags_baseurl': ctags_base_url,
+            }
+        else:
+            ctags_args = {}
+
         return pygmentize(
             force_unicode(self.context['blob_or_tree'].data),
             self.context['filename'],
             render_markup,
+            **ctags_args
         )
 
     def make_template_context(self, *args):

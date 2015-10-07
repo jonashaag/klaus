@@ -188,6 +188,7 @@ a.commit { color: black !important; }
 .blobview table, .blameview table { border: 1px solid #e0e0e0; }
 .blobview .code, .blameview .code { padding: 0; width: 100%; }
 .blobview .code .line, .blameview .code .line { padding: 0 5px 0 10px; }
+.blobview .code a, .blameview .code a { color: inherit; }
 .blobview .linenos, .blameview .linenos { border: 1px solid #e0e0e0; padding: 0; }
 
 

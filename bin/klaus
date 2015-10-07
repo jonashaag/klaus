@@ -33,6 +33,9 @@ def make_parser():
                         default=False, action='store_true')
     parser.add_argument('-B', '--with-browser', help="specify which browser to use with --browser",
                         metavar='BROWSER', default=None)
+    parser.add_argument('--ctags', help="enable ctags for which revisions? default: none. "
+                                        "WARNING: Don't use 'ALL' for public servers!",
+                        choices=['none', 'tags-and-branches', 'ALL'], default='none')
 
     parser.add_argument('repos', help='repositories to serve',
                         metavar='DIR', nargs='*', type=git_repository)
@@ -53,7 +56,7 @@ def main():
     args = make_parser().parse_args()
 
     if args.htdigest and not args.smarthttp:
-        print >> sys.stderr, "--htdigest option has no effect without --smarthttp enabled"
+        print >> sys.stderr, "ERROR: --htdigest option has no effect without --smarthttp enabled"
         return 1
 
     if not args.repos:
@@ -62,11 +65,22 @@ def main():
     if not args.site_name:
         args.site_name = '%s:%d' % (args.host, args.port)
 
+    if args.ctags != 'none':
+        from klaus.ctags import check_have_exuberant_ctags
+        if not check_have_exuberant_ctags():
+            print >> sys.stderr, "ERROR: Exuberant ctags not installed (or 'ctags' binary isn't *Exuberant* ctags)"
+            return 1
+        try:
+            import ctags
+        except ImportError:
+            raise ImportError("Please install 'python-ctags' to enable ctags support.")
+
     app = make_app(
         args.repos,
         force_unicode(args.site_name or args.host),
         args.smarthttp,
-        args.htdigest
+        args.htdigest,
+        ctags_policy=args.ctags,
     )
 
     if args.browser:
