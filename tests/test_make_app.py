@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import tempfile
 import shutil
@@ -34,14 +35,15 @@ def test_unauthenticated_push_with_disable_push():
 def options_test(make_app_args, expected_permissions):
     def test():
         with serve(**make_app_args):
-            for action, permitted in expected_permissions.items():
-                if action.endswith('auth'):
-                    actions = [action]
+            for check, permitted in expected_permissions.items():
+                if check in globals():
+                    checks = [check]
+                elif check.endswith('auth'):
+                    checks = ['can_%s' % check]
                 else:
-                    actions = [action + '_unauth', action + '_auth']
-                for action in actions:
-                    funcname = 'can_%s' % action
-                    assert globals()[funcname]() == permitted
+                    checks = ['can_%s_unauth' % check, 'can_%s_auth' % check]
+                for check in checks:
+                    assert globals()[check]() == permitted
     return test
 
 
@@ -72,6 +74,19 @@ test_smart_auth = options_test(
 test_smart_auth_disable_push = options_test(
     {'require_browser_auth': True, 'use_smarthttp': True, 'disable_push': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach_auth': True, 'reach_unauth': False, 'clone_auth': True, 'clone_unauth': False, 'push': False}
+)
+
+test_ctags_disabled = options_test(
+    {},
+    {'ctags_tags_and_branches': False, 'ctags_all': False}
+)
+test_ctags_tags_and_branches = options_test(
+    {'ctags_policy': 'tags-and-branches'},
+    {'ctags_tags_and_branches': True, 'ctags_all': False}
+)
+test_ctags_all = options_test(
+    {'ctags_policy': 'ALL'},
+    {'ctags_tags_and_branches': True, 'ctags_all': True}
 )
 
 
@@ -115,6 +130,29 @@ def _can_push(http_get, url):
       _check_http200(http_get, TEST_REPO_URL + "git-receive-pack"),
       subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
     ])
+
+
+# Ctags
+def ctags_tags_and_branches():
+    return all(
+        _ctags_enabled(ref, f)
+        for ref in ["master", "tag1"] for f in ["test.c", "test.js"]
+    )
+
+
+def ctags_all():
+    all_refs = re.findall('href=".+/commit/([a-z0-9]{40})/">',
+                          requests.get(UNAUTH_TEST_REPO_URL).content)
+    assert len(all_refs) == 3
+    return all(
+        _ctags_enabled(ref, f)
+        for ref in all_refs for f in ["test.c", "test.js"]
+    )
+
+def _ctags_enabled(ref, filename):
+    response = requests.get(UNAUTH_TEST_REPO_URL + "blob/%s/%s" % (ref, filename))
+    href = '<a href="/%sblob/%s/%s#L-1">' % (TEST_REPO_URL, ref, filename)
+    return href in response.content
 
 
 def _GET_unauth(url=""):

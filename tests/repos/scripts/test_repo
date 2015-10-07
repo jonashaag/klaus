@@ -1,6 +1,13 @@
 #!/bin/bash -e
 git init
 
-echo Hello World > README
-git add README
-git commit -m "First commit"
+echo "int a;" > test.c
+echo "function test() {}" > test.js
+git add test.c
+git add test.js
+git commit -m "Add some code"
+
+git commit --allow-empty -m "Empty commit 1"
+git tag tag1
+
+git commit --allow-empty -m "Empty commit 2"
