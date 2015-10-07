@@ -92,6 +92,12 @@ class FancyRepo(dulwich.repo.Repo):
         """Return a list of tag names of this repo, ordered by creation time."""
         return self.get_ref_names_ordered_by_last_commit('refs/tags')
 
+    def get_tag_and_branch_shas(self):
+        """Return a list of SHAs of all tags and branches."""
+        tag_shas = self.refs.as_dict('refs/tags/').values()
+        branch_shas = self.refs.as_dict('refs/heads/').values()
+        return tag_shas + branch_shas
+
     def history(self, commit, path=None, max_commits=None, skip=0):
         """Return a list of all commits that affected `path`, starting at branch
         or commit `commit`. `skip` can be used for pagination, `max_commits`
