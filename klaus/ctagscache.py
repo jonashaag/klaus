@@ -32,7 +32,7 @@ import tempfile
 import threading
 import gzip
 from dulwich.lru_cache import LRUSizeCache
-from klaus.ctags import create_tagsfile, delete_tagsfile
+from klaus.ctagsutils import create_tagsfile, delete_tagsfile
 
 
 # Good compression while taking only 10% more time than level 1
