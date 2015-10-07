@@ -16,8 +16,9 @@ class Klaus(flask.Flask):
     }
 
     def __init__(self, repo_paths, site_name, use_smarthttp):
-        self.repos = [FancyRepo(path) for path in repo_paths]
-        self.repo_map = dict((repo.name, repo) for repo in self.repos)
+        """(See `make_app` for parameter descriptions.)"""
+        repo_objs = [FancyRepo(path) for path in repo_paths]
+        self.repos = dict((repo.name, repo) for repo in repo_objs)
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
 
@@ -26,7 +27,7 @@ class Klaus(flask.Flask):
         self.setup_routes()
 
     def create_jinja_environment(self):
-        """ Called by Flask.__init__ """
+        """Called by Flask.__init__"""
         env = super(Klaus, self).create_jinja_environment()
         for func in [
             'force_unicode',
@@ -65,13 +66,13 @@ class Klaus(flask.Flask):
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
 
-def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None,
+def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
              require_browser_auth=False, disable_push=False, unauthenticated_push=False):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
     already patched in.
 
-    :param repos: List of paths of repositories to serve.
+    :param repo_paths: List of paths of repositories to serve.
     :param site_name: Name of the Web site (e.g. "John Doe's Git Repositories")
     :param use_smarthttp: Enable Git Smart HTTP mode, which makes it possible to
         pull from the served repositories. If `htdigest_file` is set as well,
@@ -96,7 +97,7 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None,
         raise ValueError("'htdigest_file' set without 'use_smarthttp' or 'require_browser_auth'")
 
     app = Klaus(
-        repos,
+        repo_paths,
         site_name,
         use_smarthttp,
     )
@@ -105,7 +106,7 @@ def make_app(repos, site_name, use_smarthttp=False, htdigest_file=None,
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
-            dict(('/'+repo.name, repo) for repo in app.repos)
+            dict(('/'+name, repo) for name, repo in app.repos.items())
         )
         # Dulwich takes care of all Git related requests/URLs
         # and passes through everything else to klaus

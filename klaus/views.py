@@ -1,6 +1,6 @@
 import os
 
-from flask import request, render_template, current_app
+from flask import request, render_template, current_app, url_for
 from flask.views import View
 
 from werkzeug.wrappers import Response
@@ -9,8 +9,9 @@ from werkzeug.exceptions import NotFound
 from dulwich.objects import Blob
 
 from klaus import markup, tarutils
-from klaus.utils import parent_directory, subpaths, pygmentize, encode_for_git, \
-                        force_unicode, guess_is_binary, guess_is_image, replace_dupes
+from klaus.highlighting import pygmentize
+from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
+                        guess_is_image, replace_dupes
 
 
 def repo_list():
@@ -21,7 +22,7 @@ def repo_list():
     else:
         sort_key = lambda repo: repo.name
         reverse = False
-    repos = sorted(current_app.repos, key=sort_key, reverse=reverse)
+    repos = sorted(current_app.repos.values(), key=sort_key, reverse=reverse)
     return render_template('repo_list.html', repos=repos)
 
 
@@ -55,7 +56,7 @@ class BaseRepoView(View):
 
     def make_template_context(self, repo, rev, path):
         try:
-            repo = current_app.repo_map[repo]
+            repo = current_app.repos[repo]
         except KeyError:
             raise NotFound("No such repository %r" % repo)
 
@@ -175,6 +176,13 @@ class BaseBlobView(BaseRepoView):
 
 class BaseFileView(TreeViewMixin, BaseBlobView):
     """Base for FileView and BlameView."""
+    def render_code(self, render_markup):
+        return pygmentize(
+            force_unicode(self.context['blob_or_tree'].data),
+            self.context['filename'],
+            render_markup,
+        )
+
     def make_template_context(self, *args):
         super(BaseFileView, self).make_template_context(*args)
         self.context.update({
@@ -207,15 +215,10 @@ class FileView(BaseFileView):
         super(FileView, self).make_template_context(*args)
         if self.context['can_render']:
             render_markup = 'markup' not in request.args
-            rendered_code = pygmentize(
-                force_unicode(self.context['blob_or_tree'].data),
-                self.context['filename'],
-                render_markup
-            )
             self.context.update({
                 'is_markup': markup.can_render(self.context['filename']),
                 'render_markup': render_markup,
-                'rendered_code': rendered_code,
+                'rendered_code': self.render_code(render_markup),
             })
 
 
@@ -225,15 +228,10 @@ class BlameView(BaseFileView):
     def make_template_context(self, *args):
         super(BlameView, self).make_template_context(*args)
         if self.context['can_render']:
-            rendered_code = pygmentize(
-                force_unicode(self.context['blob_or_tree'].data),
-                self.context['filename'],
-                render_markup=False,
-            )
             line_commits = self.context['repo'].blame(self.context['commit'], self.context['path'])
             replace_dupes(line_commits, None)
             self.context.update({
-                'rendered_code': rendered_code,
+                'rendered_code': self.render_code(render_markup=False),
                 'line_commits': line_commits,
             })
 

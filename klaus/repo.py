@@ -70,18 +70,17 @@ class FancyRepo(dulwich.repo.Repo):
         """Return a list of ref names that begin with `prefix`, ordered by the
         time they have been committed to last.
         """
-        refs = self.refs.as_dict(encode_for_git(prefix))
-        if exclude:
-            refs.pop(prefix + exclude, None)
-
         def get_commit_time(refname):
             obj = self[refs[refname]]
             if isinstance(obj, dulwich.objects.Tag):
                 return obj.tag_time
             return obj.commit_time
 
-        return [decode_from_git(ref) for ref in
-                sorted(refs.keys(), key=get_commit_time, reverse=True)]
+        refs = self.refs.as_dict(encode_for_git(prefix))
+        if exclude:
+            refs.pop(prefix + exclude, None)
+        sorted_names = sorted(refs.keys(), key=get_commit_time, reverse=True)
+        return [decode_from_git(ref) for ref in sorted_names]
 
     def get_branch_names(self, exclude=None):
         """Return a list of branch names of this repo, ordered by the time they

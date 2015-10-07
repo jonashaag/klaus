@@ -4,7 +4,7 @@ import tarfile
 from io import BytesIO
 from contextlib import closing
 
-from klaus.utils import encode_for_git, decode_from_git
+from klaus.utils import decode_from_git
 
 
 class ListBytesIO(object):

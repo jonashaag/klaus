@@ -147,7 +147,7 @@ class DiffRenderer(object):
 
                         # Skip "no newline at end of file" markers
                         line = next(lineiter)
-                        if line == "\ No newline at end of file":
+                        if line == r"\ No newline at end of file":
                             lines[-1]['no_newline'] = True
                             line = next(lineiter)
 

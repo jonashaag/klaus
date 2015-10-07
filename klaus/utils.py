@@ -11,13 +11,7 @@ try:
 except ImportError:
     chardet = None
 
-from pygments import highlight
-from pygments.lexers import get_lexer_for_filename, guess_lexer, ClassNotFound, TextLexer
-from pygments.formatters import HtmlFormatter
-
 from humanize import naturaltime
-
-from klaus import markup
 
 
 class SubUri(object):
@@ -52,36 +46,6 @@ class SubUri(object):
             environ['wsgi.url_scheme'] = environ['HTTP_X_SCHEME']
 
         return self.app(environ, start_response)
-
-
-class KlausFormatter(HtmlFormatter):
-    def __init__(self):
-        HtmlFormatter.__init__(self, linenos='table', lineanchors='L',
-                               linespans='L', anchorlinenos=True)
-
-    def _format_lines(self, tokensource):
-        for tag, line in HtmlFormatter._format_lines(self, tokensource):
-            if tag == 1:
-                # sourcecode line
-                line = '<span class=line>%s</span>' % line
-            yield tag, line
-
-
-def pygmentize(code, filename=None, render_markup=True):
-    """Render code using Pygments, markup (markdown, rst, ...) using the
-    corresponding renderer, if available.
-    """
-    if render_markup and markup.can_render(filename):
-        return markup.render(filename, code)
-
-    try:
-        lexer = get_lexer_for_filename(filename, code)
-    except ClassNotFound:
-        try:
-            lexer = guess_lexer(code)
-        except ClassNotFound:
-            lexer = TextLexer()
-    return highlight(code, lexer, KlausFormatter())
 
 
 def timesince(when, now=time.time):
@@ -155,7 +119,7 @@ def extract_author_name(email):
 
 
 def shorten_sha1(sha1):
-    if re.match('[a-z\d]{20,40}', sha1):
+    if re.match(r'[a-z\d]{20,40}', sha1):
         sha1 = sha1[:7]
     return sha1
 
