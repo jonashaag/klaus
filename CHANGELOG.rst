@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.7.0 (Oct 7, 2015)
+-------------------
+* Add ctags support (see wiki) (Jonas Haag)
+* Append ".diff" or ".patch" to a commit URL and you'll be given a plaintext patch
+  (like you can do at GitHub) (Jonas Haag)
+* Fix JavaScript line highlighter after window reload (Jonas Haag)
+
 0.6.0 (Aug 6, 2015)
 --------------------
 * Basic blame view (Martin Zimmermann, Jonas Haag)
