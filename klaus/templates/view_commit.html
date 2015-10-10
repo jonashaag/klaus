@@ -33,7 +33,7 @@
       and <span class=deletions>{{ summary.ndeletions }} deletion(s)</span>.
     </span>
     <span>
-      <a href="{{ request.path.rstrip('/') }}.diff">Raw diff</a>
+      <a href="{{ url_for('commit', repo=repo.name, rev=rev).rstrip('/') }}.diff">Raw diff</a>
     </span>
     <span>
       <a href=# onclick="toggler.collapseAll('.file'); return false">Collapse all</a>
