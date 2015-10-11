@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.7.1 (Oct 11, 2015)
+--------------------
+* Fix #136: wrong .diff URL generated if klaus is mounted under a prefix (John Ko)
+
 0.7.0 (Oct 7, 2015)
 -------------------
 * Add ctags support (see wiki) (Jonas Haag)
