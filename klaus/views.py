@@ -10,18 +10,16 @@ from dulwich.objects import Blob
 
 try:
     import ctags
-    from klaus import ctagscache
 except ImportError:
     ctags = None
+else:
+    from klaus import ctagscache
+    CTAGS_CACHE = ctagscache.CTagsCache()
 
 from klaus import markup, tarutils
 from klaus.highlighting import pygmentize
 from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
                         guess_is_image, replace_dupes
-
-
-if ctags:
-    CTAGS_CACHE = ctagscache.CTagsCache()
 
 
 def repo_list():
@@ -190,6 +188,8 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
         should_use_ctags = current_app.should_use_ctags(self.context['repo'],
                                                         self.context['commit'])
         if should_use_ctags:
+            if ctags is None:
+                raise ImportError("Ctags enabled but python-ctags not installed")
             ctags_base_url = url_for(
                 self.view_name,
                 repo=self.context['repo'].name,
