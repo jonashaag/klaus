@@ -88,3 +88,8 @@ Gunicorn example::
 See also `deployment section in the wiki <https://github.com/jonashaag/klaus/wiki#deployment>`_.
 
 .. _wsgiref: http://docs.python.org/library/wsgiref.html
+
+
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/jonashaag/klaus
+   :target: https://gitter.im/jonashaag/klaus?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
