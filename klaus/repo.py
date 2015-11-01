@@ -2,6 +2,7 @@ import os
 import io
 import stat
 
+from dulwich.object_store import tree_lookup_path
 import dulwich, dulwich.patch
 
 from klaus.utils import check_output, force_unicode, parent_directory, encode_for_git, decode_from_git
@@ -137,15 +138,9 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_blob_or_tree(self, commit, path):
         """Return the Git tree or blob object for `path` at `commit`."""
-        tree_or_blob = self[commit.tree]  # Still a tree here but may turn into
-                                          # a blob somewhere in the loop.
-        for part in path.strip('/').split('/'):
-            if part:
-                if isinstance(tree_or_blob, dulwich.objects.Blob):
-                    # Blobs don't have sub-files/folders.
-                    raise KeyError
-                tree_or_blob = self[tree_or_blob[encode_for_git(part)][1]]
-        return tree_or_blob
+        (mode, oid) = tree_lookup_path(self.__getitem__, commit.tree,
+            encode_for_git(path))
+        return self[oid]
 
     def listdir(self, commit, path):
         """Return a list of directories and files in given directory."""
