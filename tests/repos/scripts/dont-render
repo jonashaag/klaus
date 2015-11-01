@@ -13,4 +13,4 @@ git add image.jpg
 yes | head -n 102400 > toolarge
 git add toolarge
 
-git commit -am first
+git commit --no-gpg-sign -am first

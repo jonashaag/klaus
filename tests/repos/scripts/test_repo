@@ -5,9 +5,9 @@ echo "int a;" > test.c
 echo "function test() {}" > test.js
 git add test.c
 git add test.js
-git commit -m "Add some code"
+git commit --no-gpg-sign -m "Add some code"
 
-git commit --allow-empty -m "Empty commit 1"
+git commit --no-gpg-sign --allow-empty -m "Empty commit 1"
 git tag tag1
 
-git commit --allow-empty -m "Empty commit 2"
+git commit --no-gpg-sign --allow-empty -m "Empty commit 2"
