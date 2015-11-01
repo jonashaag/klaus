@@ -35,7 +35,7 @@ def repo_list():
 
 
 def robots_txt():
-    """Serve the robots.txt file to manage the indexing of the site by search enginges."""
+    """Serve the robots.txt file to manage the indexing of the site by search engines."""
     return current_app.send_static_file('robots.txt')
 
 

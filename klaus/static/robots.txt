@@ -5,3 +5,6 @@ Allow: /*/raw/master/
 Disallow: /*/tree/
 Disallow: /*/blob/
 Disallow: /*/raw/
+Disallow: /*/blame/
+Disallow: /*/commit/
+Disallow: /*/tarball/

@@ -49,6 +49,7 @@ class Klaus(flask.Flask):
     def setup_routes(self):
         for endpoint, rule in [
             ('repo_list',   '/'),
+            ('robots_txt',  '/robots.txt/'),
             ('blob',        '/<repo>/blob/<rev>/'),
             ('blob',        '/<repo>/blob/<rev>/<path:path>'),
             ('blame',       '/<repo>/blame/<rev>/'),
@@ -61,7 +62,6 @@ class Klaus(flask.Flask):
             ('history',     '/<repo>/'),
             ('history',     '/<repo>/tree/<rev>/'),
             ('history',     '/<repo>/tree/<rev>/<path:path>'),
-            ('robots_txt',  '/robots.txt/'),
             ('download',    '/<repo>/tarball/<rev>/'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
