@@ -23,18 +23,18 @@ def test_no_newline_at_end_of_file():
 
 
 def test_dont_render_binary():
-  with serve():
-    response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/binary").content
-    assert "Binary data not shown" in response
+    with serve():
+        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/binary").content
+        assert "Binary data not shown" in response
 
 
 def test_render_image():
-  with serve():
-    response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/image.jpg").content
-    assert '<img src="/dont-render/raw/HEAD/image.jpg"' in response
+    with serve():
+        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/image.jpg").content
+        assert '<img src="/dont-render/raw/HEAD/image.jpg"' in response
 
 
 def test_dont_render_large_file():
-  with serve():
-    response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/toolarge").content
-    assert "Large file not shown" in response
+    with serve():
+        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/toolarge").content
+        assert "Large file not shown" in response

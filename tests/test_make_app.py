@@ -100,10 +100,10 @@ def can_reach_auth():
 
 # Clone
 def can_clone_unauth():
-  return _can_clone(_GET_unauth, UNAUTH_TEST_REPO_URL)
+    return _can_clone(_GET_unauth, UNAUTH_TEST_REPO_URL)
 
 def can_clone_auth():
-  return _can_clone(_GET_auth, AUTH_TEST_REPO_URL)
+    return _can_clone(_GET_auth, AUTH_TEST_REPO_URL)
 
 def _can_clone(http_get, url):
     tmp = tempfile.mkdtemp()
