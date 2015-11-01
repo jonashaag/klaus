@@ -3,6 +3,7 @@ import io
 import stat
 
 from dulwich.object_store import tree_lookup_path
+from dulwich.errors import NotTreeError
 import dulwich, dulwich.patch
 
 from klaus.utils import check_output, force_unicode, parent_directory, encode_for_git, decode_from_git
@@ -138,8 +139,13 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_blob_or_tree(self, commit, path):
         """Return the Git tree or blob object for `path` at `commit`."""
-        (mode, oid) = tree_lookup_path(self.__getitem__, commit.tree,
-            encode_for_git(path))
+        try:
+            (mode, oid) = tree_lookup_path(self.__getitem__, commit.tree,
+                                           encode_for_git(path))
+        except NotTreeError:
+            # Some part of the path was a file where a folder was expected.
+            # Example: path="/path/to/foo.txt" but "to" is a file in "/path".
+            raise KeyError
         return self[oid]
 
     def listdir(self, commit, path):
