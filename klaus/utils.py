@@ -5,13 +5,56 @@ import time
 import datetime
 import mimetypes
 import locale
+import warnings
 import six
 try:
     import chardet
 except ImportError:
     chardet = None
 
+from werkzeug.contrib.fixers import ProxyFix as WerkzeugProxyFix
 from humanize import naturaltime
+
+
+class ProxyFix(WerkzeugProxyFix):
+    """This middleware can be applied to add HTTP (reverse) proxy support to a
+    WSGI application (klaus), making it possible to:
+
+    * Mount it under a sub-URL (http://example.com/git/...)
+    * Use a different HTTP scheme (HTTP vs. HTTPS)
+    * Make it appear under a different domain altogether
+
+    It sets `REMOTE_ADDR`, `HTTP_HOST` and `wsgi.url_scheme` from `X-Forwarded-*`
+    headers.  It also sets `SCRIPT_NAME` from the `X-Script-Name` header.
+
+    For instance if you have klaus mounted under /git/ and your site uses SSL
+    (but your proxy doesn't), make the proxy pass ::
+
+        X-Script-Name = '/git'
+        X-Forwarded-Proto = 'https'
+        ...
+
+    If you have more than one proxy server in front of your app, set
+    `num_proxies` accordingly.
+
+    Do not use this middleware in non-proxy setups for security reasons.
+
+    The original values of `REMOTE_ADDR` and `HTTP_HOST` are stored in
+    the WSGI environment as `werkzeug.proxy_fix.orig_remote_addr` and
+    `werkzeug.proxy_fix.orig_http_host`.
+
+    :param app: the WSGI application
+    :param num_proxies: the number of proxy servers in front of the app.
+    """
+    def __call__(self, environ, start_response):
+        script_name = environ.get('HTTP_X_SCRIPT_NAME', '')
+        if script_name.endswith('/'):
+              warnings.warn(
+                  "'X-Script-Name' header should not end in '/' (found: %r). "
+                  "Please fix your proxy's configuration." % script_name)
+              script_name = script_name.rstrip('/')
+        environ['SCRIPT_NAME'] = script_name
+        return super(ProxyFix, self).__call__(environ, start_response)
 
 
 class SubUri(object):
@@ -31,6 +74,11 @@ class SubUri(object):
     Snippet stolen from http://flask.pocoo.org/snippets/35/
     """
     def __init__(self, app):
+        warnings.warn(
+            "'klaus.utils.SubUri' is deprecated and will be removed. "
+            "Please upgrade your code to use 'klaus.utils.ProxyFix' instead.",
+            DeprecationWarning
+        )
         self.app = app
 
     def __call__(self, environ, start_response):
