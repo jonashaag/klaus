@@ -120,7 +120,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
         use_smarthttp,
         ctags_policy,
     )
-    app.wsgi_app = utils.SubUri(app.wsgi_app)
+    app.wsgi_app = utils.ProxyFix(app.wsgi_app)
 
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
@@ -133,7 +133,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
             backend=dulwich_backend,
             fallback_app=app.wsgi_app,
         )
-        dulwich_wrapped_app = utils.SubUri(dulwich_wrapped_app)
+        dulwich_wrapped_app = utils.ProxyFix(dulwich_wrapped_app)
 
         # `receive-pack` is requested by the "client" on a push
         # (the "server" is asked to *receive* packs), i.e. we need to secure
