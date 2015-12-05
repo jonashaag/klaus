@@ -9,7 +9,7 @@ import webbrowser
 from dulwich.errors import NotGitRepository
 from dulwich.repo import Repo
 
-from klaus import make_app
+from klaus import make_app, KLAUS_VERSION
 from klaus.utils import force_unicode
 
 
@@ -29,6 +29,7 @@ def make_parser():
     parser.add_argument('--host',     help="default: 127.0.0.1", default='127.0.0.1')
     parser.add_argument('--port',     help="default: 8080", default=8080, type=int)
     parser.add_argument('--site-name', help="site name showed in header. default: your hostname")
+    parser.add_argument('--version', help='print version number', action='store_true')
     parser.add_argument('-b', '--browser', help="open klaus in a browser on server start",
                         default=False, action='store_true')
     parser.add_argument('-B', '--with-browser', help="specify which browser to use with --browser",
@@ -54,6 +55,10 @@ def make_parser():
 
 def main():
     args = make_parser().parse_args()
+
+    if args.version:
+        print KLAUS_VERSION
+        return 0
 
     if args.htdigest and not args.smarthttp:
         print >> sys.stderr, "ERROR: --htdigest option has no effect without --smarthttp enabled"
