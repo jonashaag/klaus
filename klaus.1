@@ -1,0 +1,55 @@
+.TH KLAUS "1" "December 2015" "klaus 4e82832" "User Commands"
+.SH NAME
+klaus \- easy to set up Git web viewer
+.SH SYNOPSIS
+.B klaus
+[\fIOPTION\fR]... [\fIDIR\fR]...
+.SH DESCRIPTION
+Klaus is a simple and easy-to-set-up Git web viewer that Just Works\(tm.
+.PP
+Note that the klaus binary just starts a test instance. The klaus script uses
+wsgiref internally which doesn't scale at all - it's single-threaded and
+non-asynchronous.
+.PP
+It supports syntax highlighting and Git Smart HTTP.
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show this help message and exit
+.TP
+\fB\-\-host\fR HOST
+default: 127.0.0.1
+.TP
+\fB\-\-port\fR PORT
+default: 8080
+.TP
+\fB\-\-site\-name\fR SITE_NAME
+site name showed in header. default: your hostname
+.TP
+\fB\-\-version\fR
+print version number
+.TP
+\fB\-b\fR, \fB\-\-browser\fR
+open klaus in a browser on server start
+.TP
+\fB\-B\fR BROWSER, \fB\-\-with\-browser\fR BROWSER
+specify which browser to use with \fB\-\-browser\fR
+.TP
+\fB\-\-ctags\fR {none,tags\-and\-branches,ALL}
+enable ctags for which revisions? default: none.
+WARNING: Don't use 'ALL' for public servers!
+.SS "Git Smart HTTP:"
+.TP
+\fB\-\-smarthttp\fR
+enable Git Smart HTTP serving
+.TP
+\fB\-\-htdigest\fR FILE
+use credentials from FILE
+.SS "Development flags:"
+.IP
+DO NOT USE IN PRODUCTION!
+.TP
+\fB\-\-debug\fR
+Enable Werkzeug debugger and reloader
+.SH AUTHORS
+Copyright \(co 2011-2015 Jonas Haag <jonas@lophus.org> and contributors (see Git logs).
