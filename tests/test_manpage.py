@@ -1,11 +1,11 @@
 import klaus_cli
 import mock
-import subprocess
+from klaus.utils import check_output
 import re
 
 
 def test_covers_all_cli_options():
-    manpage = subprocess.check_output(["man", "./klaus.1"])
+    manpage = check_output(["man", "./klaus.1"])
 
     def assert_in_manpage(s):
         clean = lambda x: re.sub('(.\\x08)|\s', '', x)
