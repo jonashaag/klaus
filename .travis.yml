@@ -9,8 +9,7 @@ addons:
     - exuberant-ctags
 install:
   - "pip install ."
-  - "pip install requests"
-  - "pip install python-ctags"
+  - "pip install -r test_requirements.txt"
 script:
   - git config --global user.email "you@example.com"
   - git config --global user.name "Your Name"
