@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.7.2 (TBA)
+-----------
+* Deprecated ``klaus.utils.SubUri`` in favor of the new ``klaus.utils.ProxyFix``,
+  which correctly handles ``SCRIPT_NAME``. For details on how to use the new ``ProxyFix``,
+  see  `Klaus behind a reverse proxy <https://github.com/jonashaag/klaus/wiki/Klaus-behind-a-reverse-proxy>`_.
+* Add man page. (Jelmer Vernooij)
+* Add ``--version`` command line option (Jelmer Vernooij)
+* Improve error message when ctags is enabled but not installed (Jonas Haag)
+* Add a few missing entries to the default robots.txt (Jonas Haag)
+
 0.7.1 (Oct 11, 2015)
 --------------------
 * Fix #136: wrong .diff URL generated if klaus is mounted under a prefix (John Ko)
