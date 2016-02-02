@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.7.2 (TBA)
+0.8.0 (Feb 2, 2016)
 -----------
 * #140, #145: Deprecate ``klaus.utils.SubUri`` in favor of the new ``klaus.utils.ProxyFix``,
   which correctly handles ``SCRIPT_NAME``. For details on how to use the new ``ProxyFix``,
