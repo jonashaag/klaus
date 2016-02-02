@@ -25,7 +25,7 @@ Please do it!
 I'm equally happy with bug reports/feature ideas and code contributions.
 If you have any questions/issues, I'm happy to help!
 
-For starters, `here are a few ideas what to work on. <https://github.com/jonashaag/klaus/issues>`_ :-)
+For starters, `here are a few ideas what to work on. <https://github.com/jonashaag/klaus/issues?q=is%3Aissue+is%3Aopen+label%3A%22C%3A+1%22>`_ :-)
 
 Features
 --------
