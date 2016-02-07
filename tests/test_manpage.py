@@ -1,11 +1,15 @@
-import klaus_cli
-import mock
-from klaus.utils import check_output
+import sys
 import re
+import klaus_cli
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+from klaus.utils import check_output, force_unicode
 
 
 def test_covers_all_cli_options():
-    manpage = check_output(["man", "./klaus.1"])
+    manpage = force_unicode(check_output(["man", "./klaus.1"]))
 
     def assert_in_manpage(s):
         clean = lambda x: re.sub('(.\\x08)|\s', '', x)

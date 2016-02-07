@@ -16,7 +16,7 @@ def test_download():
 
 def test_no_newline_at_end_of_file():
     with serve():
-        response = requests.get(TEST_REPO_NO_NEWLINE_URL + "commit/HEAD/").content
+        response = requests.get(TEST_REPO_NO_NEWLINE_URL + "commit/HEAD/").text
         assert "No newline at end of file" in response
         assert "2<del></del>" in response
         assert "2<ins></ins>" in response
@@ -24,17 +24,17 @@ def test_no_newline_at_end_of_file():
 
 def test_dont_render_binary():
     with serve():
-        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/binary").content
+        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/binary").text
         assert "Binary data not shown" in response
 
 
 def test_render_image():
     with serve():
-        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/image.jpg").content
+        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/image.jpg").text
         assert '<img src="/dont-render/raw/HEAD/image.jpg"' in response
 
 
 def test_dont_render_large_file():
     with serve():
-        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/toolarge").content
+        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/toolarge").text
         assert "Large file not shown" in response

@@ -57,15 +57,15 @@ def main():
     args = make_parser().parse_args()
 
     if args.version:
-        print KLAUS_VERSION
+        print(KLAUS_VERSION)
         return 0
 
     if args.htdigest and not args.smarthttp:
-        print >> sys.stderr, "ERROR: --htdigest option has no effect without --smarthttp enabled"
+        print("ERROR: --htdigest option has no effect without --smarthttp enabled", file=sys.stderr)
         return 1
 
     if not args.repos:
-        print >> sys.stderr, "WARNING: No repositories supplied -- syntax is 'klaus dir1 dir2...'."
+        print("WARNING: No repositories supplied -- syntax is 'klaus dir1 dir2...'.", file=sys.stderr)
 
     if not args.site_name:
         args.site_name = '%s:%d' % (args.host, args.port)
@@ -73,7 +73,7 @@ def main():
     if args.ctags != 'none':
         from klaus.ctagsutils import check_have_exuberant_ctags
         if not check_have_exuberant_ctags():
-            print >> sys.stderr, "ERROR: Exuberant ctags not installed (or 'ctags' binary isn't *Exuberant* ctags)"
+            print("ERROR: Exuberant ctags not installed (or 'ctags' binary isn't *Exuberant* ctags)", file=sys.stderr)
             return 1
         try:
             import ctags

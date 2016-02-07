@@ -13,4 +13,4 @@ if [ -z "$tests" ]; then
   tests="tests/"
 fi
 
-py.test $tests -v
+PYTHONPATH=tests py.test $tests -v

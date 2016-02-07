@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import subprocess
 import tempfile
 import shutil
@@ -10,6 +11,9 @@ import requests
 import requests.auth
 
 from .utils import *
+
+
+xfail_py3 = pytest.mark.xfail(sys.version_info.major >= 3, reason="not supported on Python 3")
 
 
 def test_htdigest_file_without_smarthttp_or_require_browser_auth():
@@ -55,22 +59,22 @@ test_smart_noauth = options_test(
     {'use_smarthttp': True},
     {'reach': True, 'clone': True, 'push': False}
 )
-test_smart_push = options_test(
+test_smart_push = xfail_py3(options_test(
     {'use_smarthttp': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach': True, 'clone': True, 'push_auth': True, 'push_unauth': False}
-)
-test_unauthenticated_push = options_test(
+))
+test_unauthenticated_push = xfail_py3(options_test(
     {'use_smarthttp': True, 'unauthenticated_push': True},
     {'reach': True, 'clone': True, 'push': True}
-)
+))
 test_nosmart_auth = options_test(
     {'require_browser_auth': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach_auth': True, 'reach_unauth': False, 'clone': False, 'push': False}
 )
-test_smart_auth = options_test(
+test_smart_auth = xfail_py3(options_test(
     {'require_browser_auth': True, 'use_smarthttp': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach_auth': True, 'reach_unauth': False, 'clone_auth': True, 'clone_unauth': False, 'push_unauth': False, 'push_auth': True}
-)
+))
 test_smart_auth_disable_push = options_test(
     {'require_browser_auth': True, 'use_smarthttp': True, 'disable_push': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach_auth': True, 'reach_unauth': False, 'clone_auth': True, 'clone_unauth': False, 'push': False}
@@ -80,14 +84,14 @@ test_ctags_disabled = options_test(
     {},
     {'ctags_tags_and_branches': False, 'ctags_all': False}
 )
-test_ctags_tags_and_branches = options_test(
+test_ctags_tags_and_branches = xfail_py3(options_test(
     {'ctags_policy': 'tags-and-branches'},
     {'ctags_tags_and_branches': True, 'ctags_all': False}
-)
-test_ctags_all = options_test(
+))
+test_ctags_all = xfail_py3(options_test(
     {'ctags_policy': 'ALL'},
     {'ctags_tags_and_branches': True, 'ctags_all': True}
-)
+))
 
 
 # Reach
@@ -109,7 +113,7 @@ def _can_clone(http_get, url):
     tmp = tempfile.mkdtemp()
     try:
         return any([
-            b"git clone" in http_get(TEST_REPO_URL).content,
+            "git clone" in http_get(TEST_REPO_URL).text,
             _check_http200(http_get, TEST_REPO_URL + "info/refs?service=git-upload-pack"),
             subprocess.call(["git", "clone", url, tmp]) == 0,
         ])
@@ -142,7 +146,7 @@ def ctags_tags_and_branches():
 
 def ctags_all():
     all_refs = re.findall('href=".+/commit/([a-z0-9]{40})/">',
-                          requests.get(UNAUTH_TEST_REPO_URL).content)
+                          requests.get(UNAUTH_TEST_REPO_URL).text)
     assert len(all_refs) == 3
     return all(
         _ctags_enabled(ref, f)
@@ -152,7 +156,7 @@ def ctags_all():
 def _ctags_enabled(ref, filename):
     response = requests.get(UNAUTH_TEST_REPO_URL + "blob/%s/%s" % (ref, filename))
     href = '<a href="/%sblob/%s/%s#L-1">' % (TEST_REPO_URL, ref, filename)
-    return href in response.content
+    return href in response.text
 
 
 def _GET_unauth(url=""):

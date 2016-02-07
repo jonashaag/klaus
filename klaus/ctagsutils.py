@@ -8,7 +8,7 @@ from klaus.utils import check_output
 def check_have_exuberant_ctags():
     """Check that the 'ctags' binary is *Exuberant* ctags (not etags etc)"""
     try:
-        return "Exuberant" in check_output(["ctags", "--version"], stderr=subprocess.PIPE)
+        return b"Exuberant" in check_output(["ctags", "--version"], stderr=subprocess.PIPE)
     except subprocess.CalledProcessError:
         return False
 
