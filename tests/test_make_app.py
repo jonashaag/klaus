@@ -13,7 +13,7 @@ import requests.auth
 from .utils import *
 
 
-xfail_py3 = pytest.mark.xfail(sys.version_info.major >= 3, reason="not supported on Python 3")
+xfail_py3 = pytest.mark.xfail(sys.version_info[0] >= 3, reason="not supported on Python 3")
 
 
 def test_htdigest_file_without_smarthttp_or_require_browser_auth():
