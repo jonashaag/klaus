@@ -47,13 +47,14 @@ class ProxyFix(WerkzeugProxyFix):
     :param num_proxies: the number of proxy servers in front of the app.
     """
     def __call__(self, environ, start_response):
-        script_name = environ.get('HTTP_X_SCRIPT_NAME', '')
-        if script_name.endswith('/'):
-              warnings.warn(
-                  "'X-Script-Name' header should not end in '/' (found: %r). "
-                  "Please fix your proxy's configuration." % script_name)
-              script_name = script_name.rstrip('/')
-        environ['SCRIPT_NAME'] = script_name
+        script_name = environ.get('HTTP_X_SCRIPT_NAME')
+        if script_name is not None:
+            if script_name.endswith('/'):
+                  warnings.warn(
+                      "'X-Script-Name' header should not end in '/' (found: %r). "
+                      "Please fix your proxy's configuration." % script_name)
+                  script_name = script_name.rstrip('/')
+            environ['SCRIPT_NAME'] = script_name
         return super(ProxyFix, self).__call__(environ, start_response)
 
 
