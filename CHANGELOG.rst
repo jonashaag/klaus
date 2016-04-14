@@ -1,8 +1,12 @@
 Changelog
 =========
 
+0.9.1 (Apr 14, 2016)
+--------------------
+* #155: Do not change SCRIPT_NAME if HTTP_X_SCRIPT_NAME isn't set (Louis Sautier)
+
 0.8.0 (Feb 2, 2016)
------------
+-------------------
 * #140, #145: Deprecate ``klaus.utils.SubUri`` in favor of the new ``klaus.utils.ProxyFix``,
   which correctly handles ``SCRIPT_NAME``. For details on how to use the new ``ProxyFix``,
   see  `Klaus behind a reverse proxy <https://github.com/jonashaag/klaus/wiki/Klaus-behind-a-reverse-proxy>`_.
