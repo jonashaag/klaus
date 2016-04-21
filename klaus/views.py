@@ -6,7 +6,8 @@ from flask.views import View
 from werkzeug.wrappers import Response
 from werkzeug.exceptions import NotFound
 
-from dulwich.objects import Blob
+import dulwich.objects
+import dulwich.archive
 
 try:
     import ctags
@@ -16,7 +17,7 @@ else:
     from klaus import ctagscache
     CTAGS_CACHE = ctagscache.CTagsCache()
 
-from klaus import markup, tarutils
+from klaus import markup
 from klaus.highlighting import pygmentize
 from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
                         guess_is_image, replace_dupes
@@ -123,7 +124,7 @@ class TreeViewMixin(object):
 
     def get_root_directory(self):
         root_directory = self.context['path']
-        if isinstance(self.context['blob_or_tree'], Blob):
+        if isinstance(self.context['blob_or_tree'], dulwich.objects.Blob):
             # 'path' is a file (not folder) name
             root_directory = parent_directory(root_directory)
         return root_directory
@@ -177,7 +178,7 @@ class HistoryView(TreeViewMixin, BaseRepoView):
 class BaseBlobView(BaseRepoView):
     def make_template_context(self, *args):
         super(BaseBlobView, self).make_template_context(*args)
-        if not isinstance(self.context['blob_or_tree'], Blob):
+        if not isinstance(self.context['blob_or_tree'], dulwich.objects.Blob):
             raise NotFound("Not a blob")
         self.context['filename'] = os.path.basename(self.context['path'])
 
@@ -287,7 +288,7 @@ class DownloadView(BaseRepoView):
             'Cache-Control': "no-store",  # Disables browser caching
         }
 
-        tar_stream = tarutils.tar_stream(
+        tar_stream = dulwich.archive.tar_stream(
             self.context['repo'],
             self.context['blob_or_tree'],
             self.context['commit'].commit_time,
