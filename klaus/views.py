@@ -40,6 +40,24 @@ def robots_txt():
     return current_app.send_static_file('robots.txt')
 
 
+def _get_repo_and_rev(repo, rev=None):
+    try:
+        repo = current_app.repos[repo]
+    except KeyError:
+        raise NotFound("No such repository %r" % repo)
+
+    if rev is None:
+        rev = repo.get_default_branch()
+        if rev is None:
+            raise NotFound("Empty repository")
+    try:
+        commit = repo.get_commit(rev)
+    except KeyError:
+        raise NotFound("No such commit %r" % rev)
+
+    return repo, rev, commit
+
+
 class BaseRepoView(View):
     """Base for all views with a repo context.
 
@@ -64,20 +82,7 @@ class BaseRepoView(View):
         return render_template(self.template_name, **self.context)
 
     def make_template_context(self, repo, rev, path):
-        try:
-            repo = current_app.repos[repo]
-        except KeyError:
-            raise NotFound("No such repository %r" % repo)
-
-        if rev is None:
-            rev = repo.get_default_branch()
-            if rev is None:
-                raise NotFound("Empty repository")
-        try:
-            commit = repo.get_commit(rev)
-        except KeyError:
-            raise NotFound("No such commit %r" % rev)
-
+        repo, rev, commit = _get_repo_and_rev(repo, rev)
         try:
             blob_or_tree = repo.get_blob_or_tree(commit, path)
         except KeyError:
