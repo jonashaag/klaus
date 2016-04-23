@@ -3,12 +3,14 @@
 body, header, #content { overflow: auto; }
 
 /* Reset */
-body { margin: 0; padding: 0; font-family: sans-serif; }
+body { margin: 0; padding: 0; font-family: 'Ubuntu', sans-serif; }
 a, a:visited { color: #003278; text-decoration: none; }
 a:hover { text-decoration: underline; }
 table { border-spacing: 0; border-collapse: collapse; }
 
-h2 > span:last-of-type { font-size: 60%; }
+h2 { font-size: medium; }
+
+h2 > span:last-of-type { font-size: x-small; }
 h2 > code:last-of-type {
   font-size: 60%;
   margin-left: 2%;
@@ -27,7 +29,7 @@ h2 > code:last-of-type {
 }
 
 /* Header */
-header { font-size: 90%; padding: 0.5%; border-bottom: 3px solid #e0e0e0; }
+header { font-size: small; padding: 0.5%; border-bottom: 3px solid #e0e0e0; }
 header a { padding: 0.5% 0; }
 header .breadcrumbs > span:before { content: ' » '; color: #666; }
 header .slash { margin: 0 -2px; }
@@ -113,12 +115,12 @@ footer a:hover { text-decoration: none; }
 .repolist li { margin-bottom: 10px; }
 .repolist li a .last-updated {
   color: #737373;
-  font-size: 60%;
+  font-size: x-small;
   margin-left: 1px;
 }
 .repolist li a .description {
   color: black;
-  font-size: 75%;
+  font-size: small;
   margin-left: 1px;
 }
 .repolist li a:hover { text-decoration: none; }
@@ -137,7 +139,7 @@ footer a:hover { text-decoration: none; }
 
 .commit > span { display: block; }
 
-.commit .line1 { font-family: monospace; padding-bottom: 2px; line-height: 1.3; }
+.commit .line1 { font-size: small; padding-bottom: 2px; line-height: 1.3; }
 .commit .line1 span { white-space: pre-wrap; text-overflow: hidden; }
 .commit:hover .line1 { text-decoration: underline; color: #aaa; }
 .commit:hover .line1 span { color: black; }
@@ -145,14 +147,14 @@ footer a:hover { text-decoration: none; }
 .commit .line2 { position: relative; top: 5px; left: 1px; }
 .commit .line2 > span:first-child { float: left; }
 .commit .line2 > span:nth-child(2) { float: right; }
-.commit .line2 { color: #737373; font-size: 80%; }
+.commit .line2 { color: #737373; font-size: x-small; }
 
 
 /* History View */
 .history .pagination { margin-top: -2em; }
 a.commit { color: black !important; }
 
-.tree ul { font-family: monospace; border-top: 1px solid #e0e0e0; }
+.tree ul { font-size: small; border-top: 1px solid #e0e0e0; }
 .tree li { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-top: 0; }
 .tree li a {
   padding: 5px 7px 6px 7px;
@@ -175,6 +177,7 @@ a.commit { color: black !important; }
 
 
 /* Blob, Blame, Diff View */
+pre { font-family: 'Inconsolata', monospace;  font-size: medium; }
 .line { display: block; }
 .linenos { background-color: #f9f9f9; text-align: right; }
 .linenos a { color: #888; }
@@ -225,8 +228,10 @@ a.commit { color: black !important; }
 
 .full-commit .file.collapsed > table { display: none; }
 
-.diff { font-family: monospace; }
+.diff { font-family: 'Inconsolata', monospace; font-size: medium; }
 .diff .filename {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: small;
   padding: 8px 10px;
   background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
