@@ -1,10 +1,10 @@
 import os
 
-from flask import request, render_template, current_app, url_for
+from flask import request, render_template, current_app, url_for, jsonify
 from flask.views import View
 
 from werkzeug.wrappers import Response
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, BadRequest
 
 import dulwich.objects
 import dulwich.archive
@@ -20,7 +20,10 @@ else:
 from klaus import markup
 from klaus.highlighting import pygmentize
 from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
-                        guess_is_image, replace_dupes
+                        guess_is_image, replace_dupes, fuzzyfind
+
+
+FILE_LIST_MAX_RESULTS = 20
 
 
 def repo_list():
@@ -56,6 +59,20 @@ def _get_repo_and_rev(repo, rev=None):
         raise NotFound("No such commit %r" % rev)
 
     return repo, rev, commit
+
+
+def api_files(repo, rev):
+    query = request.args.get('q')
+    if query is None:
+        raise BadRequest
+    repo, rev, commit = _get_repo_and_rev(repo, rev)
+    all_files = repo.ls_tree(commit)
+    filtered_files = fuzzyfind(query, all_files)
+    return jsonify(
+        count=len(filtered_files),
+        files=[{'path': p, 'url': url_for('blob', repo=repo.name, rev=rev, path=p)}
+               for p in filtered_files[:FILE_LIST_MAX_RESULTS]]
+    )
 
 
 class BaseRepoView(View):
@@ -306,6 +323,10 @@ class DownloadView(BaseRepoView):
         )
 
 
+class FileSearchView(TreeViewMixin, BaseRepoView):
+    template_name = 'file_search.html'
+
+
 history = HistoryView.as_view('history', 'history')
 commit = CommitView.as_view('commit', 'commit')
 patch = PatchView.as_view('patch', 'patch')
@@ -313,3 +334,4 @@ blame = BlameView.as_view('blame', 'blame')
 blob = FileView.as_view('blob', 'blob')
 raw = RawView.as_view('raw', 'raw')
 download = DownloadView.as_view('download', 'download')
+filesearch = FileSearchView.as_view('filesearch', 'filesearch')

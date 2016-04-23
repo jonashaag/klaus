@@ -273,3 +273,7 @@ a.commit { color: black !important; }
   border: 1px solid #e0e0e0;
 }
 .diff .sep:hover > td { background-color: #f9f9f9; }
+
+
+/* File list view */
+#file-search input { width: 100%; font-size: 120%; }
