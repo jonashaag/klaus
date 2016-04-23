@@ -30,6 +30,7 @@ def serve(*args, **kwargs):
     app = klaus.make_app(ALL_TEST_REPOS, TEST_SITE_NAME, *args, **kwargs)
     server = werkzeug.serving.make_server("localhost", 9876, app)
     thread = threading.Thread(target=server.serve_forever)
+    thread.daemon = True
     thread.start()
     try:
         yield
