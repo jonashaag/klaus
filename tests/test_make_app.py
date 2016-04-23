@@ -59,22 +59,22 @@ test_smart_noauth = options_test(
     {'use_smarthttp': True},
     {'reach': True, 'clone': True, 'push': False}
 )
-test_smart_push = xfail_py3(options_test(
+test_smart_push = options_test(
     {'use_smarthttp': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach': True, 'clone': True, 'push_auth': True, 'push_unauth': False}
-))
-test_unauthenticated_push = xfail_py3(options_test(
+)
+test_unauthenticated_push = options_test(
     {'use_smarthttp': True, 'unauthenticated_push': True},
     {'reach': True, 'clone': True, 'push': True}
-))
+)
 test_nosmart_auth = options_test(
     {'require_browser_auth': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach_auth': True, 'reach_unauth': False, 'clone': False, 'push': False}
 )
-test_smart_auth = xfail_py3(options_test(
+test_smart_auth = options_test(
     {'require_browser_auth': True, 'use_smarthttp': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach_auth': True, 'reach_unauth': False, 'clone_auth': True, 'clone_unauth': False, 'push_unauth': False, 'push_auth': True}
-))
+)
 test_smart_auth_disable_push = options_test(
     {'require_browser_auth': True, 'use_smarthttp': True, 'disable_push': True, 'htdigest_file': open(HTDIGEST_FILE)},
     {'reach_auth': True, 'reach_unauth': False, 'clone_auth': True, 'clone_unauth': False, 'push': False}
