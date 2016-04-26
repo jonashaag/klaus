@@ -30,6 +30,7 @@ For starters, `here are a few ideas what to work on. <https://github.com/jonasha
 Features
 --------
 * Super easy to set up -- no configuration required
+* Supports Python 2 and Python 3
 * Syntax highlighting
 * Git Smart HTTP support
 
