@@ -1,3 +1,5 @@
+from six.moves import filter
+
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name, get_lexer_for_filename, \
                             guess_lexer, ClassNotFound, TextLexer
@@ -34,17 +36,18 @@ class KlausDefaultFormatter(HtmlFormatter):
 
     def _lookup_ctag(self, token):
         matches = list(self._get_all_ctags_matches(token))
-        best_matches = self.get_best_ctags_matches(matches)
+        best_matches = list(self.get_best_ctags_matches(matches))
         if not best_matches:
             return None, None
         else:
-            return best_matches[0]['file'], best_matches[0]['lineNumber']
+            return (best_matches[0]['file'].decode("utf-8"),
+                    best_matches[0]['lineNumber'])
 
     def _get_all_ctags_matches(self, token):
-        FIELDS = ('file', 'lineNumber', 'kind', 'language')
+        FIELDS = ('file', 'lineNumber', 'kind', b'language')
         from ctags import TagEntry
         entry = TagEntry()  # target "buffer" for ctags
-        if self._ctags.find(entry, token, 0):
+        if self._ctags.find(entry, token.encode("utf-8"), 0):
             yield dict((k, entry[k]) for k in FIELDS)
             while self._ctags.findNext(entry):
                 yield dict((k, entry[k]) for k in FIELDS)
@@ -53,7 +56,7 @@ class KlausDefaultFormatter(HtmlFormatter):
         if self.language is None:
             return matches
         else:
-            return filter(lambda match: match['language'] == self.language, matches)
+            return filter(lambda match: match[b'language'] == self.language.encode("utf-8"), matches)
 
 
 class KlausPythonFormatter(KlausDefaultFormatter):
@@ -66,7 +69,7 @@ class KlausPythonFormatter(KlausDefaultFormatter):
         # import of the tag in some other file.  We change the tag lookup mechanics
         # so that non-import matches are always preferred over import matches.
         return filter(
-            lambda match: match['kind'] != 'i',
+            lambda match: match['kind'] != b'i',
             super(KlausPythonFormatter, self).get_best_ctags_matches(matches)
         )
 
