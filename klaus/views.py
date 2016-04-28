@@ -207,7 +207,7 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
                 self.context['commit'].id
             )
             ctags_args = {
-                'ctags': ctags.CTags(ctags_tagsfile),
+                'ctags': ctags.CTags(ctags_tagsfile.encode("utf-8")),
                 'ctags_baseurl': ctags_base_url,
             }
         else:
