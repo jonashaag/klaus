@@ -15,11 +15,12 @@ class Klaus(flask.Flask):
         'undefined': jinja2.StrictUndefined
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy='none'):
+    def __init__(self, repo_paths, site_name, domain_name, use_smarthttp, ctags_policy='none'):
         """(See `make_app` for parameter descriptions.)"""
         repo_objs = [FancyRepo(path) for path in repo_paths]
         self.repos = dict((repo.name, repo) for repo in repo_objs)
         self.site_name = site_name
+        self.domain_name = domain_name
         self.use_smarthttp = use_smarthttp
         self.ctags_policy = ctags_policy
 
@@ -43,6 +44,7 @@ class Klaus(flask.Flask):
         env.globals['KLAUS_VERSION'] = KLAUS_VERSION
         env.globals['USE_SMARTHTTP'] = self.use_smarthttp
         env.globals['SITE_NAME'] = self.site_name
+        env.globals['DOMAIN_NAME'] = self.domain_name
 
         return env
 
@@ -78,7 +80,7 @@ class Klaus(flask.Flask):
 
 
 
-def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
+def make_app(repo_paths, site_name, domain_name="", use_smarthttp=False, htdigest_file=None,
              require_browser_auth=False, disable_push=False, unauthenticated_push=False,
              ctags_policy='none'):
     """
@@ -87,6 +89,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
 
     :param repo_paths: List of paths of repositories to serve.
     :param site_name: Name of the Web site (e.g. "John Doe's Git Repositories")
+    :param domain_name: Domain name
     :param use_smarthttp: Enable Git Smart HTTP mode, which makes it possible to
         pull from the served repositories. If `htdigest_file` is set as well,
         also allow to push for authenticated users.
@@ -117,6 +120,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
     app = Klaus(
         repo_paths,
         site_name,
+        domain_name,
         use_smarthttp,
         ctags_policy,
     )
