@@ -30,6 +30,7 @@ def make_parser():
     parser.add_argument('--host',     help="default: 127.0.0.1", default='127.0.0.1')
     parser.add_argument('--port',     help="default: 8080", default=8080, type=int)
     parser.add_argument('--site-name', help="site name showed in header. default: your hostname")
+    parser.add_argument('--domain-name', help="domain name (used for the go import meta tag)")
     parser.add_argument('--version', help='print version number', action='store_true')
     parser.add_argument('-b', '--browser', help="open klaus in a browser on server start",
                         default=False, action='store_true')
@@ -84,6 +85,7 @@ def main():
     app = make_app(
         args.repos,
         force_unicode(args.site_name or args.host),
+        args.domain_name,
         args.smarthttp,
         args.htdigest,
         ctags_policy=args.ctags,
