@@ -6,7 +6,7 @@
   {{ super() }}
 {% endblock %}
 
-{% block goimport %}<meta name="go-import" content="{{ DOMAIN_NAME }}/{{ repo.name }} git {{ url_for('repo_list', _external=True) }}{{repo.name }}/" />{% endblock %}
+{% block goimport %}<meta name="go-import" content="{{ DOMAIN_NAME }}/{{ repo.name }} git {{ url_for('repo_list', _external=True) }}{{repo.name }}" />{% endblock %}
 
 {% block content %}
 
