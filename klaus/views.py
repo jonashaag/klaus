@@ -1,4 +1,5 @@
 import os
+import sys
 
 from flask import request, render_template, current_app, url_for
 from flask.views import View
@@ -207,7 +208,7 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
                 self.context['commit'].id
             )
             ctags_args = {
-                'ctags': ctags.CTags(ctags_tagsfile.encode("utf-8")),
+                'ctags': ctags.CTags(ctags_tagsfile.encode(sys.getfilesystemencoding())),
                 'ctags_baseurl': ctags_base_url,
             }
         else:
