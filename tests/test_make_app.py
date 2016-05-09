@@ -13,9 +13,6 @@ import requests.auth
 from .utils import *
 
 
-xfail_py3 = pytest.mark.xfail(sys.version_info[0] >= 3, reason="not supported on Python 3")
-
-
 def test_htdigest_file_without_smarthttp_or_require_browser_auth():
     with pytest.raises(ValueError):
         klaus.make_app([], None, htdigest_file=object())
@@ -84,14 +81,14 @@ test_ctags_disabled = options_test(
     {},
     {'ctags_tags_and_branches': False, 'ctags_all': False}
 )
-test_ctags_tags_and_branches = xfail_py3(options_test(
+test_ctags_tags_and_branches = options_test(
     {'ctags_policy': 'tags-and-branches'},
     {'ctags_tags_and_branches': True, 'ctags_all': False}
-))
-test_ctags_all = xfail_py3(options_test(
+)
+test_ctags_all = options_test(
     {'ctags_policy': 'ALL'},
     {'ctags_tags_and_branches': True, 'ctags_all': True}
-))
+)
 
 
 # Reach
@@ -155,6 +152,7 @@ def ctags_all():
 
 def _ctags_enabled(ref, filename):
     response = requests.get(UNAUTH_TEST_REPO_URL + "blob/%s/%s" % (ref, filename))
+    assert response.status_code == 200, response.text
     href = '<a href="/%sblob/%s/%s#L-1">' % (TEST_REPO_URL, ref, filename)
     return href in response.text
 

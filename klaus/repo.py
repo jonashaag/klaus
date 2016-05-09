@@ -96,9 +96,9 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_tag_and_branch_shas(self):
         """Return a list of SHAs of all tags and branches."""
-        tag_shas = self.refs.as_dict('refs/tags/').values()
-        branch_shas = self.refs.as_dict('refs/heads/').values()
-        return tag_shas + branch_shas
+        tag_shas = self.refs.as_dict(b'refs/tags/').values()
+        branch_shas = self.refs.as_dict(b'refs/heads/').values()
+        return set(tag_shas) | set(branch_shas)
 
     def history(self, commit, path=None, max_commits=None, skip=0):
         """Return a list of all commits that affected `path`, starting at branch
