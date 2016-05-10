@@ -78,7 +78,7 @@ def main():
         try:
             import ctags
         except ImportError:
-            raise ImportError("Please install 'python-ctags' to enable ctags support.")
+            raise ImportError("Please install 'python-ctags3' to enable ctags support.")
 
     app = make_app(
         args.repos,
