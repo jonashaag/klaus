@@ -16,7 +16,7 @@ klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
 * Supports Python 2 and Python 3
 * Syntax highlighting
 * Git Smart HTTP support
-* Code navigation using Exuberant ctags (Python 2 only)
+* Code navigation using Exuberant ctags
 
 :Demo: http://klausdemo.lophus.org
 :Mailing list: http://groups.google.com/group/klaus-users
