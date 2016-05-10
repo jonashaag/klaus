@@ -1,4 +1,4 @@
 pytest
 requests
-python-ctags3
+python-ctags3>=1.2.1
 mock; python_version < '3'
