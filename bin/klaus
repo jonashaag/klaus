@@ -26,6 +26,7 @@ def git_repository(path):
 
 
 def make_parser():
+    parser = argparse.ArgumentParser()
     parser.add_argument('--host',     help="default: 127.0.0.1", default='127.0.0.1')
     parser.add_argument('--port',     help="default: 8080", default=8080, type=int)
     parser.add_argument('--site-name', help="site name showed in header. default: your hostname")
