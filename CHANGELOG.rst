@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.0.1 (May 24, 2016)
+---------------------
+* Full support for Python 3 (Louis Sautier, Jonas Haag)
+
 0.9.1 (Apr 14, 2016)
 --------------------
 * #155: Do not change SCRIPT_NAME if HTTP_X_SCRIPT_NAME isn't set (Louis Sautier)
