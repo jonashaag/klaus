@@ -19,7 +19,6 @@ def find_git_repos_recursive(dir):
         if '.git' in dirs:
             repos.append(dirpath)
             map(dirs.remove, dirs)
-    print(repos)
     return repos
 
 
