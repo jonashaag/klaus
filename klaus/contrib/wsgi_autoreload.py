@@ -3,6 +3,7 @@ import os
 import time
 import threading
 import warnings
+from io import open, StringIO
 
 from klaus import make_app
 
@@ -55,13 +56,16 @@ if 'KLAUS_REPOS' in os.environ:
     warnings.warn("use KLAUS_REPOS_ROOT instead of KLAUS_REPOS for the autoreloader apps", DeprecationWarning)
 
 if 'KLAUS_HTDIGEST_FILE' in os.environ:
-    with open(os.environ['KLAUS_HTDIGEST_FILE']) as file:
-        application = make_autoreloading_app(
-            os.environ.get('KLAUS_REPOS_ROOT') or os.environ['KLAUS_REPOS'],
-            os.environ['KLAUS_SITE_NAME'],
-            os.environ.get('KLAUS_USE_SMARTHTTP'),
-            file,
-        )
+    # Cache the contents of the htdigest file, the application will not read
+    # the file like object until later when called.
+    with open(os.environ['KLAUS_HTDIGEST_FILE'], encoding='utf-8') as htdigest_file:
+        htdigest_io = StringIO(htdigest_file.read())
+    application = make_autoreloading_app(
+        os.environ.get('KLAUS_REPOS_ROOT') or os.environ['KLAUS_REPOS'],
+        os.environ['KLAUS_SITE_NAME'],
+        os.environ.get('KLAUS_USE_SMARTHTTP'),
+        htdigest_io,
+    )
 else:
     application = make_autoreloading_app(
         os.environ.get('KLAUS_REPOS_ROOT') or os.environ['KLAUS_REPOS'],
