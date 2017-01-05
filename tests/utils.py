@@ -10,6 +10,7 @@ TEST_SITE_NAME = "Some site"
 HTDIGEST_FILE = "tests/credentials.htdigest"
 
 TEST_REPO = os.path.abspath("tests/repos/build/test_repo")
+TEST_REPO_ROOT = os.path.abspath("tests/repos/build")
 TEST_REPO_URL = "test_repo/"
 UNAUTH_TEST_SERVER = "http://invalid:password@localhost:9876/"
 UNAUTH_TEST_REPO_URL = UNAUTH_TEST_SERVER + TEST_REPO_URL
@@ -28,6 +29,12 @@ ALL_TEST_REPOS = [TEST_REPO, TEST_REPO_NO_NEWLINE, TEST_REPO_DONT_RENDER]
 @contextlib.contextmanager
 def serve(*args, **kwargs):
     app = klaus.make_app(ALL_TEST_REPOS, TEST_SITE_NAME, *args, **kwargs)
+    with serve_app(app):
+        yield
+
+
+@contextlib.contextmanager
+def serve_app(app):
     server = werkzeug.serving.make_server("localhost", 9876, app)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = True
