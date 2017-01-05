@@ -1,4 +1,8 @@
 import os
+try:
+    from importlib import reload  # Python 3.4+
+except ImportError:
+    pass
 
 from .utils import *
 from .test_make_app import can_reach_unauth, can_push_auth
