@@ -1,18 +1,11 @@
-import os
 from klaus import make_app
+from .app_args import get_args_from_env
 
-if 'KLAUS_HTDIGEST_FILE' in os.environ:
-    with open(os.environ['KLAUS_HTDIGEST_FILE']) as file:
-        application = make_app(
-            os.environ['KLAUS_REPOS'].split(),
-            os.environ['KLAUS_SITE_NAME'],
-            os.environ.get('KLAUS_USE_SMARTHTTP'),
-            file,
-        )
+args, kwargs = get_args_from_env()
+
+if kwargs['htdigest_file']:
+    with open(kwargs['htdigest_file']) as file:
+        kwargs['htdigest_file'] = file
+        application = make_app(*args, **kwargs)
 else:
-    application = make_app(
-        os.environ['KLAUS_REPOS'].split(),
-        os.environ['KLAUS_SITE_NAME'],
-        os.environ.get('KLAUS_USE_SMARTHTTP'),
-        None,
-    )
+    application = make_app(*args, **kwargs)
