@@ -1,4 +1,5 @@
 import os
+from distutils.util import strtobool
 
 
 def get_args_from_env():
@@ -11,10 +12,12 @@ def get_args_from_env():
     )
     kwargs = dict(
         htdigest_file=os.environ.get('KLAUS_HTDIGEST_FILE'),
-        use_smarthttp=bool(os.environ.get('KLAUS_USE_SMARTHTTP')),
-        require_browser_auth=bool(os.environ.get('KLAUS_REQUIRE_BROWSER_AUTH')),
-        disable_push=bool(os.environ.get('KLAUS_DISABLE_PUSH')),
-        unauthenticated_push=bool(os.environ.get('KLAUS_UNAUTHENTICATED_PUSH')),
+        use_smarthttp=strtobool(os.environ.get('KLAUS_USE_SMARTHTTP', '0')),
+        require_browser_auth=strtobool(
+            os.environ.get('KLAUS_REQUIRE_BROWSER_AUTH', '0')),
+        disable_push=strtobool(os.environ.get('KLAUS_DISABLE_PUSH', '0')),
+        unauthenticated_push=strtobool(
+            os.environ.get('KLAUS_UNAUTHENTICATED_PUSH', '0')),
         ctags_policy=os.environ.get('KLAUS_CTAGS_POLICY', 'none')
     )
     return args, kwargs

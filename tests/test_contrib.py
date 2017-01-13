@@ -49,8 +49,8 @@ def test_app_args_from_env():
             'KLAUS_HTDIGEST_FILE': HTDIGEST_FILE,
             'KLAUS_USE_SMARTHTTP': 'yes',
             'KLAUS_REQUIRE_BROWSER_AUTH': '1',
-            'KLAUS_DISABLE_PUSH': 'false',  # TODO?
-            'KLAUS_UNAUTHENTICATED_PUSH': '0',  # TODO?
+            'KLAUS_DISABLE_PUSH': 'false',
+            'KLAUS_UNAUTHENTICATED_PUSH': '0',
             'KLAUS_CTAGS_POLICY': 'ALL'
         },
         ([TEST_REPO], TEST_SITE_NAME),
@@ -58,10 +58,20 @@ def test_app_args_from_env():
             htdigest_file=HTDIGEST_FILE,
             use_smarthttp=True,
             require_browser_auth=True,
-            disable_push=True,
-            unauthenticated_push=True,
+            disable_push=False,
+            unauthenticated_push=False,
             ctags_policy='ALL')
     )
+
+    with pytest.raises(ValueError):
+        check_env(
+            {
+                'KLAUS_REPOS': TEST_REPO,
+                'KLAUS_SITE_NAME': TEST_SITE_NAME,
+                'KLAUS_HTDIGEST_FILE': HTDIGEST_FILE,
+                'KLAUS_USE_SMARTHTTP': 'unsupported',
+            }, (), {}
+        )
 
 
 def test_wsgi():
