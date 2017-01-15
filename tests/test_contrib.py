@@ -11,25 +11,23 @@ from .utils import *
 from .test_make_app import can_reach_unauth, can_push_auth
 
 
-def clear_env():
-    for var in list(os.environ):
-        if var.startswith('KLAUS_'):
-            os.environ.pop(var)
-
-
 def check_env(env, expected_args, expected_kwargs):
-    clear_env()
     os.environ.update(env)
     args, kwargs = app_args.get_args_from_env()
     assert args == expected_args
     assert kwargs == expected_kwargs
 
 
-def test_app_args_from_env():
-    clear_env()
+def test_missing_in_env(monkeypatch):
+    """Test that KeyError is raised when required env var is missing"""
+    monkeypatch.setattr(os, 'environ', os.environ.copy())
     with pytest.raises(KeyError):
         args, kwargs = app_args.get_args_from_env()
 
+
+def test_minimum_env(monkeypatch):
+    """Test to provide only required env var"""
+    monkeypatch.setattr(os, 'environ', os.environ.copy())
     check_env(
         {'KLAUS_SITE_NAME': TEST_SITE_NAME},
         ([], TEST_SITE_NAME),
@@ -42,6 +40,10 @@ def test_app_args_from_env():
             ctags_policy='none')
     )
 
+
+def test_complete_env(monkeypatch):
+    """Test to provide all supported env var"""
+    monkeypatch.setattr(os, 'environ', os.environ.copy())
     check_env(
         {
             'KLAUS_REPOS': TEST_REPO,
@@ -63,6 +65,10 @@ def test_app_args_from_env():
             ctags_policy='ALL')
     )
 
+
+def test_unsupported_boolean_env(monkeypatch):
+    """Test that unsupported boolean env var raises ValueError"""
+    monkeypatch.setattr(os, 'environ', os.environ.copy())
     with pytest.raises(ValueError):
         check_env(
             {
@@ -74,8 +80,9 @@ def test_app_args_from_env():
         )
 
 
-def test_wsgi():
-    clear_env()
+def test_wsgi(monkeypatch):
+    """Test start of wsgi app"""
+    monkeypatch.setattr(os, 'environ', os.environ.copy())
     os.environ['KLAUS_REPOS'] = TEST_REPO
     os.environ['KLAUS_SITE_NAME'] = TEST_SITE_NAME
     from klaus.contrib import wsgi
@@ -91,8 +98,9 @@ def test_wsgi():
         assert can_push_auth()
 
 
-def test_wsgi_autoreload():
-    clear_env()
+def test_wsgi_autoreload(monkeypatch):
+    """Test start of wsgi autoreload app"""
+    monkeypatch.setattr(os, 'environ', os.environ.copy())
     os.environ['KLAUS_REPOS_ROOT'] = TEST_REPO_ROOT
     os.environ['KLAUS_SITE_NAME'] = TEST_SITE_NAME
     from klaus.contrib import wsgi_autoreload
