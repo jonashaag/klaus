@@ -74,7 +74,7 @@ class KlausPythonFormatter(KlausDefaultFormatter):
         )
 
 
-def pygmentize(code, filename, render_markup, ctags=None, ctags_baseurl=None):
+def highlight_or_render(code, filename, render_markup=True, ctags=None, ctags_baseurl=None):
     """Render code using Pygments, markup (markdown, rst, ...) using the
     corresponding renderer, if available.
 

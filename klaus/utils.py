@@ -238,10 +238,10 @@ def guess_git_revision():
     """
     git_dir = os.path.join(os.path.dirname(__file__), '..', '.git')
     try:
-        return check_output(
+        return force_unicode(check_output(
             ['git', 'log', '--format=%h', '-n', '1'],
             cwd=git_dir
-        ).strip()
+        ).strip())
     except OSError:
         # Either the git executable couldn't be found in the OS's PATH
         # or no ".git" directory exists, i.e. this is no "bleeding-edge" installation.

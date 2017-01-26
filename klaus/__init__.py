@@ -60,7 +60,6 @@ class Klaus(flask.Flask):
             ('patch',       '/<repo>/commit/<rev>.diff'),
             ('patch',       '/<repo>/commit/<rev>.patch'),
             ('index',       '/<repo>/'),
-            ('history',     '/<repo>/history'),
             ('history',     '/<repo>/tree/<rev>/'),
             ('history',     '/<repo>/tree/<rev>/<path:path>'),
             ('download',    '/<repo>/tarball/<rev>/'),

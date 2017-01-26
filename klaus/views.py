@@ -19,7 +19,7 @@ else:
     CTAGS_CACHE = ctagscache.CTagsCache()
 
 from klaus import markup
-from klaus.highlighting import pygmentize
+from klaus.highlighting import highlight_or_render
 from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
                         guess_is_image, replace_dupes
 
@@ -232,7 +232,10 @@ class IndexView(TreeViewMixin, BaseRepoView):
         else:
             self.context.update({
                 'is_markup': markup.can_render(readme_filename),
-                'rendered_code': markup.render(readme_filename, readme_data),
+                'rendered_code': highlight_or_render(
+                    force_unicode(readme_data),
+                    force_unicode(readme_filename),
+                ),
             })
 
 
@@ -269,7 +272,7 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
         else:
             ctags_args = {}
 
-        return pygmentize(
+        return highlight_or_render(
             force_unicode(self.context['blob_or_tree'].data),
             self.context['filename'],
             render_markup,
