@@ -1,0 +1,69 @@
+{% macro pagination() %}
+  <div class=pagination>
+    {% if page %}
+      {% for n in previous_pages %}
+        {% if n is none %}
+          <span class=n>...</span>
+        {% else %}
+          <a href="{{ url_for('history', repo=repo.name, rev=rev, path=path)}}?page={{n}}" class=n>{{ n }}</a>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if more_commits %}
+    <a href="{{ url_for('history', repo=repo.name, rev=rev, path=path)}}?page={{page+1}}">»»</a>
+    {% elif page %}
+      <span>»»</span>
+    {% endif%}
+  </div>
+  <div class=clearfloat></div>
+{% endmacro %}
+
+<div class=history>
+  <h2>
+    {% if subpaths %}
+      History of
+      {% for name, subpath in subpaths %}
+        {{ name }}
+        {% if not loop.last %}
+          <span class=slash>/</span>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      Commit History
+    {% endif %}
+    <span>
+      @<a href="{{ url_for('index', repo=repo.name, rev=rev) }}">{{ rev }}</a>
+    </span>
+    {% if USE_SMARTHTTP %}
+        <code>git clone {{ url_for('index', repo=repo.name, _external=True) }}</code>
+    {% endif %}
+  </h2>
+
+  {{ pagination() }}
+
+  <ul>
+  {% for commit in history %}
+    <li>
+      <a class=commit href="{{ url_for('commit', repo=repo.name, rev=commit.id) }}">
+        <span class=line1>
+          <span>{{ commit.message|force_unicode|shorten_message }}</span>
+        </span>
+        <span class=line2>
+          <span>
+            {{ commit.author|force_unicode|extract_author_name }}
+            {% if commit.author != commit.committer %}
+              (commit: {{ commit.committer|force_unicode|extract_author_name }})
+            {% endif %}
+          </span>
+          <span title="{{ commit.commit_time|formattimestamp  }}">
+            {{ commit.commit_time|timesince }}
+          </span>
+        </span>
+        <span class=clearfloat></span>
+      </a>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+
+{{ pagination() }}

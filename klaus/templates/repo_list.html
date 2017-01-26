@@ -17,7 +17,7 @@
     <li>
       <a
         {% if last_updated_at %}
-          href="{{ url_for('history', repo=repo.name) }}"
+          href="{{ url_for('index', repo=repo.name) }}"
         {% endif %}
       >
         <div class=name>{{ repo.name }}</div>
