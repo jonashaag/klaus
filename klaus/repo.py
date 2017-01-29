@@ -32,6 +32,18 @@ class FancyRepo(dulwich.repo.Repo):
             return refs[0].commit_time
         return None
 
+    @property
+    def cloneurl(self):
+        """Retrieve the gitweb notion of the public clone URL of this repo."""
+        f = self.get_named_file('cloneurl')
+        if f is not None:
+            return f.read()
+        c = self.get_config()
+        try:
+            return force_unicode(c.get(b'gitweb', b'url'))
+        except KeyError:
+            return None
+
     def get_description(self):
         """Like Dulwich's `get_description`, but returns None if the file
         contains Git's default text "Unnamed repository[...]".
