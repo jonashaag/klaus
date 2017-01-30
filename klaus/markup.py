@@ -30,7 +30,7 @@ def _load_markdown():
     def render_markdown(content):
         return markdown.markdown(content, extensions=['toc', 'extra'])
 
-    LANGUAGES.append((['.md', '.mkdn', '.markdown'], render_markdown))
+    LANGUAGES.append((['.md', '.mkdn', '.mdwn', '.markdown'], render_markdown))
 
 
 def _load_restructured_text():
