@@ -1,6 +1,16 @@
 Changelog
 =========
 
+1.1.0 (Feb 1, 2017)
+-------------------
+* Display README on repository landing page (Jelmer Vernooĳ)
+* Make all options configurable using environment variables (Jimmy Petersson)
+* #122: Support `.git/cloneurl` and `gitweb.url` settings (Jelmer Vernooĳ)
+* Support ".mdwn" markdown file extension (Jelmer Vernooĳ)
+* #166: Set device viewport (Jonas Haag)
+* Fix autoreloader with Python (Jimmy Petersson)
+* #169: Fix htdigest with autoreloader (Jimmy Petersson)
+
 1.0.1 (May 24, 2016)
 ---------------------
 * Full support for Python 3 (Louis Sautier, Jonas Haag)
@@ -79,7 +89,7 @@ Changelog
 * Bugfix release for bugfix release 0.4.4. (Daniel Krüger, Jonas Haag)
 
 0.4.4 (Feb 21, 2014)
--------------------
+--------------------
 * Fix syntax highlighting in case multiple different file formats share the
   same file extension.  Rely on Pygments to select the best matching lexer for us.
   (Gnewbee, Jonas Haag)
