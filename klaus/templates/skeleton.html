@@ -4,6 +4,9 @@
 <link rel=stylesheet href={{ url_for('static', filename='pygments.css') }}>
 <link rel=stylesheet href={{ url_for('static', filename='klaus.css') }}>
 <link rel=icon type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
+{% if base_href %}
+<base href="{{ base_href }}"/>
+{% endif %}
 <title>{% block title %}{% endblock %} - {{ SITE_NAME }}</title>
 
 <script src={{ url_for('static', filename='klaus.js') }}></script>
