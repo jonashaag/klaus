@@ -246,3 +246,20 @@ def guess_git_revision():
         # Either the git executable couldn't be found in the OS's PATH
         # or no ".git" directory exists, i.e. this is no "bleeding-edge" installation.
         return None
+
+
+def fuzzyfind(text, collection):
+    # Stolen from https://gist.github.com/anonymous/f61b0461ad76f92fdc40
+    text = text.lower()
+    results = []
+    for string in collection:
+        string_l = string.lower()
+        key = []
+        for x in text:
+            index = string_l.find(x)
+            if index == -1:
+                break
+            key.append(index)
+        else:
+            results.append((key, string))
+    return [y for _, y in sorted(results)]

@@ -63,6 +63,9 @@ class Klaus(flask.Flask):
             ('history',     '/<repo>/tree/<rev>/'),
             ('history',     '/<repo>/tree/<rev>/<path:path>'),
             ('download',    '/<repo>/tarball/<rev>/'),
+            ('filesearch',  '/<repo>/files/<rev>/'),
+
+            ('api_files',   '/api/<repo>/files/<rev>/'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 

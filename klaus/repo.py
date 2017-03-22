@@ -240,3 +240,11 @@ class FancyRepo(dulwich.repo.Repo):
         bytesio = io.BytesIO()
         dulwich.patch.write_tree_diff(bytesio, self.object_store, parent_tree, commit.tree)
         return bytesio.getvalue()
+
+    def ls_tree(self, commit):
+        """Return list of files in repository at given commit."""
+        # XXX see comment in `.history()`.
+        # Performance comparison using Linux repo: git: 0.15s, Dulwich: 0.85s
+        cmd = ['git', 'ls-tree', '--name-only', '-r', commit.id]
+        output = check_output(cmd, cwd=os.path.abspath(self.path))
+        return output.strip().split(b'\n')

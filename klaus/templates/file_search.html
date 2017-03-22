@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block extra_header %}{% endblock %} {# hide branch selector #}
+
+{% block title %}
+  List of files - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+{% include 'tree.inc.html' %}
+
+<div id=file-search>
+  <h2>Find files</h2>
+
+  <input placeholder="Type in some letters...">
+  <ul id=file-search-results>
+  </ul>
+</div>
+
+<script>
+  (function() {
+    var searchbar = document.querySelector("#file-search input");
+    var result = document.querySelector("#file-search-results");
+
+    var showResults = function (response) {
+      while (result.childNodes.length) {
+        result.removeChild(result.childNodes[0]);
+      }
+      for (var i = 0; i < response.files.length; ++i) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.setAttribute("href", response.files[i].url);
+        a.innerHTML = response.files[i].path;
+        li.appendChild(a);
+        result.appendChild(li);
+      }
+    }
+
+    var requestTimeout = null;
+    var request = null;
+    var cache = {};
+    searchbar.addEventListener('keyup', function () {
+      var value = this.value;
+      if (cache[value]) {
+        showResults(cache[value]);
+      } else {
+        var url = document.location.origin + "/api" + document.location.pathname + "?q=" + encodeURI(value);
+        clearTimeout(requestTimeout);
+        if (request != null) {
+          request.abort();
+          request = null;
+        }
+        requestTimeout = setTimeout(function () {
+          request = new XMLHttpRequest();
+          request.onreadystatechange = function () {
+            if (request.readyState == 4 && request.responseText) {
+              var response = JSON.parse(request.responseText);
+              cache[value] = response;
+              showResults(response);
+            }
+          };
+          request.open('GET', url, true);
+          request.send();
+        }, 150);
+      }
+    });
+
+    searchbar.focus();
+  })();
+</script>
+
+{% endblock %}
