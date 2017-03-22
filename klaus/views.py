@@ -36,7 +36,7 @@ def repo_list():
         sort_key = lambda repo: repo.name
         reverse = False
     repos = sorted(current_app.repos.values(), key=sort_key, reverse=reverse)
-    return render_template('repo_list.html', repos=repos)
+    return render_template('repo_list.html', repos=repos, base_href=None)
 
 
 def robots_txt():
@@ -102,6 +102,7 @@ class BaseRepoView(View):
             'path': path,
             'blob_or_tree': blob_or_tree,
             'subpaths': list(subpaths(path)) if path else None,
+            'base_href': None,
         }
 
 
@@ -201,6 +202,13 @@ class IndexView(TreeViewMixin, BaseRepoView):
 
     def make_template_context(self, *args):
         super(IndexView, self).make_template_context(*args)
+
+        self.context['base_href'] = url_for(
+            'blob',
+            repo=self.context['repo'].name,
+            rev=self.context['rev'],
+            path=''
+        )
 
         self.context['page'] = 0
         history_length = 10
