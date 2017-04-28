@@ -28,7 +28,7 @@ def create_tagsfile(git_repo_path, git_rev):
     try:
         subprocess.check_call(["git", "clone", "-q", "--shared", git_repo_path, checkout_tmpdir])
         subprocess.check_call(["git", "checkout", "-q", git_rev], cwd=checkout_tmpdir)
-        subprocess.check_call(["ctags", "--fields=+l", "-Rno", target_tagsfile], cwd=checkout_tmpdir)
+        subprocess.check_call(["ctags", "--fields=+ln", "-Rno", target_tagsfile], cwd=checkout_tmpdir)
     finally:
         shutil.rmtree(checkout_tmpdir)
     return target_tagsfile
