@@ -31,13 +31,13 @@
   <div>
     <ul class=branches>
       {% for branch in branches %}
-      <li><a href="{{ url_for(view, repo=repo.name, rev=branch, path=path) }}">{{ branch }}</a></li>
+      <li><a href="{{ url_for(view, repo=repo.name, rev=branch, path=(path or None)) }}">{{ branch }}</a></li>
       {% endfor %}
     </ul>
     {% if tags %}
     <ul class=tags>
       {% for tag in tags %}
-      <li><a href="{{ url_for(view, repo=repo.name, rev=tag, path=path) }}">{{ tag }}</a></li>
+      <li><a href="{{ url_for(view, repo=repo.name, rev=tag, path=(path or None)) }}">{{ tag }}</a></li>
       {% endfor %}
     </ul>
     {% endif %}

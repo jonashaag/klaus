@@ -258,7 +258,9 @@ class IndexView(TreeViewMixin, BaseRepoView):
         })
         try:
             (readme_filename, readme_data) = self._get_readme()
+            print(readme_filename)
         except KeyError:
+            print("no readme")
             self.context.update({
                 'is_markup': None,
                 'rendered_code': None,
