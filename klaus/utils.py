@@ -6,6 +6,7 @@ import datetime
 import mimetypes
 import locale
 import warnings
+import subprocess
 import six
 try:
     import chardet
@@ -209,23 +210,6 @@ def replace_dupes(ls, replacement):
             last = elem
 
 
-try:
-    from subprocess import check_output
-except ImportError:
-    # Python < 2.7 fallback, stolen from the 2.7 stdlib
-    def check_output(*popenargs, **kwargs):
-        from subprocess import Popen, PIPE, CalledProcessError
-        if 'stdout' in kwargs:
-            raise ValueError('stdout argument not allowed, it will be overridden.')
-        process = Popen(stdout=PIPE, *popenargs, **kwargs)
-        output, _ = process.communicate()
-        retcode = process.poll()
-        if retcode:
-            cmd = kwargs.get("args")
-            if cmd is None:
-                cmd = popenargs[0]
-            raise CalledProcessError(retcode, cmd, output=output)
-        return output
 
 
 def guess_git_revision():
@@ -238,7 +222,7 @@ def guess_git_revision():
     """
     git_dir = os.path.join(os.path.dirname(__file__), '..', '.git')
     try:
-        return force_unicode(check_output(
+        return force_unicode(subprocess.check_output(
             ['git', 'log', '--format=%h', '-n', '1'],
             cwd=git_dir
         ).strip())

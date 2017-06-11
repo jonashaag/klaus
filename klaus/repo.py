@@ -1,12 +1,13 @@
 import os
 import io
 import stat
+import subprocess
 
 from dulwich.object_store import tree_lookup_path
 from dulwich.errors import NotTreeError
 import dulwich, dulwich.patch
 
-from klaus.utils import check_output, force_unicode, parent_directory, encode_for_git, decode_from_git
+from klaus.utils import force_unicode, parent_directory, encode_for_git, decode_from_git
 from klaus.diff import prepare_udiff
 
 
@@ -135,7 +136,7 @@ class FancyRepo(dulwich.repo.Repo):
         if path:
             cmd.extend(['--', path])
 
-        output = check_output(cmd, cwd=os.path.abspath(self.path))
+        output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
         sha1_sums = output.strip().split(b'\n')
         return [self[sha1] for sha1 in sha1_sums]
 
@@ -145,7 +146,7 @@ class FancyRepo(dulwich.repo.Repo):
         """
         # XXX see comment in `.history()`
         cmd = ['git', 'blame', '-ls', '--root', commit.id, '--', path]
-        output = check_output(cmd, cwd=os.path.abspath(self.path))
+        output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
         sha1_sums = [line[:40] for line in output.strip().split(b'\n')]
         return [self[sha1] for sha1 in sha1_sums]
 
