@@ -2,13 +2,13 @@ import os
 import subprocess
 import shutil
 import tempfile
-from klaus.utils import check_output
+import subprocess
 
 
 def check_have_exuberant_ctags():
     """Check that the 'ctags' binary is *Exuberant* ctags (not etags etc)"""
     try:
-        return b"Exuberant" in check_output(["ctags", "--version"], stderr=subprocess.PIPE)
+        return b"Exuberant" in subprocess.check_output(["ctags", "--version"], stderr=subprocess.PIPE)
     except subprocess.CalledProcessError:
         return False
 

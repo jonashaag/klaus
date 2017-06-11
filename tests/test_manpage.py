@@ -1,15 +1,16 @@
 import sys
 import re
+import subprocess
 import klaus_cli
 try:
     from unittest import mock
 except ImportError:
     import mock
-from klaus.utils import check_output, force_unicode
+from klaus.utils import force_unicode
 
 
 def test_covers_all_cli_options():
-    manpage = force_unicode(check_output(["man", "./klaus.1"]))
+    manpage = force_unicode(subprocess.check_output(["man", "./klaus.1"]))
 
     def assert_in_manpage(s):
         clean = lambda x: re.sub('(.\\x08)|\s', '', x)
