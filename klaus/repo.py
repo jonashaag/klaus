@@ -4,11 +4,12 @@ import stat
 import subprocess
 
 from dulwich.object_store import tree_lookup_path
+from dulwich.objects import Blob
 from dulwich.errors import NotTreeError
 import dulwich, dulwich.patch
 
 from klaus.utils import force_unicode, parent_directory, encode_for_git, decode_from_git
-from klaus.diff import prepare_udiff
+from klaus.diff import render_diff
 
 
 class FancyRepo(dulwich.repo.Repo):
@@ -193,43 +194,38 @@ class FancyRepo(dulwich.repo.Repo):
         dulwich_changes = self.object_store.tree_changes(parent_tree, commit.tree)
         for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in dulwich_changes:
             summary['nfiles'] += 1
-
             try:
-                # Check for binary files -- can't show diffs for these
-                if newsha and guess_is_binary(self[newsha]) or \
-                   oldsha and guess_is_binary(self[oldsha]):
-                    file_changes.append({
-                        'is_binary': True,
-                        'old_filename': oldpath or '/dev/null',
-                        'new_filename': newpath or '/dev/null',
-                        'chunks': None
-                    })
-                    continue
+                oldblob = self.object_store[oldsha] if oldsha else Blob.from_string(b'')
+                newblob = self.object_store[newsha] if newsha else Blob.from_string(b'')
             except KeyError:
                 # newsha/oldsha are probably related to submodules.
                 # Dulwich will handle that.
                 pass
 
-            bytesio = io.BytesIO()
-            dulwich.patch.write_object_diff(bytesio, self.object_store,
-                                            (oldpath, oldmode, oldsha),
-                                            (newpath, newmode, newsha))
-            files = prepare_udiff(decode_from_git(bytesio.getvalue()), want_header=False)
-            if not files:
-                # the diff module doesn't handle deletions/additions
-                # of empty files correctly.
+            # Check for binary files -- can't show diffs for these
+            if guess_is_binary(newblob) or \
+               guess_is_binary(oldblob):
                 file_changes.append({
+                    'is_binary': True,
                     'old_filename': oldpath or '/dev/null',
                     'new_filename': newpath or '/dev/null',
-                    'chunks': [],
-                    'additions': 0,
-                    'deletions': 0,
+                    'chunks': None
                 })
-            else:
-                change = files[0]
-                summary['nadditions'] += change['additions']
-                summary['ndeletions'] += change['deletions']
-                file_changes.append(change)
+                continue
+
+            additions, deletions, chunks = render_diff(
+                oldblob.splitlines(), newblob.splitlines())
+            change = {
+                'is_binary': False,
+                'old_filename': oldpath or '/dev/null',
+                'new_filename': newpath or '/dev/null',
+                'chunks': chunks,
+                'additions': additions,
+                'deletions': deletions,
+            }
+            summary['nadditions'] += additions
+            summary['ndeletions'] += deletions
+            file_changes.append(change)
 
         return summary, file_changes
 
