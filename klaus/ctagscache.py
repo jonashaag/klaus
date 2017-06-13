@@ -31,6 +31,7 @@ import shutil
 import tempfile
 import threading
 import gzip
+import atexit
 from dulwich.lru_cache import LRUSizeCache
 from klaus.ctagsutils import create_tagsfile, delete_tagsfile
 
@@ -92,6 +93,8 @@ class CTagsCache(object):
         self._compressed_cache   = LRUSizeCache(compressed_max_bytes,   compute_size=os.path.getsize)
         self._clearing = False
         self._lock = threading.Lock()
+
+        atexit.register(self.clear)
 
     def __del__(self):
         self.clear()
