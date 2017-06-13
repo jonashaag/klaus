@@ -18,7 +18,7 @@ requires = ['argparse', 'six', 'flask', 'pygments', 'dulwich>=0.13.0', 'httpauth
 
 setup(
     name='klaus',
-    version='1.1.0',
+    version='1.2.0',
     author='Jonas Haag',
     author_email='jonas@lophus.org',
     packages=['klaus', 'klaus.contrib'],
