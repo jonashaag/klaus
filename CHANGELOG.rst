@@ -4,7 +4,7 @@ Changelog
 1.2.0 (Tue 13, 2017)
 --------------------
 * #177: Fix relative links in READMEs (etc.) (Jelmer Vernooĳ)
-* #36: Allow for branch names with `/`, e.g. `feature/foobar` (Martin Zimmermann, Chris St. Pierre)
+* #36: Allow for branch names with ``/``, e.g. ``feature/foobar`` (Martin Zimmermann, Chris St. Pierre)
 * #184: Drop support for Python 2.6 (Jelmer Vernooĳ)
 * Refactor diff generating code (Jelmer Vernooĳ)
 * Fix temporary files not being deleted (Jonas Haag)
