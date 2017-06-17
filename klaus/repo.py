@@ -194,6 +194,7 @@ class FancyRepo(dulwich.repo.Repo):
         dulwich_changes = self.object_store.tree_changes(parent_tree, commit.tree)
         for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in dulwich_changes:
             summary['nfiles'] += 1
+            newblob = oldblob = Blob.from_string(b'')
             try:
                 oldblob = self.object_store[oldsha] if oldsha else Blob.from_string(b'')
                 newblob = self.object_store[newsha] if newsha else Blob.from_string(b'')
