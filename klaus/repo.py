@@ -30,8 +30,11 @@ class FancyRepo(dulwich.repo.Repo):
         refs = [self[ref_hash] for ref_hash in self.get_refs().values()]
         refs.sort(key=lambda obj:getattr(obj, 'commit_time', float('-inf')),
                   reverse=True)
-        if refs:
-            return refs[0].commit_time
+        for ref in refs:
+            # Find the latest ref that has a commit_time; tags do not
+            # have a commit time
+            if hasattr(ref, "commit_time"):
+                return ref.commit_time
         return None
 
     @property
