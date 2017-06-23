@@ -1,4 +1,4 @@
-from StringIO import StringIO
+from io import StringIO
 import os
 import sys
 
