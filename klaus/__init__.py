@@ -56,6 +56,8 @@ class Klaus(flask.Flask):
             ('blame',       '/<repo>/blame/<rev>/<path:path>'),
             ('raw',         '/<repo>/raw/<path:path>/'),
             ('raw',         '/<repo>/raw/<rev>/<path:path>'),
+            ('submodule',   '/<repo>/submodule/<rev>'),
+            ('submodule',   '/<repo>/submodule/<rev>/<path:path>'),
             ('commit',      '/<repo>/commit/<path:rev>/'),
             ('patch',       '/<repo>/commit/<path:rev>.diff'),
             ('patch',       '/<repo>/commit/<path:rev>.patch'),

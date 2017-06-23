@@ -6,6 +6,9 @@
     {% for _, name, fullpath in root_tree.dirs %}
     <li><a href="{{ url_for('history', repo=repo.name, rev=rev, path=fullpath) }}" class=dir>{{ name|force_unicode }}</a></li>
     {% endfor %}
+    {% for _, name, fullpath, submodulerev in root_tree.submodules %}
+    <li><a href="{{ url_for('submodule', repo=repo.name, rev=rev, path=fullpath) }}" class=submodule>{{ name|force_unicode }}</a></li>
+    {% endfor %}
     {% for _, name, fullpath in root_tree.files %}
     <li><a href="{{ url_for('blob', repo=repo.name, rev=rev, path=fullpath) }}">{{ name|force_unicode }}</a></li>
     {% endfor %}
