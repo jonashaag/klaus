@@ -1,3 +1,4 @@
+from StringIO import StringIO
 import os
 import sys
 
@@ -9,6 +10,8 @@ from werkzeug.exceptions import NotFound
 
 import dulwich.objects
 import dulwich.archive
+import dulwich.config
+from dulwich.object_store import tree_lookup_path
 
 try:
     import ctags
@@ -21,7 +24,7 @@ else:
 from klaus import markup
 from klaus.highlighting import highlight_or_render
 from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
-                        guess_is_image, replace_dupes, sanitize_branch_name
+                        guess_is_image, replace_dupes, sanitize_branch_name, encode_for_git
 
 
 README_FILENAMES = [b'README', b'README.md', b'README.rst']
@@ -73,6 +76,17 @@ def _get_repo_and_rev(repo, rev=None, path=None):
         raise NotFound("No such commit %r" % rev)
 
     return repo, rev, path, commit
+
+
+def _get_submodule(repo, commit, path):
+    """Retrieve submodule URL and path."""
+    submodule_blob = repo.get_blob_or_tree(commit, '.gitmodules')
+    config = dulwich.config.ConfigFile.from_file(
+        StringIO(submodule_blob.as_raw_string()))
+    key = ('submodule', path)
+    submodule_url = config.get(key, 'url')
+    submodule_path = config.get(key, 'path')
+    return (submodule_url, submodule_path)
 
 
 class BaseRepoView(View):
@@ -281,6 +295,46 @@ class BaseBlobView(BaseRepoView):
         self.context['filename'] = os.path.basename(self.context['path'])
 
 
+class SubmoduleView(BaseRepoView):
+    """Show an information page about a submodule."""
+    template_name = 'submodule.html'
+
+    def make_template_context(self, repo, rev, path):
+        repo, rev, path, commit = _get_repo_and_rev(repo, rev, path)
+
+        try:
+            submodule_rev = tree_lookup_path(
+                repo.__getitem__, commit.tree, encode_for_git(path))[1]
+        except KeyError:
+            raise NotFound("Parent path for submodule missing")
+
+        try:
+            (submodule_url, submodule_path) = _get_submodule(
+                repo, commit, encode_for_git(path))
+        except KeyError:
+            submodule_url = None
+            submodule_path = None
+
+        # TODO(jelmer): Rather than printing an information page,
+        # redirect to the page in klaus for the repository at
+        # submodule_path, revision submodule_rev.
+
+        self.context = {
+            'view': self.view_name,
+            'repo': repo,
+            'rev': rev,
+            'commit': commit,
+            'branches': repo.get_branch_names(exclude=rev),
+            'tags': repo.get_tag_names(),
+            'path': path,
+            'subpaths': list(subpaths(path)) if path else None,
+            'submodule_url': submodule_url,
+            'submodule_path': submodule_path,
+            'submodule_rev': submodule_rev,
+            'base_href': None,
+        }
+
+
 class BaseFileView(TreeViewMixin, BaseBlobView):
     """Base for FileView and BlameView."""
     def render_code(self, render_markup):
@@ -408,3 +462,4 @@ blame = BlameView.as_view('blame', 'blame')
 blob = FileView.as_view('blob', 'blob')
 raw = RawView.as_view('raw', 'raw')
 download = DownloadView.as_view('download', 'download')
+submodule = SubmoduleView.as_view('submodule', 'submodule')
