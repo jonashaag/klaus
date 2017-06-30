@@ -8,7 +8,7 @@ def get_args_from_env():
         repos = repos.split()
     args = (
         repos,
-        os.environ['KLAUS_SITE_NAME']
+        os.environ.get('KLAUS_SITE_NAME', 'unnamed site')
     )
     kwargs = dict(
         htdigest_file=os.environ.get('KLAUS_HTDIGEST_FILE'),
