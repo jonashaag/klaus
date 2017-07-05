@@ -236,3 +236,8 @@ def sanitize_branch_name(name, chars='./', repl='-'):
     for char in chars:
         name = name.replace(char, repl)
     return name
+
+
+def escape_html(s):
+    return s.replace(b'&', b'&amp;').replace(b'<', b'&lt;') \
+            .replace(b'>', b'&gt;').replace(b'"', b'&quot;')
