@@ -1,4 +1,4 @@
-from io import StringIO
+from io import BytesIO
 import os
 import sys
 
@@ -82,10 +82,10 @@ def _get_submodule(repo, commit, path):
     """Retrieve submodule URL and path."""
     submodule_blob = repo.get_blob_or_tree(commit, '.gitmodules')
     config = dulwich.config.ConfigFile.from_file(
-        StringIO(submodule_blob.as_raw_string()))
-    key = ('submodule', path)
-    submodule_url = config.get(key, 'url')
-    submodule_path = config.get(key, 'path')
+        BytesIO(submodule_blob.as_raw_string()))
+    key = (b'submodule', path)
+    submodule_url = config.get(key, b'url')
+    submodule_path = config.get(key, b'path')
     return (submodule_url, submodule_path)
 
 
@@ -328,9 +328,9 @@ class SubmoduleView(BaseRepoView):
             'tags': repo.get_tag_names(),
             'path': path,
             'subpaths': list(subpaths(path)) if path else None,
-            'submodule_url': submodule_url,
-            'submodule_path': submodule_path,
-            'submodule_rev': submodule_rev,
+            'submodule_url': force_unicode(submodule_url),
+            'submodule_path': force_unicode(submodule_path),
+            'submodule_rev': force_unicode(submodule_rev),
             'base_href': None,
         }
 
