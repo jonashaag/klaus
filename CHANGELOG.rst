@@ -1,7 +1,13 @@
 Changelog
 =========
 
-1.2.0 (Tue 13, 2017)
+1.2.1 (Jul 5, 2017)
+-------------------
+- SECURITY ISSUE, PLEASE UPDATE: Fix #200: Missing HTML escaping in diff view
+- #189: Submodule info page instead of server error (Jelmer Vernooĳ)
+- #187, #191, #165: Bug fixes (Chris St. Pierre, Aleksey Rybalkin)
+
+1.2.0 (Jun 13, 2017)
 --------------------
 * #177: Fix relative links in READMEs (etc.) (Jelmer Vernooĳ)
 * #36: Allow for branch names with ``/``, e.g. ``feature/foobar`` (Martin Zimmermann, Chris St. Pierre)
