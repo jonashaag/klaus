@@ -10,6 +10,8 @@
 """
 
 from difflib import SequenceMatcher
+from klaus.utils import escape_html as e
+
 
 def highlight_line(old_line, new_line):
     """Highlight inline changes in both lines."""
@@ -55,23 +57,23 @@ def render_diff(a, b, n=3):
         for tag, i1, i2, j1, j2 in group:
             if tag == 'equal':
                 for c, line in enumerate(a[i1:i2]):
-                   add_line(i1+c, j1+c, 'unmod', line)
+                   add_line(i1+c, j1+c, 'unmod', e(line))
             elif tag == 'insert':
                 for c, line in enumerate(b[j1:j2]):
-                   add_line(None, j1+c, 'add', line)
+                   add_line(None, j1+c, 'add', e(line))
             elif tag == 'delete':
                 for c, line in enumerate(a[i1:i2]):
-                   add_line(i1+c, None, 'del', line)
+                   add_line(i1+c, None, 'del', e(line))
             elif tag == 'replace':
                 # TODO: not sure if this is the best way to deal with replace
                 # blocks, but it's consistent with the previous version.
                 for c, line in enumerate(a[i1:i2-1]):
-                   add_line(i1+c, None, 'del', line)
-                old_line, new_line = highlight_line(a[i2-1], b[j1])
+                   add_line(i1+c, None, 'del', e(line))
+                old_line, new_line = highlight_line(e(a[i2-1]), e(b[j1]))
                 add_line(i2-1, None, 'del', old_line)
                 add_line(None, j1, 'add', new_line)
                 for c, line in enumerate(b[j1+1:j2]):
-                   add_line(None, j1+c+1, 'add', line)
+                   add_line(None, j1+c+1, 'add', e(line))
             else:
                 raise AssertionError('unknown tag %s' % tag)
 
