@@ -15,8 +15,6 @@ from klaus.utils import escape_html as e
 
 def highlight_line(old_line, new_line):
     """Highlight inline changes in both lines."""
-    old_line = old_line.rstrip(b'\n')
-    new_line = new_line.rstrip(b'\n')
     start = 0
     limit = min(len(old_line), len(new_line))
     while start < limit and old_line[start] == new_line[start]:
