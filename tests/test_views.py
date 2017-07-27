@@ -17,9 +17,7 @@ def test_download():
 def test_no_newline_at_end_of_file():
     with serve():
         response = requests.get(TEST_REPO_NO_NEWLINE_URL + "commit/HEAD/").text
-        assert "No newline at end of file" in response
-        assert "2<del></del>" in response
-        assert "2<ins></ins>" in response
+        assert response.count("No newline at end of file") == 1
 
 
 def test_dont_render_binary():

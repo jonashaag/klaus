@@ -15,8 +15,6 @@ from klaus.utils import escape_html as e
 
 def highlight_line(old_line, new_line):
     """Highlight inline changes in both lines."""
-    old_line = old_line.rstrip(b'\n')
-    new_line = new_line.rstrip(b'\n')
     start = 0
     limit = min(len(old_line), len(new_line))
     while start < limit and old_line[start] == new_line[start]:
@@ -65,14 +63,9 @@ def render_diff(a, b, n=3):
                 for c, line in enumerate(a[i1:i2]):
                    add_line(i1+c, None, 'del', e(line))
             elif tag == 'replace':
-                # TODO: not sure if this is the best way to deal with replace
-                # blocks, but it's consistent with the previous version.
-                for c, line in enumerate(a[i1:i2-1]):
+                for c, line in enumerate(a[i1:i2]):
                    add_line(i1+c, None, 'del', e(line))
-                old_line, new_line = highlight_line(e(a[i2-1]), e(b[j1]))
-                add_line(i2-1, None, 'del', old_line)
-                add_line(None, j1, 'add', new_line)
-                for c, line in enumerate(b[j1+1:j2]):
+                for c, line in enumerate(b[j1:j2]):
                    add_line(None, j1+c+1, 'add', e(line))
             else:
                 raise AssertionError('unknown tag %s' % tag)
