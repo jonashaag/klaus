@@ -66,7 +66,7 @@ def render_diff(a, b, n=3):
                 for c, line in enumerate(a[i1:i2]):
                    add_line(i1+c, None, 'del', e(line))
                 for c, line in enumerate(b[j1:j2]):
-                   add_line(None, j1+c+1, 'add', e(line))
+                   add_line(None, j1+c, 'add', e(line))
             else:
                 raise AssertionError('unknown tag %s' % tag)
 

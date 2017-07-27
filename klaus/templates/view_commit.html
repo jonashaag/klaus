@@ -86,19 +86,15 @@
               <tr>
 
                 {#- left column: linenos -#}
-                {%- if line.old_lineno -%}
+                {%- if line.old_lineno is not none -%}
                   <td class=linenos><a href="#{{fileno}}-L-{{line.old_lineno}}">{{ line.old_lineno }}</a></td>
-                  {%- if line.new_lineno -%}
+                  {%- if line.new_lineno is not none -%}
                     <td class=linenos><a href="#{{fileno}}-L-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
                   {%- else -%}
                     <td class=linenos></td>
                   {%- endif -%}
                 {%- else %}
-                  {%- if line.old_lineno -%}
-                    <td class=linenos><a href="#{{fileno}}-R-{{line.old_lineno}}">{{ line.new_lineno }}</a></td>
-                  {%- else -%}
-                    <td class=linenos></td>
-                  {%- endif -%}
+                  <td class=linenos></td>
                   <td class=linenos><a href="#{{fileno}}-R-{{line.new_lineno}}">{{ line.new_lineno }}</a></td>
                 {% endif %}
 
