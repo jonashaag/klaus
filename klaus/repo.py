@@ -137,7 +137,7 @@ class FancyRepo(dulwich.repo.Repo):
             cmd.append('--skip=%d' % skip)
         if max_commits:
             cmd.append('--max-count=%d' % max_commits)
-        cmd.append(commit.id)
+        cmd.append(decode_from_git(commit.id))
         if path:
             cmd.extend(['--', path])
 
@@ -150,7 +150,7 @@ class FancyRepo(dulwich.repo.Repo):
         the file, the list contains the commit that last changed that line.
         """
         # XXX see comment in `.history()`
-        cmd = ['git', 'blame', '-ls', '--root', commit.id, '--', path]
+        cmd = ['git', 'blame', '-ls', '--root', decode_from_git(commit.id), '--', path]
         output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
         sha1_sums = [line[:40] for line in output.strip().split(b'\n')]
         return [None if self[sha1] is None else decode_from_git(self[sha1].id) for sha1 in sha1_sums]
