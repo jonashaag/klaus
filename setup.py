@@ -18,7 +18,7 @@ requires = ['six', 'flask', 'pygments', 'dulwich>=0.13.0', 'httpauth', 'humanize
 
 setup(
     name='klaus',
-    version='1.2.1',
+    version='1.2.2',
     author='Jonas Haag',
     author_email='jonas@lophus.org',
     packages=['klaus', 'klaus.contrib'],

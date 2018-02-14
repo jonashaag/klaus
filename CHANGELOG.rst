@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.2 (Feb 14, 2018)
+-------------------
+- #202: Windows encoding problem (Jonas Haag)
+- #201: Improve diff rendering (Jonas Haag)
+
 1.2.1 (Jul 5, 2017)
 -------------------
 - SECURITY ISSUE, PLEASE UPDATE: Fix #200: Missing HTML escaping in diff view
