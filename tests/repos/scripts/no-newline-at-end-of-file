@@ -1,12 +1,17 @@
 #!/bin/bash -e
+
+# This should prevent this script to load the local git user config: 
+# (HOME overwrite)
+HOME="."
+
 git init
 
 echo 1 > test
 echo -n 2 >> test
 git add test
-git commit --no-gpg-sign -m old
+git commit -m old
 
 echo 1 > test
 echo 2 >> test
 git add test
-git commit --no-gpg-sign -m new
+git commit -m new
