@@ -74,7 +74,8 @@ class KlausPythonFormatter(KlausDefaultFormatter):
         )
 
 
-def highlight_or_render(code, filename, render_markup=True, ctags=None, ctags_baseurl=None):
+def highlight_or_render(code, filename, render_markup=True, ctags=None,
+                        ctags_baseurl=None, highlight_enabled=lambda f: True):
     """Render code using Pygments, markup (markdown, rst, ...) using the
     corresponding renderer, if available.
 
@@ -83,17 +84,23 @@ def highlight_or_render(code, filename, render_markup=True, ctags=None, ctags_ba
     :param render_markup: whether to render markup if possible, bool
     :param ctags: tagsfile obj used for source code hyperlinks, ``ctags.CTags``
     :param ctags_baseurl: base url used for source code hyperlinks, str
+    :param highlight_enabled: a function that takes a filename and returns
+        false if the file should not be rendered or syntax-highlighted.
     """
-    if render_markup and markup.can_render(filename):
-        return markup.render(filename, code)
+    if highlight_enabled(filename):
+        if render_markup and markup.can_render(filename):
+            return markup.render(filename, code)
 
-    try:
-        lexer = get_lexer_for_filename(filename, code)
-    except ClassNotFound:
         try:
-            lexer = guess_lexer(code)
+            lexer = get_lexer_for_filename(filename, code)
         except ClassNotFound:
-            lexer = TextLexer()
+            try:
+                lexer = guess_lexer(code)
+            except ClassNotFound:
+                lexer = TextLexer()
+    else:
+        lexer = TextLexer()
+        ctags = None
 
     formatter_cls = {
         'Python': KlausPythonFormatter,
