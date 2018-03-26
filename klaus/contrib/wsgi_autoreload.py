@@ -16,7 +16,7 @@ args = (repos_root,) + args[1:]
 if kwargs['htdigest_file']:
     # Cache the contents of the htdigest file, the application will not read
     # the file like object until later when called.
-    with open(kwargs['htdigest_file'], encoding='utf-8') as htdigest_file:
+    with io.open(kwargs['htdigest_file'], encoding='utf-8') as htdigest_file:
         kwargs['htdigest_file'] = io.StringIO(htdigest_file.read())
 
 application = make_autoreloading_app(*args, **kwargs)
