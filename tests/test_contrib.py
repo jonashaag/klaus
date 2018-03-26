@@ -96,7 +96,7 @@ def test_wsgi_autoreload(monkeypatch):
     monkeypatch.setattr(os, 'environ', os.environ.copy())
     os.environ['KLAUS_REPOS_ROOT'] = TEST_REPO_ROOT
     os.environ['KLAUS_SITE_NAME'] = TEST_SITE_NAME
-    from klaus.contrib import wsgi_autoreload
+    from klaus.contrib import wsgi_autoreload, wsgi_autoreloading
     with serve_app(wsgi_autoreload.application):
         assert can_reach_unauth()
         assert not can_push_auth()
@@ -104,5 +104,6 @@ def test_wsgi_autoreload(monkeypatch):
     os.environ['KLAUS_HTDIGEST_FILE'] = HTDIGEST_FILE
     os.environ['KLAUS_USE_SMARTHTTP'] = 'yes'
     reload(wsgi_autoreload)
+    reload(wsgi_autoreloading)
     with serve_app(wsgi_autoreload.application):
         assert can_push_auth()

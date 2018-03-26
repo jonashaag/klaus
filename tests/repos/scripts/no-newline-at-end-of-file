@@ -2,7 +2,7 @@
 
 # This should prevent this script to load the local git user config: 
 # (HOME overwrite)
-HOME="."
+HOME=../../../git-config
 
 git init
 

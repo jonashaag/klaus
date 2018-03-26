@@ -8,9 +8,10 @@
   done
 )
 
-tests="$1"
-if [ -z "$tests" ]; then
-  tests="tests/"
+if [ $# -eq 0 ]; then
+  args="-v tests/"
+else
+  args="$@"
 fi
 
-PYTHONPATH=tests py.test $tests -v
+PYTHONPATH=tests py.test $args
