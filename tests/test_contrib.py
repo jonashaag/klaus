@@ -18,13 +18,6 @@ def check_env(env, expected_args, expected_kwargs):
     assert kwargs == expected_kwargs
 
 
-def test_missing_in_env(monkeypatch):
-    """Test that KeyError is raised when required env var is missing"""
-    monkeypatch.setattr(os, 'environ', os.environ.copy())
-    with pytest.raises(KeyError):
-        args, kwargs = app_args.get_args_from_env()
-
-
 def test_minimum_env(monkeypatch):
     """Test to provide only required env var"""
     monkeypatch.setattr(os, 'environ', os.environ.copy())

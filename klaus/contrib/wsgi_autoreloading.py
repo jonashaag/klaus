@@ -2,7 +2,6 @@ from __future__ import print_function
 import os
 import time
 import threading
-from io import open, StringIO
 
 from klaus import make_app
 

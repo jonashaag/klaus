@@ -1,5 +1,6 @@
 import os
 import warnings
+import io
 
 from .app_args import get_args_from_env
 from .wsgi_autoreloading import make_autoreloading_app
@@ -16,6 +17,6 @@ if kwargs['htdigest_file']:
     # Cache the contents of the htdigest file, the application will not read
     # the file like object until later when called.
     with open(kwargs['htdigest_file'], encoding='utf-8') as htdigest_file:
-        kwargs['htdigest_file'] = StringIO(htdigest_file.read())
+        kwargs['htdigest_file'] = io.StringIO(htdigest_file.read())
 
 application = make_autoreloading_app(*args, **kwargs)
