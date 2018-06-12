@@ -1,10 +1,10 @@
+import os
 import jinja2
 import flask
 import httpauth
 import dulwich.web
 from klaus import views, utils
 from klaus.repo import FancyRepo
-
 
 KLAUS_VERSION = utils.guess_git_revision() or '1.2.2'
 
@@ -17,7 +17,12 @@ class Klaus(flask.Flask):
 
     def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy='none'):
         """(See `make_app` for parameter descriptions.)"""
-        repo_objs = [FancyRepo(path) for path in repo_paths]
+
+        user_dirs = repo_paths
+        repo_objs = []
+        for user_dir in user_dirs:
+            user_repo_paths = [os.path.join(user_dir, x) for x in os.listdir(user_dir)]
+            repo_objs += [FancyRepo(path) for path in user_repo_paths]
         self.repos = dict((repo.name, repo) for repo in repo_objs)
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
@@ -48,24 +53,24 @@ class Klaus(flask.Flask):
 
     def setup_routes(self):
         for endpoint, rule in [
-            ('repo_list',   '/'),
-            ('robots_txt',  '/robots.txt/'),
-            ('blob',        '/<repo>/blob/'),
-            ('blob',        '/<repo>/blob/<rev>/<path:path>'),
-            ('blame',       '/<repo>/blame/'),
-            ('blame',       '/<repo>/blame/<rev>/<path:path>'),
-            ('raw',         '/<repo>/raw/<path:path>/'),
-            ('raw',         '/<repo>/raw/<rev>/<path:path>'),
-            ('submodule',   '/<repo>/submodule/<rev>/'),
-            ('submodule',   '/<repo>/submodule/<rev>/<path:path>'),
-            ('commit',      '/<repo>/commit/<path:rev>/'),
-            ('patch',       '/<repo>/commit/<path:rev>.diff'),
-            ('patch',       '/<repo>/commit/<path:rev>.patch'),
-            ('index',       '/<repo>/'),
-            ('index',       '/<repo>/<path:rev>'),
-            ('history',     '/<repo>/tree/<rev>/'),
-            ('history',     '/<repo>/tree/<rev>/<path:path>'),
-            ('download',    '/<repo>/tarball/<path:rev>/'),
+            ('repo_list', '/'),
+            ('robots_txt', '/robots.txt/'),
+            ('blob', '/<repo>/blob/'),
+            ('blob', '/<repo>/blob/<rev>/<path:path>'),
+            ('blame', '/<repo>/blame/'),
+            ('blame', '/<repo>/blame/<rev>/<path:path>'),
+            ('raw', '/<repo>/raw/<path:path>/'),
+            ('raw', '/<repo>/raw/<rev>/<path:path>'),
+            ('submodule', '/<repo>/submodule/<rev>/'),
+            ('submodule', '/<repo>/submodule/<rev>/<path:path>'),
+            ('commit', '/<repo>/commit/<path:rev>/'),
+            ('patch', '/<repo>/commit/<path:rev>.diff'),
+            ('patch', '/<repo>/commit/<path:rev>.patch'),
+            ('index', '/<repo>/'),
+            ('index', '/<repo>/<path:rev>'),
+            ('history', '/<repo>/tree/<rev>/'),
+            ('history', '/<repo>/tree/<rev>/<path:path>'),
+            ('download', '/<repo>/tarball/<path:rev>/'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
 
@@ -78,7 +83,6 @@ class Klaus(flask.Flask):
             return git_commit.id in git_repo.get_tag_and_branch_shas()
         else:
             raise ValueError("Unknown ctags policy %r" % self.ctags_policy)
-
 
 
 def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
@@ -128,7 +132,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
-            dict(('/'+name, repo) for name, repo in app.repos.items())
+            dict(('/' + name, repo) for name, repo in app.repos.items())
         )
         # Dulwich takes care of all Git related requests/URLs
         # and passes through everything else to klaus

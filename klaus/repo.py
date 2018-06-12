@@ -24,7 +24,9 @@ class FancyRepo(dulwich.repo.Repo):
         2. /x/y/ -> /x/y
         3. /x/y -> y
         """
-        return self.path.replace(".git", "").rstrip(os.sep).split(os.sep)[-1]
+        path_arr = self.path.replace(".git", "").rstrip(os.sep).split(os.sep)
+        # join user_ID and repo name by '\', to distinguish repo belong to different user
+        return path_arr[-2] + '\\' + path_arr[-1]
 
     def get_last_updated_at(self):
         """Get datetime of last commit to this repository."""
