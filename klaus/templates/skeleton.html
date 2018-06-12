@@ -12,9 +12,9 @@
 <script src={{ url_for('static', filename='klaus.js') }}></script>
 
 <header>
-  <a href={{ url_for('repo_list') }}>
-    {{ SITE_NAME }}
-  </a>
+{#  <a href={{ url_for('repo_list') }}>#}
+{#    {{ SITE_NAME }}#}
+{#  </a>#}
   <span class=breadcrumbs>{% block breadcrumbs %}{% endblock %}</span>
   {% block extra_header %}{% endblock %}
 </header>
