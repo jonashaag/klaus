@@ -60,7 +60,7 @@ def _load_notebook():
 
     def render_notebook(content):
         nb = nbformat.reads(content, nbformat.NO_CONVERT)
-        (output, resources) = nbconvert.HTMLExporter(template_file='./klaus/templates/my_full.tpl').from_notebook_node(nb)
+        (output, resources) = nbconvert.HTMLExporter(template_file='full').from_notebook_node(nb)
         return output
 
     LANGUAGES.append((['.ipynb'], render_notebook))
