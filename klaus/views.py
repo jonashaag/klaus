@@ -434,8 +434,9 @@ class RawView(BaseBlobView):
 class DownloadView(BaseRepoView):
     """Download a repo as a tar.gz file."""
     def get_response(self):
-        tarname = "%s@%s.tar.gz" % (self.context['repo'].name,
-                                    sanitize_branch_name(self.context['rev']))
+        basename = "%s@%s" % (self.context['repo'].name,
+                              sanitize_branch_name(self.context['rev']))
+        tarname = basename + ".tar.gz"
         headers = {
             'Content-Disposition': "attachment; filename=%s" % tarname,
             'Cache-Control': "no-store",  # Disables browser caching
@@ -445,7 +446,8 @@ class DownloadView(BaseRepoView):
             self.context['repo'],
             self.context['blob_or_tree'],
             self.context['commit'].commit_time,
-            format="gz"
+            format="gz",
+            prefix=encode_for_git(basename),
         )
         return Response(
             tar_stream,
