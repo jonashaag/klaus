@@ -43,7 +43,7 @@ def _load_restructured_text():
     def render_rest(content):
         # start by h2 and ignore invalid directives and so on
         # (most likely from Sphinx)
-        settings = {'initial_header_level': 2, 'report_level': 'quiet'}
+        settings = {'initial_header_level': 2, 'report_level': 0}
         return publish_parts(content,
                              writer=Writer(),
                              settings_overrides=settings).get('html_body')
