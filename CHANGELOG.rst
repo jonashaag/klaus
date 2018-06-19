@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.3.0 (June 19, 2018)
+--------------------
+- Split `klaus.contrib.autoreload` into main and entrypoint logic so it's
+  easier to customise it to your needs. (Jakob Hirsch)
+- #212, #213: Fix docutils rendering (Jelmer Vernooĳ)
+- #204, #214: Put files into subdirectory in tarball download (Jelmer Vernooĳ)
+
 1.2.2 (Feb 14, 2018)
 -------------------
 - #202: Windows encoding problem (Jonas Haag)
