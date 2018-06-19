@@ -11,7 +11,7 @@ def test_download():
         response_body = BytesIO(response.raw.read())
         tarball = tarfile.TarFile.gzopen("test.tar.gz", fileobj=response_body)
         with contextlib.closing(tarball):
-            assert tarball.extractfile('test.c').read() == b'int a;\n'
+            assert tarball.extractfile('test_repo@master/test.c').read() == b'int a;\n'
 
 
 def test_no_newline_at_end_of_file():
