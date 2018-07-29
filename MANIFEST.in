@@ -1,2 +1,3 @@
 recursive-include klaus/static *
 recursive-include klaus/templates *
+include klaus.1
