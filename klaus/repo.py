@@ -26,7 +26,7 @@ class FancyRepo(dulwich.repo.Repo):
         """
         path = self.path.rstrip(os.sep).split(os.sep)[-1]
         if path.endswith('.git'):
-            path = path[-4:]
+            path = path[:-4]
         return path
 
     def get_last_updated_at(self):
