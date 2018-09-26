@@ -1,5 +1,6 @@
 import os
 import io
+import re
 import stat
 import subprocess
 
@@ -24,7 +25,7 @@ class FancyRepo(dulwich.repo.Repo):
         2. /x/y/ -> /x/y
         3. /x/y -> y
         """
-        return self.path.replace(".git", "").rstrip(os.sep).split(os.sep)[-1]
+        return re.sub(r"\.git$", "", self.path.rstrip(os.sep).rsplit(os.sep, 1)[-1])
 
     def get_last_updated_at(self):
         """Get datetime of last commit to this repository."""
