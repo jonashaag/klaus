@@ -24,7 +24,7 @@ class FancyRepo(dulwich.repo.Repo):
         2. /x/y/ -> /x/y
         3. /x/y -> y
         """
-        path = self.rstrip(os.sep).split(os.sep)[-1]
+        path = self.path.rstrip(os.sep).split(os.sep)[-1]
         if path.endswith('.git'):
             path = path[-4:]
         return path
