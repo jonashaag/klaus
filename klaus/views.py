@@ -283,6 +283,7 @@ class IndexView(TreeViewMixin, BaseRepoView):
                 'rendered_code': highlight_or_render(
                     force_unicode(readme_data),
                     force_unicode(readme_filename),
+                    highlight_enabled=current_app.highlight_enabled,
                 ),
             })
 
@@ -364,6 +365,7 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
             force_unicode(self.context['blob_or_tree'].data),
             self.context['filename'],
             render_markup,
+            highlight_enabled=current_app.highlight_enabled,
             **ctags_args
         )
 
