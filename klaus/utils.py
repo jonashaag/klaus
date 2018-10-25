@@ -134,11 +134,12 @@ def force_unicode(s):
     if isinstance(s, six.text_type):
         return s
 
+    last_exc = None
     # Try some default encodings:
     try:
         return s.decode('utf-8')
     except UnicodeDecodeError as exc:
-        pass
+        last_exc = exc
     try:
         return s.decode(locale.getpreferredencoding())
     except UnicodeDecodeError:
@@ -150,7 +151,7 @@ def force_unicode(s):
         if encoding is not None:
             return s.decode(encoding)
 
-    raise exc  # Give up.
+    raise last_exc  # Give up.
 
 
 def extract_author_name(email):
