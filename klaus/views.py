@@ -278,12 +278,11 @@ class IndexView(TreeViewMixin, BaseRepoView):
                 'rendered_code': None,
             })
         else:
+            readme_filename = force_unicode(readme_filename) 
+            readme_data = force_unicode(readme_data)
             self.context.update({
-                'is_markup': markup.can_render(force_unicode(readme_filename)),
-                'rendered_code': highlight_or_render(
-                    force_unicode(readme_data),
-                    force_unicode(readme_filename),
-                ),
+                'is_markup': markup.can_render(readme_filename),
+                'rendered_code': highlight_or_render(readme_data, readme_filename)
             })
 
 
