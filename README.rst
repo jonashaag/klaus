@@ -37,13 +37,13 @@ For starters, `here are a few ideas what to work on. <https://github.com/jonasha
 
 |img1|_ |img2|_ |img3|_
 
-.. |img1| image:: http://i.imgur.com/2XhZIgw.png
-.. |img2| image:: http://i.imgur.com/6LjC8Cl.png
-.. |img3| image:: http://i.imgur.com/EYJdQwv.png
+.. |img1| image:: https://i.imgur.com/2XhZIgw.png
+.. |img2| image:: https://i.imgur.com/6LjC8Cl.png
+.. |img3| image:: https://i.imgur.com/EYJdQwv.png
 
-.. _img1: http://i.imgur.com/MV3uFvw.png
-.. _img2: http://i.imgur.com/9HEZ3ro.png
-.. _img3: http://i.imgur.com/kx2HaTq.png
+.. _img1: https://i.imgur.com/MV3uFvw.png
+.. _img2: https://i.imgur.com/9HEZ3ro.png
+.. _img3: https://i.imgur.com/kx2HaTq.png
 
 
 Installation
