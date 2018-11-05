@@ -274,12 +274,12 @@ class IndexView(TreeViewMixin, BaseRepoView):
             (readme_filename, readme_data) = self._get_readme()
         except KeyError:
             self.context.update({
-                'is_markup': None,
+                'is_markup': False,
                 'rendered_code': None,
             })
         else:
             self.context.update({
-                'is_markup': markup.can_render(readme_filename),
+                'is_markup': markup.can_render(force_unicode(readme_filename)),
                 'rendered_code': highlight_or_render(
                     force_unicode(readme_data),
                     force_unicode(readme_filename),
