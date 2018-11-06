@@ -174,13 +174,18 @@ a.commit { color: black !important; }
 }
 
 
-/* Blob, Blame, Diff View */
+/* Blob, Blame, Diff, Markup View */
 .line { display: block; }
 .linenos { background-color: #f9f9f9; text-align: right; }
 .linenos a { color: #888; }
 .linenos a:hover { text-decoration: none; }
 .highlight-line, .highlight-line .line { background-color: #fefed0; }
 .linenos a { padding: 0 6px 0 6px; }
+.markup pre {
+  padding: 10px 12px;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+}
 
 
 /* Blob, Blame View */
@@ -197,11 +202,6 @@ a.commit { color: black !important; }
 .blobview img, .blobview .markup { border: 1px solid #e0e0e0; }
 .blobview .markup h1:first-child { margin-top: 8px; }
 .blobview .markup { padding: 0 10px; }
-.blobview .markup pre {
-  padding: 10px 12px;
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
-}
 
 
 /* Blame View */
