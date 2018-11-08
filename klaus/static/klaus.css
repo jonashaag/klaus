@@ -181,10 +181,12 @@ a.commit { color: black !important; }
 .linenos a:hover { text-decoration: none; }
 .highlight-line, .highlight-line .line { background-color: #fefed0; }
 .linenos a { padding: 0 6px 0 6px; }
+.markup table, .markup img, .markup pre { border: 1px solid #e0e0e0; }
+.markup table { min-width: 100%; }
+.markup img { max-width: 100%; padding: 1px; }
 .markup pre {
   padding: 10px 12px;
   background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
 }
 
 
@@ -198,8 +200,7 @@ a.commit { color: black !important; }
 
 
 /* Blob View */
-.blobview img { max-width: 100%; padding: 1px; }
-.blobview img, .blobview .markup { border: 1px solid #e0e0e0; }
+.blobview .markup { border: 1px solid #e0e0e0; }
 .blobview .markup h1:first-child { margin-top: 8px; }
 .blobview .markup { padding: 0 10px; }
 
