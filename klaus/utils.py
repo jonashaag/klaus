@@ -1,4 +1,5 @@
 # encoding: utf-8
+import binascii
 import os
 import re
 import time
@@ -242,3 +243,22 @@ def sanitize_branch_name(name, chars='./', repl='-'):
 def escape_html(s):
     return s.replace(b'&', b'&amp;').replace(b'<', b'&lt;') \
             .replace(b'>', b'&gt;').replace(b'"', b'&quot;')
+
+
+def tarball_basename(repo_name, rev):
+    """Determine the name for a tarball."""
+    sanitized_rev = sanitize_branch_name(rev, chars='/')
+    # If the rev is a tag name that already starts with the
+    # repo name, skip it.
+    if sanitized_rev.startswith(repo_name + '-'):
+        return sanitized_rev
+    if sanitized_rev.startswith('v'):
+        return "%s-%s" % (repo_name, sanitized_rev[1:])
+    if len(sanitized_rev) == 40:
+        try:
+            binascii.unhexlify(sanitized_rev)
+        except binascii.Error:
+            pass
+        else:
+            return "%s@%s" % (repo_name, sanitized_rev)
+    return "%s-%s" % (repo_name, sanitized_rev)
