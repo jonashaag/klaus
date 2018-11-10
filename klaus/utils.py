@@ -1,4 +1,5 @@
 # encoding: utf-8
+import binascii
 import os
 import re
 import time
@@ -169,8 +170,18 @@ def extract_author_name(email):
     return email
 
 
+def is_hex_prefix(s):
+    if len(s) % 2:
+        s += '0'
+    try:
+        binascii.unhexlify(s)
+        return True
+    except binascii.Error:
+        return False
+
+
 def shorten_sha1(sha1):
-    if re.match(r'[a-z\d]{20,40}', sha1):
+    if 20 <= len(sha1) <= 40 and is_hex_prefix(sha1):
         sha1 = sha1[:7]
     return sha1
 
@@ -211,8 +222,6 @@ def replace_dupes(ls, replacement):
             last = elem
 
 
-
-
 def guess_git_revision():
     """Try to guess whether this instance of klaus is run directly from a klaus
     git checkout.  If it is, guess and return the currently checked-out commit
@@ -242,3 +251,21 @@ def sanitize_branch_name(name, chars='./', repl='-'):
 def escape_html(s):
     return s.replace(b'&', b'&amp;').replace(b'<', b'&lt;') \
             .replace(b'>', b'&gt;').replace(b'"', b'&quot;')
+
+
+def tarball_basename(repo_name, rev):
+    """Determine the name for a tarball."""
+    rev = sanitize_branch_name(rev, chars='/')
+    if rev.startswith(repo_name + '-'):
+        # If the rev is a tag name that already starts with the repo name,
+        # skip it.
+        return rev
+    elif len(rev) >= 2 and rev[0] == 'v' and not rev[1].isalpha():
+        # If the rev is a tag name prefixed by a 'v', skip the 'v'.
+        # So, v-1.0 -> 1.0, v1.0 -> 1.0, but vanilla -> vanilla.
+        return "%s-%s" % (repo_name, rev[1:])
+    elif len(rev) == 40 and is_hex_prefix(rev):
+        # If the rev is a commit hash, simply use that.
+        return "%s@%s" % (repo_name, rev)
+    else:
+        return "%s-%s" % (repo_name, rev)
