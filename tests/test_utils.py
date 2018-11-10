@@ -30,6 +30,7 @@ class TarballBasenameTests(unittest.TestCase):
             ('0.1', 'klaus-0.1'),
             ('b3e70e08344ca3f83cc7033ecdbefa90443d7d2e',
                 'klaus@b3e70e08344ca3f83cc7033ecdbefa90443d7d2e'),
+            ('vanilla', 'klaus-vanilla'),
             ]
         for (rev, basename) in examples:
             self.assertEqual(utils.tarball_basename('klaus', rev), basename)
