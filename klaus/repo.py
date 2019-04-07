@@ -173,14 +173,15 @@ class FancyRepo(dulwich.repo.Repo):
         """Return a list of directories and files in given directory."""
         submodules, dirs, files = [], [], []
         for entry in self.get_blob_or_tree(commit, path).items():
-            name, entry = entry.path, entry.in_path(encode_for_git(path))
+            entry_path = decode_from_git(entry.path)
+            name, entry = entry_path, entry.in_path(encode_for_git(path))
             if S_ISGITLINK(entry.mode):
                 submodules.append(
-                    (name.lower(), name, entry.path, entry.sha))
+                    (name.lower(), name, entry_path, entry.sha))
             elif stat.S_ISDIR(entry.mode):
-                dirs.append((name.lower(), name, entry.path))
+                dirs.append((name.lower(), name, entry_path))
             else:
-                files.append((name.lower(), name, entry.path))
+                files.append((name.lower(), name, entry_path))
         files.sort()
         dirs.sort()
 
