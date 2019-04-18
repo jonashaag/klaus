@@ -8,8 +8,11 @@ git init
 
 echo "int a;" > test.c
 echo "function test() {}" > test.js
+mkdir -p folder
+echo > folder/test.txt
 git add test.c
 git add test.js
+git add folder
 git commit -m "Add some code"
 
 git commit --allow-empty -m "Empty commit 1"

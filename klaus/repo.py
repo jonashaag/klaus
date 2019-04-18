@@ -170,23 +170,30 @@ class FancyRepo(dulwich.repo.Repo):
         return self[oid]
 
     def listdir(self, commit, path):
-        """Return a list of directories and files in given directory."""
+        """Return a list of submodules, directories and files in given
+        directory: Lists of (link name, target path) tuples.
+        """
         submodules, dirs, files = [], [], []
-        for entry in self.get_blob_or_tree(commit, path).items():
-            entry_path = decode_from_git(entry.path)
-            name, entry = entry_path, entry.in_path(encode_for_git(path))
-            if S_ISGITLINK(entry.mode):
-                submodules.append(
-                    (name.lower(), name, entry_path, entry.sha))
-            elif stat.S_ISDIR(entry.mode):
-                dirs.append((name.lower(), name, entry_path))
+        for entry_rel in self.get_blob_or_tree(commit, path).items():
+            # entry_rel: Entry('foo.txt', ...)
+            # entry_abs: Entry('spam/eggs/foo.txt', ...)
+            entry_abs = entry_rel.in_path(encode_for_git(path))
+            path_str = decode_from_git(entry_abs.path)
+            item = (os.path.basename(path_str), path_str)
+            if S_ISGITLINK(entry_abs.mode):
+                submodules.append(item)
+            elif stat.S_ISDIR(entry_abs.mode):
+                dirs.append(item)
             else:
-                files.append((name.lower(), name, entry_path))
-        files.sort()
-        dirs.sort()
+                files.append(item)
+
+        keyfunc = lambda tpl: tpl[0].lower()
+        submodules.sort(key=keyfunc)
+        files.sort(key=keyfunc)
+        dirs.sort(key=keyfunc)
 
         if path:
-            dirs.insert(0, (None, '..', parent_directory(path)))
+            dirs.insert(0, ('..', parent_directory(path)))
 
         return {'submodules': submodules, 'dirs' : dirs, 'files' : files}
 
