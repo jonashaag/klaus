@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.4.0 (May 7, 2019)
+-------------------
+- #217: Add man page (Jelmer Vernooĳ)
+- #229: Better download tarball names (Jelmer Vernooĳ)
+- #219: More markdown file extensions (Chris Pressey)
+- Bug fixes #221, #224, #226, #225, #227, #234, #233, #237 (Christian Ulrich, Jelmer Vernooĳ, Jonas Haag)
+
 1.3.0 (June 19, 2018)
 --------------------
 - Split `klaus.contrib.autoreload` into main and entrypoint logic so it's
