@@ -32,13 +32,11 @@ README_FILENAMES = [b'README', b'README.md', b'README.mkdn', b'README.mdwn', b'R
 
 def repo_list():
     """Show a list of all repos and can be sorted by last update."""
-    if 'by-last-update' in request.args:
-        sort_key = lambda repo: repo.get_last_updated_at()
-        reverse = True
-    else:
+    if 'by-name' in request.args:
         sort_key = lambda repo: repo.name
-        reverse = False
-    repos = sorted(current_app.repos.values(), key=sort_key, reverse=reverse)
+    else:
+        sort_key = lambda repo: (-(repo.get_last_updated_at() or -1), repo.name)
+    repos = sorted(current_app.repos.values(), key=sort_key)
     return render_template('repo_list.html', repos=repos, base_href=None)
 
 
