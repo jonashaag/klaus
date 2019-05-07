@@ -6,7 +6,8 @@ Changelog
 - #217: Add man page (Jelmer Vernooĳ)
 - #229: Better download tarball names (Jelmer Vernooĳ)
 - #219: More markdown file extensions (Chris Pressey)
-- Bug fixes #221, #224, #226, #225, #227, #234, #233, #237 (Christian Ulrich, Jelmer Vernooĳ, Jonas Haag)
+- #237: Default to ordering repositories by last update (Jonas Haag)
+- Bug fixes #221, #224, #226, #225, #227, #234, #233 (Christian Ulrich, Jelmer Vernooĳ, Jonas Haag)
 
 1.3.0 (June 19, 2018)
 --------------------
