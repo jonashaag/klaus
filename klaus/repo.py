@@ -31,7 +31,13 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_last_updated_at(self):
         """Get datetime of last commit to this repository."""
-        refs = [self[ref_hash] for ref_hash in self.get_refs().values()]
+        refs = []
+        for ref_hash in self.get_refs().values():
+            try:
+                refs.append(self[ref_hash])
+            except KeyError:
+                # Whoops. The ref points at a non-existant object
+                pass
         refs.sort(key=lambda obj:getattr(obj, 'commit_time', float('-inf')),
                   reverse=True)
         for ref in refs:
