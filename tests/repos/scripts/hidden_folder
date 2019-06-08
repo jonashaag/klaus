@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+# Hide the directory
+cd ..
+mv hidden_folder .hidden_folder
