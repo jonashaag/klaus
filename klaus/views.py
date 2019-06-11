@@ -37,7 +37,8 @@ def repo_list():
     else:
         sort_key = lambda repo: (-(repo.get_last_updated_at() or -1), repo.name)
     repos = sorted(current_app.repos.values(), key=sort_key)
-    return render_template('repo_list.html', repos=repos, base_href=None)
+    invalid_repos = sorted([os.path.basename(path) for path in current_app.invalid_repos])
+    return render_template('repo_list.html', repos=repos, invalid_repos=invalid_repos, base_href=None)
 
 
 

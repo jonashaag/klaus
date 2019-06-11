@@ -124,6 +124,12 @@ footer a:hover { text-decoration: none; }
 .repolist li a:hover { text-decoration: none; }
 .repolist li a:hover .name { text-decoration: underline; }
 
+.invalid { color: red; }
+.invalid .reason {
+  color: #737373;
+  font-size: 60%;
+  margin-left: 1px;
+}
 
 /* Base styles for history and commit views */
 .commit {

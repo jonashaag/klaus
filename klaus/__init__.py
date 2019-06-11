@@ -2,6 +2,7 @@ import jinja2
 import flask
 import httpauth
 import dulwich.web
+from dulwich.errors import NotGitRepository
 from klaus import views, utils
 from klaus.repo import FancyRepo
 
@@ -17,8 +18,9 @@ class Klaus(flask.Flask):
 
     def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy='none'):
         """(See `make_app` for parameter descriptions.)"""
-        repo_objs = [FancyRepo(path) for path in repo_paths]
+        repo_objs, invalid_repos = self.load_repos(repo_paths)
         self.repos = dict((repo.name, repo) for repo in repo_objs)
+        self.invalid_repos = invalid_repos
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
         self.ctags_policy = ctags_policy
@@ -79,6 +81,15 @@ class Klaus(flask.Flask):
         else:
             raise ValueError("Unknown ctags policy %r" % self.ctags_policy)
 
+    def load_repos(self, repo_paths):
+        repo_objs = []
+        invalid_repos = []
+        for path in repo_paths:
+            try:
+                repo_objs.append(FancyRepo(path))
+            except NotGitRepository:
+                invalid_repos.append(path)
+        return repo_objs, invalid_repos
 
 
 def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
