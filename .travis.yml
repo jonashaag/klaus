@@ -5,11 +5,14 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7"
 addons:
   apt:
     packages:
     - exuberant-ctags
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial
 install:
   - "pip install ."
   - "pip install -r test_requirements.txt"
