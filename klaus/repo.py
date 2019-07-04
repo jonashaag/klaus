@@ -31,21 +31,30 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_last_updated_at(self):
         """Get datetime of last commit to this repository."""
-        refs = []
-        for ref_hash in self.get_refs().values():
-            try:
-                refs.append(self[ref_hash])
-            except KeyError:
-                # Whoops. The ref points at a non-existant object
-                pass
-        refs.sort(key=lambda obj:getattr(obj, 'commit_time', float('-inf')),
-                  reverse=True)
-        for ref in refs:
-            # Find the latest ref that has a commit_time; tags do not
-            # have a commit time
-            if hasattr(ref, "commit_time"):
-                return ref.commit_time
-        return None
+        def _get_last_updated_at():
+            refs = []
+            for ref_hash in self.get_refs().values():
+                try:
+                    refs.append(self[ref_hash])
+                except KeyError:
+                    # Whoops. The ref points at a non-existant object
+                    pass
+            refs.sort(key=lambda obj:getattr(obj, 'commit_time', float('-inf')),
+                      reverse=True)
+            for ref in refs:
+                # Find the latest ref that has a commit_time; tags do not
+                # have a commit time
+                if hasattr(ref, "commit_time"):
+                    return ref.commit_time
+            return None
+
+        # Cache result to speed up repo_list.html template.
+        # If self.refs.keys() as changed, we should invalidate the cache.
+        cache_key = self.refs.keys()
+        if cache_key != getattr(self, '_last_updated_at_cache_key', None):
+            self._last_updated_at_cache_retval = _get_last_updated_at()
+        self._last_updated_at_cache_key = cache_key
+        return self._last_updated_at_cache_retval
 
     @property
     def cloneurl(self):
