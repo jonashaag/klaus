@@ -12,7 +12,7 @@
 </h2>
 <ul class=repolist>
   {% for repo in repos %}
-    {% set last_updated_at = repo.get_last_updated_at() %}
+    {% set last_updated_at = repo.fast_get_last_updated_at() %}
     {% set description = repo.get_description() %}
     <li>
       <a
