@@ -12,6 +12,7 @@ HTDIGEST_FILE = "tests/credentials.htdigest"
 TEST_REPO = os.path.abspath("tests/repos/build/test_repo")
 TEST_REPO_ROOT = os.path.abspath("tests/repos/build")
 TEST_REPO_URL = "test_repo/"
+TEST_SERVER = "http://localhost:9876/"
 UNAUTH_TEST_SERVER = "http://invalid:password@localhost:9876/"
 UNAUTH_TEST_REPO_URL = UNAUTH_TEST_SERVER + TEST_REPO_URL
 AUTH_TEST_SERVER = "http://testuser:testpassword@localhost:9876/"
@@ -23,7 +24,9 @@ TEST_REPO_NO_NEWLINE_URL = UNAUTH_TEST_SERVER + "no-newline-at-end-of-file/"
 TEST_REPO_DONT_RENDER = os.path.abspath("tests/repos/build/dont-render")
 TEST_REPO_DONT_RENDER_URL = UNAUTH_TEST_SERVER + "dont-render/"
 
-ALL_TEST_REPOS = [TEST_REPO, TEST_REPO_NO_NEWLINE, TEST_REPO_DONT_RENDER]
+TEST_INVALID_REPO = os.path.abspath("tests/repos/build/invalid_repo")
+
+ALL_TEST_REPOS = [TEST_REPO, TEST_REPO_NO_NEWLINE, TEST_REPO_DONT_RENDER, TEST_INVALID_REPO]
 
 
 @contextlib.contextmanager
