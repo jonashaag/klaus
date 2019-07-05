@@ -4,7 +4,7 @@ import httpauth
 import dulwich.web
 from dulwich.errors import NotGitRepository
 from klaus import views, utils
-from klaus.repo import FancyRepo
+from klaus.repo import FancyRepo, InvalidRepo
 
 
 KLAUS_VERSION = utils.guess_git_revision() or '1.4.0'
@@ -88,7 +88,7 @@ class Klaus(flask.Flask):
             try:
                 repo_objs.append(FancyRepo(path))
             except NotGitRepository:
-                invalid_repos.append(path)
+                invalid_repos.append(InvalidRepo(path))
         return repo_objs, invalid_repos
 
 

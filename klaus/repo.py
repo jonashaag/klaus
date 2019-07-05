@@ -266,3 +266,17 @@ class FancyRepo(dulwich.repo.Repo):
         bytesio = io.BytesIO()
         dulwich.patch.write_tree_diff(bytesio, self.object_store, parent_tree, commit.tree)
         return bytesio.getvalue()
+
+class InvalidRepo:
+    """Represent an invalid repository and store pertinent data."""
+
+    def __init__(self, path):
+        self.path = path
+
+    @property
+    def name(self):
+        """Get repository or folder name from path."""
+        path = os.path.basename(self.path)
+        if path.endswith('.git'):
+            path = path[:-4]
+        return path

@@ -38,9 +38,9 @@
 
 {% if invalid_repos|length>0 %}
 <ul class="repolist invalid">
-  {% for name in invalid_repos %}
+  {% for repo in invalid_repos %}
     <li>
-        <div class=name>{{ name }}</div>
+        <div class=name>{{ repo.name }}</div>
         <div class=reason>
           Invalid git repository
         </div>
