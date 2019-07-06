@@ -6,10 +6,6 @@ import threading
 from klaus import make_app
 
 
-def is_hidden_folder(f):
-    return f[0] == '.'
-
-
 # Shared state between poller and application wrapper
 class S:
     #: the real WSGI app
