@@ -7,7 +7,11 @@
 <h2>
   Repositories
   <span>
-    (<a href="?by-name=yep">order by name</a>)
+    {% if order_by == 'name' %}
+      (<a href="?">order by last updated</a>)
+    {% else %}
+      (<a href="?by-name=yep">order by name</a>)
+    {% endif %}
   </span>
 </h2>
 <ul class=repolist>
