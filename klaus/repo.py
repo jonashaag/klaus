@@ -9,7 +9,8 @@ from dulwich.objects import Blob
 from dulwich.errors import NotTreeError
 import dulwich, dulwich.patch
 
-from klaus.utils import force_unicode, parent_directory, encode_for_git, decode_from_git
+from klaus.utils import force_unicode, parent_directory, repo_human_name, \
+                        encode_for_git, decode_from_git
 from klaus.diff import render_diff
 
 
@@ -26,20 +27,11 @@ def cached_call(key, validator, producer, _cache={}):
 
 class FancyRepo(dulwich.repo.Repo):
     """A wrapper around Dulwich's Repo that adds some helper methods."""
-    # TODO: factor out stuff into dulwich
     @property
     def name(self):
-        """Get repository name from path.
+        return repo_human_name(self.path)
 
-        1. /x/y.git -> /x/y  and  /x/y/.git/ -> /x/y//
-        2. /x/y/ -> /x/y
-        3. /x/y -> y
-        """
-        path = self.path.rstrip(os.sep).split(os.sep)[-1]
-        if path.endswith('.git'):
-            path = path[:-4]
-        return path
-
+    # TODO: factor out stuff into dulwich
     def get_last_updated_at(self):
         """Get datetime of last commit to this repository."""
         # Cache result to speed up repo_list.html template.
@@ -329,3 +321,13 @@ class FrozenFancyRepo(object):
         if self.__last_updated_at is NOT_SET:
             self.__last_updated_at = self.__repo.get_last_updated_at()
         return self.__last_updated_at
+
+
+class InvalidRepo:
+    """Represent an invalid repository and store pertinent data."""
+    def __init__(self, path):
+        self.path = path
+
+    @property
+    def name(self):
+        return repo_human_name(self.path)

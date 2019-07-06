@@ -2,8 +2,9 @@ import jinja2
 import flask
 import httpauth
 import dulwich.web
+from dulwich.errors import NotGitRepository
 from klaus import views, utils
-from klaus.repo import FancyRepo
+from klaus.repo import FancyRepo, InvalidRepo
 
 
 KLAUS_VERSION = utils.guess_git_revision() or '1.4.0'
@@ -17,11 +18,13 @@ class Klaus(flask.Flask):
 
     def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy='none'):
         """(See `make_app` for parameter descriptions.)"""
-        repo_objs = [FancyRepo(path) for path in repo_paths]
-        self.repos = dict((repo.name, repo) for repo in repo_objs)
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
         self.ctags_policy = ctags_policy
+
+        valid_repos, invalid_repos = self.load_repos(repo_paths)
+        self.valid_repos = {repo.name: repo for repo in valid_repos}
+        self.invalid_repos = {repo.name: repo for repo in invalid_repos}
 
         flask.Flask.__init__(self, __name__)
 
@@ -79,6 +82,15 @@ class Klaus(flask.Flask):
         else:
             raise ValueError("Unknown ctags policy %r" % self.ctags_policy)
 
+    def load_repos(self, repo_paths):
+        valid_repos = []
+        invalid_repos = []
+        for path in repo_paths:
+            try:
+                valid_repos.append(FancyRepo(path))
+            except NotGitRepository:
+                invalid_repos.append(InvalidRepo(path))
+        return valid_repos, invalid_repos
 
 
 def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
@@ -128,7 +140,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
-            dict(('/'+name, repo) for name, repo in app.repos.items())
+            {'/'+name: repo for name, repo in app.valid_repos.items()}
         )
         # Dulwich takes care of all Git related requests/URLs
         # and passes through everything else to klaus

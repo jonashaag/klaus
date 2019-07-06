@@ -269,3 +269,16 @@ def tarball_basename(repo_name, rev):
         return "%s@%s" % (repo_name, rev)
     else:
         return "%s-%s" % (repo_name, rev)
+
+
+def repo_human_name(path):
+    """Get repository name from path.
+
+    1. /x/y.git -> /x/y  and  /x/y/.git/ -> /x/y//
+    2. /x/y/ -> /x/y
+    3. /x/y -> y
+    """
+    name = path.rstrip(os.sep).split(os.sep)[-1]
+    if name.endswith('.git'):
+        name = name[:-4]
+    return name

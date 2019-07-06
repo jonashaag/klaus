@@ -36,9 +36,11 @@ def repo_list():
         sort_key = lambda repo: repo.name
     else:
         sort_key = lambda repo: (-(repo.fast_get_last_updated_at() or -1), repo.name)
-    repos = sorted([repo.freeze() for repo in current_app.repos.values()],
+    repos = sorted([repo.freeze() for repo in current_app.valid_repos.values()],
                    key=sort_key)
-    return render_template('repo_list.html', repos=repos, base_href=None)
+    invalid_repos = sorted(current_app.invalid_repos.values(), key=lambda repo: repo.name)
+    return render_template('repo_list.html', repos=repos, invalid_repos=invalid_repos,
+                           base_href=None)
 
 
 
@@ -52,7 +54,7 @@ def _get_repo_and_rev(repo, rev=None, path=None):
         rev += "/" + path.rstrip("/")
 
     try:
-        repo = current_app.repos[repo]
+        repo = current_app.valid_repos[repo]
     except KeyError:
         raise NotFound("No such repository %r" % repo)
 

@@ -36,4 +36,17 @@
   {% endfor %}
 </ul>
 
+{% if invalid_repos %}
+<ul class="repolist invalid">
+  {% for repo in invalid_repos %}
+    <li>
+        <div class=name>{{ repo.name }}</div>
+        <div class=reason>
+          Invalid git repository
+        </div>
+    </li>
+  {% endfor %}
+</ul>
+{% endif%}
+
 {% endblock %}
