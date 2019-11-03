@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.5.0 (Nov 3, 2019)
+-------------------
+- #239: More robust "last updated at" determination (Jelmer Vernooĳ)
+- #238: Cache index view (Jonas Haag)
+- #240: Handle non-Git folders nicely with autoreloader (Guillaume Hétier)
+
 1.4.0 (May 7, 2019)
 -------------------
 - #217: Add man page (Jelmer Vernooĳ)
