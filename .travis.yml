@@ -1,5 +1,7 @@
-sudo: false
+os: linux
 language: python
+services:
+  - docker
 python:
   - "2.7"
   - "3.4"
@@ -9,10 +11,11 @@ addons:
   apt:
     packages:
     - exuberant-ctags
-matrix:
+jobs:
   include:
     - python: 3.7
       dist: xenial
+
 install:
   - "pip install ."
   - "pip install -r test_requirements.txt"
@@ -20,3 +23,8 @@ script:
   - git config --global user.email "you@example.com"
   - git config --global user.name "Your Name"
   - ./runtests.sh
+deploy:
+  provider: script
+  on:
+    tags: true
+  script: ./build-and-push-docker.sh
