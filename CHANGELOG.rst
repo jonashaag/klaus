@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.5.0 (Nov 26, 2019)
+-------------------
+- Test release to check Docker pipeline. No changes.
+
 1.5.0 (Nov 3, 2019)
 -------------------
 - #239: More robust "last updated at" determination (Jelmer Vernooĳ)

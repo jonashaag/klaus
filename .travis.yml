@@ -1,18 +1,23 @@
-sudo: false
+stages:
+  - test
+  - deploy
+
+
+# For tests
+os: linux
+addons:
+  apt:
+    packages:
+    - exuberant-ctags
 language: python
 python:
   - "2.7"
   - "3.4"
   - "3.5"
   - "3.6"
-addons:
-  apt:
-    packages:
-    - exuberant-ctags
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
+  - "3.7"
+  - "3.8"
+  - "nightly"
 install:
   - "pip install ."
   - "pip install -r test_requirements.txt"
@@ -20,3 +25,17 @@ script:
   - git config --global user.email "you@example.com"
   - git config --global user.name "Your Name"
   - ./runtests.sh
+
+
+# For deploy
+services:
+  - docker
+jobs:
+  include:
+    - stage: deploy
+      script: skip
+      deploy:
+        on:
+          tags: true
+        provider: script
+        script: ./build-and-push-docker.sh
