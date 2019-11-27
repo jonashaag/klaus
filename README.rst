@@ -61,14 +61,18 @@ Using the ``klaus`` script
 The `klaus` script uses wsgiref_ internally which doesn't scale *at all*
 (in fact it's single-threaded and non-asynchronous).
 
-To run klaus using the default options::
+To run klaus using the default options:
+
+.. code-block:: bash
 
    # With Docker:
    docker run ... jonashaag/klaus:latest klaus [repo1 [repo2 ...]]
    # Local setup:
    klaus [repo1 [repo2 ...]]
 
-For more options, see::
+For more options, see:
+
+.. code-block:: bash
 
     # With Docker:
    docker run ... jonashaag/klaus:latest klaus --help
