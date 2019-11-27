@@ -13,8 +13,8 @@ klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
 (If it doesn't Just Work for you, please file a bug.)
 
 * Super easy to set up -- no configuration required
-* Supports Python 2 and Python 3
 * Syntax highlighting
+* Markdown + RestructuredText rendering support
 * Git Smart HTTP support
 * Code navigation using Exuberant ctags
 
@@ -25,29 +25,25 @@ klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
 :License: ISC (BSD)
 
 
-Contributing
-------------
-Please do it!
+Running with Docker
+--------------------
 
-I'm equally happy with bug reports/feature ideas and code contributions.
-If you have any questions/issues, I'm happy to help!
+The easiest way to get started. We maintain a Docker image that has syntax highlighting, Markdown rendering, code navigation, etc. pre-configured::
 
-For starters, `here are a few ideas what to work on. <https://github.com/jonashaag/klaus/issues?q=is%3Aissue+is%3Aopen+label%3A%22C%3A+1%22>`_ :-)
+   docker run -v /path/to/your/repos:/repos \
+              -p 7777:80 \
+              -it jonashaag/klaus:latest \
+              klaus --host 0.0.0.0 --port 80 /repos/repo1 /repos/repo2 ...
 
+(Replace ``/path/to/your/repos`` with the folder that contains your Git repositories on the Docker host. You can also pass in multiple ``-v`` arguments if your repos are in multiple folders on the host.)
 
-|img1|_ |img2|_ |img3|_
+Go to http://localhost:7777 on the Docker host et voilà!
 
-.. |img1| image:: https://i.imgur.com/2XhZIgw.png
-.. |img2| image:: https://i.imgur.com/6LjC8Cl.png
-.. |img3| image:: https://i.imgur.com/EYJdQwv.png
-
-.. _img1: https://i.imgur.com/MV3uFvw.png
-.. _img2: https://i.imgur.com/9HEZ3ro.png
-.. _img3: https://i.imgur.com/kx2HaTq.png
+The command line above simply runs the ``klaus`` script -- for usage details, see the "Using the ``klaus`` script" section below.
 
 
-Installation
-------------
+Local setup
+-----------
 ::
 
    pip install klaus
@@ -67,10 +63,16 @@ The `klaus` script uses wsgiref_ internally which doesn't scale *at all*
 
 To run klaus using the default options::
 
+   # With Docker:
+   docker run ... jonashaag/klaus:latest klaus [repo1 [repo2 ...]]
+   # Local setup:
    klaus [repo1 [repo2 ...]]
 
 For more options, see::
 
+    # With Docker:
+   docker run ... jonashaag/klaus:latest klaus --help
+   # Local setup:
    klaus --help
 
 
@@ -92,6 +94,31 @@ Gunicorn example::
             --env KLAUS_REPOS="/path/to/repo1 /path/to/repo2 ..." \
             klaus.contrib.wsgi
 
+The Docker image also has uwsgi preinstalled::
+
+   docker run ... jonashaag/klaus:latest uwsgi ...
+
 See also `deployment section in the wiki <https://github.com/jonashaag/klaus/wiki#deployment>`_.
 
 .. _wsgiref: http://docs.python.org/library/wsgiref.html
+
+
+Contributing
+------------
+Please do it!
+
+I'm equally happy with bug reports/feature ideas and code contributions.
+If you have any questions/issues, I'm happy to help!
+
+For starters, `here are a few ideas what to work on. <https://github.com/jonashaag/klaus/issues?q=is%3Aissue+is%3Aopen+label%3A%22C%3A+1%22>`_ :-)
+
+
+|img1|_ |img2|_ |img3|_
+
+.. |img1| image:: https://i.imgur.com/2XhZIgw.png
+.. |img2| image:: https://i.imgur.com/6LjC8Cl.png
+.. |img3| image:: https://i.imgur.com/EYJdQwv.png
+
+.. _img1: https://i.imgur.com/MV3uFvw.png
+.. _img2: https://i.imgur.com/9HEZ3ro.png
+.. _img3: https://i.imgur.com/kx2HaTq.png

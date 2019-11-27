@@ -10,7 +10,3 @@ RUN apk add --no-cache python3-dev gcc musl-dev && \
 
 ARG KLAUS_VERSION
 RUN pip3 install klaus${KLAUS_VERSION:+==}${KLAUS_VERSION}
-
-EXPOSE 5000
-ENTRYPOINT ["uwsgi", "--plugin", "python", "--http11-socket", "0.0.0.0:5000"]
-CMD ["-w", "klaus.contrib.wsgi_autoreload"]
