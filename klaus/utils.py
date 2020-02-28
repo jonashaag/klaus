@@ -14,7 +14,7 @@ try:
 except ImportError:
     chardet = None
 
-from werkzeug.contrib.fixers import ProxyFix as WerkzeugProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFix as WerkzeugProxyFix
 from humanize import naturaltime
 
 
