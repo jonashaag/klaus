@@ -18,7 +18,7 @@ requires = ['six', 'flask', 'Werkzeug>=0.15.0', 'pygments', 'dulwich>=0.19.3', '
 
 setup(
     name='klaus',
-    version='1.5.1',
+    version='1.5.2',
     author='Jonas Haag',
     author_email='jonas@lophus.org',
     packages=['klaus', 'klaus.contrib'],

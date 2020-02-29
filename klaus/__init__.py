@@ -7,7 +7,7 @@ from klaus import views, utils
 from klaus.repo import FancyRepo, InvalidRepo
 
 
-KLAUS_VERSION = utils.guess_git_revision() or '1.5.1'
+KLAUS_VERSION = utils.guess_git_revision() or '1.5.2'
 
 
 class Klaus(flask.Flask):

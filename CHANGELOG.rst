@@ -1,7 +1,11 @@
 Changelog
 =========
 
-1.5.0 (Nov 26, 2019)
+1.5.2 (Nov 26, 2019)
+-------------------
+- #247: Fix import (Marc Schwab)
+
+1.5.1 (Nov 26, 2019)
 -------------------
 - Test release to check Docker pipeline. No changes.
 
