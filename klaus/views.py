@@ -37,9 +37,8 @@ def repo_list():
         sort_key = lambda repo: repo.name
     else:
         order_by = 'last_updated'
-        sort_key = lambda repo: (-(repo.fast_get_last_updated_at() or -1), repo.name)
-    repos = sorted([repo.freeze() for repo in current_app.valid_repos.values()],
-                   key=sort_key)
+        sort_key = lambda repo: (-(repo.get_last_updated_at() or -1), repo.name)
+    repos = sorted(current_app.valid_repos.values(), key=sort_key)
     invalid_repos = sorted(current_app.invalid_repos.values(), key=lambda repo: repo.name)
     return render_template('repo_list.html', repos=repos, invalid_repos=invalid_repos,
                            order_by=order_by, base_href=None)
