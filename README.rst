@@ -15,7 +15,7 @@ klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
 * Super easy to set up -- no configuration required
 * Syntax highlighting
 * Markdown + RestructuredText rendering support
-* Git Smart HTTP support
+* Pull + push support (Git Smart HTTP)
 * Code navigation using Exuberant ctags
 
 :Demo: http://klausdemo.lophus.org
