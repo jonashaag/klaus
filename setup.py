@@ -14,7 +14,7 @@ def install_data_files_hack():
 
 install_data_files_hack()
 
-requires = ['six', 'flask', 'Werkzeug>=0.15.0', 'pygments', 'dulwich>=0.19.3', 'httpauth', 'humanize']
+requires = ['six', 'flask', 'Werkzeug>=0.15.0', 'pygments', 'httpauth', 'humanize', 'dulwich>=0.19.3;python_version>="3.5"', 'dulwich>=0.19.3,<0.20;python_version<"3.5"']
 
 setup(
     name='klaus',
