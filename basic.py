@@ -5,5 +5,5 @@ repos = [
     "./repositories/transformers.git",
 ]
 
-app = Klaus(repos, "hf-next", use_smarthttp=False)
+app = Klaus(repos, "klaus.py", use_smarthttp=False)
 app.run(debug=True)
