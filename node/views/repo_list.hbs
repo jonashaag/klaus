@@ -12,9 +12,9 @@
   {{#each items as |item|}}
     <li>
       <a
-		href="/{{repo_human_name item.repo}}"
+        href="/{{repo_name item.repo}}"
       >
-        <div class=name>{{repo_human_name item.repo}}</div>
+        <div class=name>{{repo_name item.repo}}</div>
         <div class=last-updated>
           last updated {{ call item.commit "date" }}
         </div>

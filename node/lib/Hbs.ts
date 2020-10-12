@@ -4,6 +4,7 @@ import { __nodeDir } from './RootDirFinder';
 import { HbsEngine } from './HbsEngine';
 import { Utils } from './Utils';
 import { c } from './Log';
+import { Repo } from './Repo';
 
 export const hbs = new HbsEngine();
 
@@ -111,19 +112,19 @@ hbs.handlebars.registerHelper('dateString', (o: number) => {
 	return date.toLocaleDateString('en-US');
 });
 
-hbs.handlebars.registerHelper('call', function(o: any, ...args: any[]) {
-	return o[args[0]]();
+hbs.handlebars.registerHelper('call', function(o: any, method: string, ...args: any[]) {
+	// The hbs binding/scoping is kinda insane
+	// so `call o.method` wouldn't work.
+	args.pop();
+	return o[method](...args);
 });
 
 
 /**
  * App-specific
  */
-hbs.handlebars.registerHelper('repo_human_name', (r: Repository) => {
-	return Utils.trimSuffix(
-		basename(r.path()),
-		'.git'
-	);
+hbs.handlebars.registerHelper('repo_name', (r: Repository) => {
+	return Repo.name(r);
 });
 
 

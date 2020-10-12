@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import * as util from 'util';
 import * as child_process from 'child_process';
 import * as Git from 'nodegit';
@@ -7,11 +8,11 @@ import { c } from './lib/Log';
 import { hbs } from './lib/Hbs';
 import __rootDir, { __klausDir, __nodeDir } from './lib/RootDirFinder';
 import { Utils } from './lib/Utils';
+import { Repo } from './lib/Repo';
 const __exec = util.promisify(child_process.exec);
 
 const app = express();
 const PORT = process.env.PORT || 8888;
-const ROOT_REPOSITORIES = __rootDir+`/repositories`;
 
 
 // Express setup
@@ -38,7 +39,7 @@ const _get_repo_and_rev = async (
 	}
 	let repo: Git.Repository;
 	try {
-		repo = await Git.Repository.openBare(`${ROOT_REPOSITORIES}/${repoName}.git`);
+		repo = await Git.Repository.openBare(`${Repo.ROOT_REPOS}/${repoName}.git`);
 	} catch {
 		throw new Error(`No such repository ${repoName}`);
 	}
@@ -72,17 +73,32 @@ const _get_repo_and_rev = async (
  */
 
 app.get('/', async function(req, res) {
-	const repoFolders = await fs.promises.readdir(ROOT_REPOSITORIES);
-	/// ^^ For now, simply assume top-level folders in this dir
+	const repoFolders = await Utils.readdirREnt(
+		Repo.ROOT_REPOS,
+		(x) => x.name.endsWith(`.git`),
+		2
+	);
+	/// Assume top-level or nesting=1 folders in this dir
 	/// are our repos.
 	/// Also assume they are bare repos.
 	const repos = await Promise.all(repoFolders.map(x => {
-		return Git.Repository.openBare(`${ROOT_REPOSITORIES}/${x}`);
+		return Git.Repository.openBare(x);
 	}));
 	const headCommits = await Promise.all(repos.map(x => x.getHeadCommit()));
 	
+	const items: {
+		repo: Git.Repository,
+		commit: Git.Commit,
+	}[] = Utils.zip(repos, headCommits).map(x => ({ repo: x[0], commit: x[1] }));
+	
+	if (req.query['by-name']) {
+		items.sort((a, b) => Repo.name(a.repo).localeCompare(Repo.name(b.repo)));
+	} else {
+		items.sort((a, b) => b.commit.time() - a.commit.time());
+	}
+	
 	res.render('repo_list', {
-		items: Utils.zip(repos, headCommits).map(x => ({ repo: x[0], commit: x[1] })),
+		items,
 		order_by: req.query['by-name'] ? 'name' : 'last_updated',
 		meta: {
 			title: `Repository list`,
@@ -133,7 +149,7 @@ const guess_git_revision = async () => {
 
 (async () => {
 	app.locals.KLAUS_VERSION = await guess_git_revision();
-	app.locals.SITE_NAME = process.env.KLAUS_SITE_NAME ?? "klaus-next";
+	app.locals.SITE_NAME = process.env.KLAUS_SITE_NAME ?? "klaus-node";
 	
 	app.listen(PORT, () => {
 		c.debug(`Running on http://localhost:${PORT}`);

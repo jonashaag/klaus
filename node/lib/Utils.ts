@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import * as util from 'util';
 import * as child_process from 'child_process';
 const __exec = util.promisify(child_process.exec);
@@ -52,5 +53,41 @@ export namespace Utils {
 	 */
 	export function zip<U, V>(keys: U[], values: V[]): [U, V][] {
 		return keys.map((k, i): [U, V] => [ k, values[i] ]);
+	}
+	
+	/**
+	 * Recursive readdir matching fs.Dirent[]
+	 * 
+	 * Use `matchDirEnt` to select what's returned
+	 */
+	export async function readdirREnt(
+		dirpath: string,
+		matchDirEnt: (x: fs.Dirent) => boolean = () => true,
+		maxDepth?: number,
+	): Promise<string[]> {
+		const dirEnts = await fs.promises.readdir(dirpath, {
+			withFileTypes: true,
+		});
+		const children = dirEnts.filter(x => matchDirEnt(x))
+			.map(x => path.join(dirpath, x.name))
+		;
+		if (maxDepth === undefined || maxDepth > 1) {
+			const mD = !!maxDepth
+				? maxDepth - 1
+				: undefined
+			;
+			const descendants = (await Promise.all(
+				dirEnts
+					.filter(x => x.isDirectory())
+					.map(x => readdirREnt(path.join(dirpath, x.name), matchDirEnt, mD))
+			)).flat();
+			
+			return [
+				...children,
+				...descendants,
+			];
+		} else {
+			return children;
+		}
 	}
 }
