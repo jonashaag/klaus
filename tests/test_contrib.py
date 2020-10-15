@@ -1,4 +1,5 @@
 import os
+
 try:
     from importlib import reload  # Python 3.4+
 except ImportError:
@@ -20,9 +21,9 @@ def check_env(env, expected_args, expected_kwargs):
 
 def test_minimum_env(monkeypatch):
     """Test to provide only required env var"""
-    monkeypatch.setattr(os, 'environ', os.environ.copy())
+    monkeypatch.setattr(os, "environ", os.environ.copy())
     check_env(
-        {'KLAUS_SITE_NAME': TEST_SITE_NAME},
+        {"KLAUS_SITE_NAME": TEST_SITE_NAME},
         ([], TEST_SITE_NAME),
         dict(
             htdigest_file=None,
@@ -30,23 +31,24 @@ def test_minimum_env(monkeypatch):
             require_browser_auth=False,
             disable_push=False,
             unauthenticated_push=False,
-            ctags_policy='none')
+            ctags_policy="none",
+        ),
     )
 
 
 def test_complete_env(monkeypatch):
     """Test to provide all supported env var"""
-    monkeypatch.setattr(os, 'environ', os.environ.copy())
+    monkeypatch.setattr(os, "environ", os.environ.copy())
     check_env(
         {
-            'KLAUS_REPOS': TEST_REPO,
-            'KLAUS_SITE_NAME': TEST_SITE_NAME,
-            'KLAUS_HTDIGEST_FILE': HTDIGEST_FILE,
-            'KLAUS_USE_SMARTHTTP': 'yes',
-            'KLAUS_REQUIRE_BROWSER_AUTH': '1',
-            'KLAUS_DISABLE_PUSH': 'false',
-            'KLAUS_UNAUTHENTICATED_PUSH': '0',
-            'KLAUS_CTAGS_POLICY': 'ALL'
+            "KLAUS_REPOS": TEST_REPO,
+            "KLAUS_SITE_NAME": TEST_SITE_NAME,
+            "KLAUS_HTDIGEST_FILE": HTDIGEST_FILE,
+            "KLAUS_USE_SMARTHTTP": "yes",
+            "KLAUS_REQUIRE_BROWSER_AUTH": "1",
+            "KLAUS_DISABLE_PUSH": "false",
+            "KLAUS_UNAUTHENTICATED_PUSH": "0",
+            "KLAUS_CTAGS_POLICY": "ALL",
         },
         ([TEST_REPO], TEST_SITE_NAME),
         dict(
@@ -55,36 +57,40 @@ def test_complete_env(monkeypatch):
             require_browser_auth=True,
             disable_push=False,
             unauthenticated_push=False,
-            ctags_policy='ALL')
+            ctags_policy="ALL",
+        ),
     )
 
 
 def test_unsupported_boolean_env(monkeypatch):
     """Test that unsupported boolean env var raises ValueError"""
-    monkeypatch.setattr(os, 'environ', os.environ.copy())
+    monkeypatch.setattr(os, "environ", os.environ.copy())
     with pytest.raises(ValueError):
         check_env(
             {
-                'KLAUS_REPOS': TEST_REPO,
-                'KLAUS_SITE_NAME': TEST_SITE_NAME,
-                'KLAUS_HTDIGEST_FILE': HTDIGEST_FILE,
-                'KLAUS_USE_SMARTHTTP': 'unsupported',
-            }, (), {}
+                "KLAUS_REPOS": TEST_REPO,
+                "KLAUS_SITE_NAME": TEST_SITE_NAME,
+                "KLAUS_HTDIGEST_FILE": HTDIGEST_FILE,
+                "KLAUS_USE_SMARTHTTP": "unsupported",
+            },
+            (),
+            {},
         )
 
 
 def test_wsgi(monkeypatch):
     """Test start of wsgi app"""
-    monkeypatch.setattr(os, 'environ', os.environ.copy())
-    os.environ['KLAUS_REPOS'] = TEST_REPO
-    os.environ['KLAUS_SITE_NAME'] = TEST_SITE_NAME
+    monkeypatch.setattr(os, "environ", os.environ.copy())
+    os.environ["KLAUS_REPOS"] = TEST_REPO
+    os.environ["KLAUS_SITE_NAME"] = TEST_SITE_NAME
     from klaus.contrib import wsgi
+
     with serve_app(wsgi.application):
         assert can_reach_unauth()
         assert not can_push_auth()
 
-    os.environ['KLAUS_HTDIGEST_FILE'] = HTDIGEST_FILE
-    os.environ['KLAUS_USE_SMARTHTTP'] = 'yes'
+    os.environ["KLAUS_HTDIGEST_FILE"] = HTDIGEST_FILE
+    os.environ["KLAUS_USE_SMARTHTTP"] = "yes"
     reload(wsgi)
     with serve_app(wsgi.application):
         assert can_reach_unauth()
@@ -93,16 +99,17 @@ def test_wsgi(monkeypatch):
 
 def test_wsgi_autoreload(monkeypatch):
     """Test start of wsgi autoreload app"""
-    monkeypatch.setattr(os, 'environ', os.environ.copy())
-    os.environ['KLAUS_REPOS_ROOT'] = TEST_REPO_ROOT
-    os.environ['KLAUS_SITE_NAME'] = TEST_SITE_NAME
+    monkeypatch.setattr(os, "environ", os.environ.copy())
+    os.environ["KLAUS_REPOS_ROOT"] = TEST_REPO_ROOT
+    os.environ["KLAUS_SITE_NAME"] = TEST_SITE_NAME
     from klaus.contrib import wsgi_autoreload, wsgi_autoreloading
+
     with serve_app(wsgi_autoreload.application):
         assert can_reach_unauth()
         assert not can_push_auth()
 
-    os.environ['KLAUS_HTDIGEST_FILE'] = HTDIGEST_FILE
-    os.environ['KLAUS_USE_SMARTHTTP'] = 'yes'
+    os.environ["KLAUS_HTDIGEST_FILE"] = HTDIGEST_FILE
+    os.environ["KLAUS_USE_SMARTHTTP"] = "yes"
     reload(wsgi_autoreload)
     reload(wsgi_autoreloading)
     with serve_app(wsgi_autoreload.application):

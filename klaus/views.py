@@ -19,36 +19,59 @@ except ImportError:
     ctags = None
 else:
     from klaus import ctagscache
+
     CTAGS_CACHE = ctagscache.CTagsCache()
 
 from klaus import markup
 from klaus.highlighting import highlight_or_render
-from klaus.utils import parent_directory, subpaths, force_unicode, guess_is_binary, \
-                        guess_is_image, replace_dupes, sanitize_branch_name, encode_for_git
+from klaus.utils import (
+    parent_directory,
+    subpaths,
+    force_unicode,
+    guess_is_binary,
+    guess_is_image,
+    replace_dupes,
+    sanitize_branch_name,
+    encode_for_git,
+)
 
 
-README_FILENAMES = [b'README', b'README.md', b'README.mkdn', b'README.mdwn', b'README.markdown', b'README.rst']
+README_FILENAMES = [
+    b"README",
+    b"README.md",
+    b"README.mkdn",
+    b"README.mdwn",
+    b"README.markdown",
+    b"README.rst",
+]
 
 
 def repo_list():
     """Show a list of all repos and can be sorted by last update."""
-    if 'by-name' in request.args:
-        order_by = 'name'
+    if "by-name" in request.args:
+        order_by = "name"
         sort_key = lambda repo: repo.name
     else:
-        order_by = 'last_updated'
+        order_by = "last_updated"
         sort_key = lambda repo: (-(repo.fast_get_last_updated_at() or -1), repo.name)
-    repos = sorted([repo.freeze() for repo in current_app.valid_repos.values()],
-                   key=sort_key)
-    invalid_repos = sorted(current_app.invalid_repos.values(), key=lambda repo: repo.name)
-    return render_template('repo_list.html', repos=repos, invalid_repos=invalid_repos,
-                           order_by=order_by, base_href=None)
-
+    repos = sorted(
+        [repo.freeze() for repo in current_app.valid_repos.values()], key=sort_key
+    )
+    invalid_repos = sorted(
+        current_app.invalid_repos.values(), key=lambda repo: repo.name
+    )
+    return render_template(
+        "repo_list.html",
+        repos=repos,
+        invalid_repos=invalid_repos,
+        order_by=order_by,
+        base_href=None,
+    )
 
 
 def robots_txt():
     """Serve the robots.txt file to manage the indexing of the site by search engines."""
-    return current_app.send_static_file('robots.txt')
+    return current_app.send_static_file("robots.txt")
 
 
 def _get_repo_and_rev(repo, rev=None, path=None):
@@ -83,12 +106,13 @@ def _get_repo_and_rev(repo, rev=None, path=None):
 
 def _get_submodule(repo, commit, path):
     """Retrieve submodule URL and path."""
-    submodule_blob = repo.get_blob_or_tree(commit, '.gitmodules')
+    submodule_blob = repo.get_blob_or_tree(commit, ".gitmodules")
     config = dulwich.config.ConfigFile.from_file(
-        BytesIO(submodule_blob.as_raw_string()))
-    key = (b'submodule', path)
-    submodule_url = config.get(key, b'url')
-    submodule_path = config.get(key, b'path')
+        BytesIO(submodule_blob.as_raw_string())
+    )
+    key = (b"submodule", path)
+    submodule_url = config.get(key, b"url")
+    submodule_path = config.get(key, b"path")
     return (submodule_url, submodule_path)
 
 
@@ -104,11 +128,12 @@ class BaseRepoView(View):
     is "/foo/bar", only commits related to "/foo/bar" are displayed, and if
     `rev` is "master", the history of the "master" branch is displayed.
     """
+
     def __init__(self, view_name):
         self.view_name = view_name
         self.context = {}
 
-    def dispatch_request(self, repo, rev=None, path=''):
+    def dispatch_request(self, repo, rev=None, path=""):
         """Dispatch repository, revision (if any) and path (if any). To retain
         compatibility with :func:`url_for`, view routing uses two arguments:
         rev and path, although a single path is sufficient (from Git's point of
@@ -121,7 +146,7 @@ class BaseRepoView(View):
 
         [1] https://github.com/jonashaag/klaus/issues/36#issuecomment-23990266
         """
-        self.make_template_context(repo, rev, path.strip('/'))
+        self.make_template_context(repo, rev, path.strip("/"))
         return self.get_response()
 
     def get_response(self):
@@ -136,48 +161,46 @@ class BaseRepoView(View):
             raise NotFound("File not found")
 
         self.context = {
-            'view': self.view_name,
-            'repo': repo,
-            'rev': rev,
-            'commit': commit,
-            'branches': repo.get_branch_names(exclude=rev),
-            'tags': repo.get_tag_names(),
-            'path': path,
-            'blob_or_tree': blob_or_tree,
-            'subpaths': list(subpaths(path)) if path else None,
-            'base_href': None,
+            "view": self.view_name,
+            "repo": repo,
+            "rev": rev,
+            "commit": commit,
+            "branches": repo.get_branch_names(exclude=rev),
+            "tags": repo.get_tag_names(),
+            "path": path,
+            "blob_or_tree": blob_or_tree,
+            "subpaths": list(subpaths(path)) if path else None,
+            "base_href": None,
         }
 
 
 class CommitView(BaseRepoView):
-    template_name = 'view_commit.html'
+    template_name = "view_commit.html"
 
 
 class PatchView(BaseRepoView):
     def get_response(self):
         return Response(
-            self.context['repo'].raw_commit_diff(self.context['commit']),
-            mimetype='text/plain',
+            self.context["repo"].raw_commit_diff(self.context["commit"]),
+            mimetype="text/plain",
         )
 
 
 class TreeViewMixin(object):
     """The logic required for displaying the current directory in the sidebar."""
+
     def make_template_context(self, *args):
         super(TreeViewMixin, self).make_template_context(*args)
-        self.context['root_tree'] = self.listdir()
+        self.context["root_tree"] = self.listdir()
 
     def listdir(self):
         """Return a list of directories and files in the current path of the selected commit."""
         root_directory = self.get_root_directory()
-        return self.context['repo'].listdir(
-            self.context['commit'],
-            root_directory
-        )
+        return self.context["repo"].listdir(self.context["commit"], root_directory)
 
     def get_root_directory(self):
-        root_directory = self.context['path']
-        if isinstance(self.context['blob_or_tree'], dulwich.objects.Blob):
+        root_directory = self.context["path"]
+        if isinstance(self.context["blob_or_tree"], dulwich.objects.Blob):
             # 'path' is a file (not folder) name
             root_directory = parent_directory(root_directory)
         return root_directory
@@ -185,33 +208,33 @@ class TreeViewMixin(object):
 
 class HistoryView(TreeViewMixin, BaseRepoView):
     """Show commits of a branch + path, just like `git log`. With pagination."""
-    template_name = 'history.html'
+
+    template_name = "history.html"
 
     def make_template_context(self, *args):
         super(HistoryView, self).make_template_context(*args)
 
         try:
-            page = int(request.args.get('page'))
+            page = int(request.args.get("page"))
         except (TypeError, ValueError):
             page = 0
 
-        self.context['page'] = page
+        self.context["page"] = page
 
         history_length = 30
         if page:
-            skip = (self.context['page']-1) * 30 + 10
+            skip = (self.context["page"] - 1) * 30 + 10
             if page > 7:
-                self.context['previous_pages'] = [0, 1, 2, None] + list(range(page))[-3:]
+                self.context["previous_pages"] = [0, 1, 2, None] + list(range(page))[
+                    -3:
+                ]
             else:
-                self.context['previous_pages'] = range(page)
+                self.context["previous_pages"] = range(page)
         else:
             skip = 0
 
-        history = self.context['repo'].history(
-            self.context['commit'],
-            self.context['path'],
-            history_length + 1,
-            skip
+        history = self.context["repo"].history(
+            self.context["commit"], self.context["path"], history_length + 1, skip
         )
         if len(history) == history_length + 1:
             # At least one more commit for next page left
@@ -221,23 +244,26 @@ class HistoryView(TreeViewMixin, BaseRepoView):
         else:
             more_commits = False
 
-        self.context.update({
-            'history': history,
-            'more_commits': more_commits,
-        })
+        self.context.update(
+            {
+                "history": history,
+                "more_commits": more_commits,
+            }
+        )
 
 
 class IndexView(TreeViewMixin, BaseRepoView):
     """Show commits of a branch, just like `git log`.
 
     Also, README, if available."""
-    template_name = 'index.html'
+
+    template_name = "index.html"
 
     def _get_readme(self):
-        tree = self.context['repo'][self.context['commit'].tree]
+        tree = self.context["repo"][self.context["commit"].tree]
         for name in README_FILENAMES:
             if name in tree:
-                readme_data = self.context['repo'][tree[name][1]].data
+                readme_data = self.context["repo"][tree[name][1]].data
                 readme_filename = name
                 return (readme_filename, readme_data)
         else:
@@ -246,18 +272,15 @@ class IndexView(TreeViewMixin, BaseRepoView):
     def make_template_context(self, *args):
         super(IndexView, self).make_template_context(*args)
 
-        self.context['base_href'] = url_for(
-            'blob',
-            repo=self.context['repo'].name,
-            rev=self.context['rev'],
-            path=''
+        self.context["base_href"] = url_for(
+            "blob", repo=self.context["repo"].name, rev=self.context["rev"], path=""
         )
 
-        self.context['page'] = 0
+        self.context["page"] = 0
         history_length = 10
-        history = self.context['repo'].history(
-            self.context['commit'],
-            self.context['path'],
+        history = self.context["repo"].history(
+            self.context["commit"],
+            self.context["path"],
             history_length + 1,
             skip=0,
         )
@@ -269,50 +292,59 @@ class IndexView(TreeViewMixin, BaseRepoView):
         else:
             more_commits = False
 
-        self.context.update({
-            'history': history,
-            'more_commits': more_commits,
-        })
+        self.context.update(
+            {
+                "history": history,
+                "more_commits": more_commits,
+            }
+        )
         try:
             (readme_filename, readme_data) = self._get_readme()
         except KeyError:
-            self.context.update({
-                'is_markup': None,
-                'rendered_code': None,
-            })
+            self.context.update(
+                {
+                    "is_markup": None,
+                    "rendered_code": None,
+                }
+            )
         else:
-            readme_filename = force_unicode(readme_filename) 
+            readme_filename = force_unicode(readme_filename)
             readme_data = force_unicode(readme_data)
-            self.context.update({
-                'is_markup': markup.can_render(readme_filename),
-                'rendered_code': highlight_or_render(readme_data, readme_filename)
-            })
+            self.context.update(
+                {
+                    "is_markup": markup.can_render(readme_filename),
+                    "rendered_code": highlight_or_render(readme_data, readme_filename),
+                }
+            )
 
 
 class BaseBlobView(BaseRepoView):
     def make_template_context(self, *args):
         super(BaseBlobView, self).make_template_context(*args)
-        if not isinstance(self.context['blob_or_tree'], dulwich.objects.Blob):
+        if not isinstance(self.context["blob_or_tree"], dulwich.objects.Blob):
             raise NotFound("Not a blob")
-        self.context['filename'] = os.path.basename(self.context['path'])
+        self.context["filename"] = os.path.basename(self.context["path"])
 
 
 class SubmoduleView(BaseRepoView):
     """Show an information page about a submodule."""
-    template_name = 'submodule.html'
+
+    template_name = "submodule.html"
 
     def make_template_context(self, repo, rev, path):
         repo, rev, path, commit = _get_repo_and_rev(repo, rev, path)
 
         try:
             submodule_rev = tree_lookup_path(
-                repo.__getitem__, commit.tree, encode_for_git(path))[1]
+                repo.__getitem__, commit.tree, encode_for_git(path)
+            )[1]
         except KeyError:
             raise NotFound("Parent path for submodule missing")
 
         try:
             (submodule_url, submodule_path) = _get_submodule(
-                repo, commit, encode_for_git(path))
+                repo, commit, encode_for_git(path)
+            )
         except KeyError:
             submodule_url = None
             submodule_path = None
@@ -322,148 +354,164 @@ class SubmoduleView(BaseRepoView):
         # submodule_path, revision submodule_rev.
 
         self.context = {
-            'view': self.view_name,
-            'repo': repo,
-            'rev': rev,
-            'commit': commit,
-            'branches': repo.get_branch_names(exclude=rev),
-            'tags': repo.get_tag_names(),
-            'path': path,
-            'subpaths': list(subpaths(path)) if path else None,
-            'submodule_url': force_unicode(submodule_url),
-            'submodule_path': force_unicode(submodule_path),
-            'submodule_rev': force_unicode(submodule_rev),
-            'base_href': None,
+            "view": self.view_name,
+            "repo": repo,
+            "rev": rev,
+            "commit": commit,
+            "branches": repo.get_branch_names(exclude=rev),
+            "tags": repo.get_tag_names(),
+            "path": path,
+            "subpaths": list(subpaths(path)) if path else None,
+            "submodule_url": force_unicode(submodule_url),
+            "submodule_path": force_unicode(submodule_path),
+            "submodule_rev": force_unicode(submodule_rev),
+            "base_href": None,
         }
 
 
 class BaseFileView(TreeViewMixin, BaseBlobView):
     """Base for FileView and BlameView."""
+
     def render_code(self, render_markup):
-        should_use_ctags = current_app.should_use_ctags(self.context['repo'],
-                                                        self.context['commit'])
+        should_use_ctags = current_app.should_use_ctags(
+            self.context["repo"], self.context["commit"]
+        )
         if should_use_ctags:
             if ctags is None:
                 raise ImportError("Ctags enabled but python-ctags not installed")
             ctags_base_url = url_for(
                 self.view_name,
-                repo=self.context['repo'].name,
-                rev=self.context['rev'],
-                path=''
+                repo=self.context["repo"].name,
+                rev=self.context["rev"],
+                path="",
             )
             ctags_tagsfile = CTAGS_CACHE.get_tagsfile(
-                self.context['repo'].path,
-                self.context['commit'].id
+                self.context["repo"].path, self.context["commit"].id
             )
             ctags_args = {
-                'ctags': ctags.CTags(ctags_tagsfile.encode(sys.getfilesystemencoding())),
-                'ctags_baseurl': ctags_base_url,
+                "ctags": ctags.CTags(
+                    ctags_tagsfile.encode(sys.getfilesystemencoding())
+                ),
+                "ctags_baseurl": ctags_base_url,
             }
         else:
             ctags_args = {}
 
         return highlight_or_render(
-            force_unicode(self.context['blob_or_tree'].data),
-            self.context['filename'],
+            force_unicode(self.context["blob_or_tree"].data),
+            self.context["filename"],
             render_markup,
             **ctags_args
         )
 
     def make_template_context(self, *args):
         super(BaseFileView, self).make_template_context(*args)
-        self.context.update({
-            'can_render': True,
-            'is_binary': False,
-            'too_large': False,
-            'is_markup': False,
-        })
+        self.context.update(
+            {
+                "can_render": True,
+                "is_binary": False,
+                "too_large": False,
+                "is_markup": False,
+            }
+        )
 
-        binary = guess_is_binary(self.context['blob_or_tree'])
-        too_large = sum(map(len, self.context['blob_or_tree'].chunked)) > 100*1024
+        binary = guess_is_binary(self.context["blob_or_tree"])
+        too_large = sum(map(len, self.context["blob_or_tree"].chunked)) > 100 * 1024
         if binary:
-            self.context.update({
-                'can_render': False,
-                'is_binary': True,
-                'is_image': guess_is_image(self.context['filename']),
-            })
+            self.context.update(
+                {
+                    "can_render": False,
+                    "is_binary": True,
+                    "is_image": guess_is_image(self.context["filename"]),
+                }
+            )
         elif too_large:
-            self.context.update({
-                'can_render': False,
-                'too_large': True,
-            })
+            self.context.update(
+                {
+                    "can_render": False,
+                    "too_large": True,
+                }
+            )
 
 
 class FileView(BaseFileView):
     """Shows a file rendered using ``pygmentize``."""
-    template_name = 'view_blob.html'
+
+    template_name = "view_blob.html"
 
     def make_template_context(self, *args):
         super(FileView, self).make_template_context(*args)
-        if self.context['can_render']:
-            render_markup = 'markup' not in request.args
-            self.context.update({
-                'is_markup': markup.can_render(self.context['filename']),
-                'render_markup': render_markup,
-                'rendered_code': self.render_code(render_markup),
-            })
+        if self.context["can_render"]:
+            render_markup = "markup" not in request.args
+            self.context.update(
+                {
+                    "is_markup": markup.can_render(self.context["filename"]),
+                    "render_markup": render_markup,
+                    "rendered_code": self.render_code(render_markup),
+                }
+            )
 
 
 class BlameView(BaseFileView):
-    template_name = 'blame_blob.html'
+    template_name = "blame_blob.html"
 
     def make_template_context(self, *args):
         super(BlameView, self).make_template_context(*args)
-        if self.context['can_render']:
-            line_commits = self.context['repo'].blame(self.context['commit'], self.context['path'])
+        if self.context["can_render"]:
+            line_commits = self.context["repo"].blame(
+                self.context["commit"], self.context["path"]
+            )
             replace_dupes(line_commits, None)
-            self.context.update({
-                'rendered_code': self.render_code(render_markup=False),
-                'line_commits': line_commits,
-            })
+            self.context.update(
+                {
+                    "rendered_code": self.render_code(render_markup=False),
+                    "line_commits": line_commits,
+                }
+            )
 
 
 class RawView(BaseBlobView):
     """Show a single file in raw for (as if it were a normal filesystem file
     served through a static file server).
     """
+
     def get_response(self):
         # Explicitly set an empty mimetype. This should work well for most
         # browsers as they do file type recognition anyway.
         # The correct way would be to implement proper file type recognition here.
-        return Response(self.context['blob_or_tree'].chunked, mimetype='')
+        return Response(self.context["blob_or_tree"].chunked, mimetype="")
 
 
 class DownloadView(BaseRepoView):
     """Download a repo as a tar.gz file."""
+
     def get_response(self):
-        basename = "%s@%s" % (self.context['repo'].name,
-                              sanitize_branch_name(self.context['rev']))
+        basename = "%s@%s" % (
+            self.context["repo"].name,
+            sanitize_branch_name(self.context["rev"]),
+        )
         tarname = basename + ".tar.gz"
         headers = {
-            'Content-Disposition': "attachment; filename=%s" % tarname,
-            'Cache-Control': "no-store",  # Disables browser caching
+            "Content-Disposition": "attachment; filename=%s" % tarname,
+            "Cache-Control": "no-store",  # Disables browser caching
         }
 
         tar_stream = dulwich.archive.tar_stream(
-            self.context['repo'],
-            self.context['blob_or_tree'],
-            self.context['commit'].commit_time,
+            self.context["repo"],
+            self.context["blob_or_tree"],
+            self.context["commit"].commit_time,
             format="gz",
             prefix=encode_for_git(basename),
         )
-        return Response(
-            tar_stream,
-            mimetype="application/x-tgz",
-            headers=headers
-        )
+        return Response(tar_stream, mimetype="application/x-tgz", headers=headers)
 
 
-history = HistoryView.as_view('history', 'history')
-index = IndexView.as_view('index', 'index')
-commit = CommitView.as_view('commit', 'commit')
-patch = PatchView.as_view('patch', 'patch')
-blame = BlameView.as_view('blame', 'blame')
-blob = FileView.as_view('blob', 'blob')
-raw = RawView.as_view('raw', 'raw')
-download = DownloadView.as_view('download', 'download')
-submodule = SubmoduleView.as_view('submodule', 'submodule')
+history = HistoryView.as_view("history", "history")
+index = IndexView.as_view("index", "index")
+commit = CommitView.as_view("commit", "commit")
+patch = PatchView.as_view("patch", "patch")
+blame = BlameView.as_view("blame", "blame")
+blob = FileView.as_view("blob", "blob")
+raw = RawView.as_view("raw", "raw")
+download = DownloadView.as_view("download", "download")
+submodule = SubmoduleView.as_view("submodule", "submodule")

@@ -1,8 +1,13 @@
 from six.moves import filter
 
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name, get_lexer_for_filename, \
-                            guess_lexer, ClassNotFound, TextLexer
+from pygments.lexers import (
+    get_lexer_by_name,
+    get_lexer_for_filename,
+    guess_lexer,
+    ClassNotFound,
+    TextLexer,
+)
 from pygments.formatters import HtmlFormatter
 
 from klaus import markup
@@ -14,13 +19,21 @@ CTAGS_SUPPORTED_LANGUAGES = (
     "REXX Ruby SML SQL Scheme Sh Tcl Tex VHDL Verilog Vim"
     # Not supported by Pygments: Asp Ant BETA Flex SLang Vera YACC
 ).split()
-PYGMENTS_CTAGS_LANGUAGE_MAP = dict((get_lexer_by_name(l).name, l) for l in CTAGS_SUPPORTED_LANGUAGES)
+PYGMENTS_CTAGS_LANGUAGE_MAP = dict(
+    (get_lexer_by_name(l).name, l) for l in CTAGS_SUPPORTED_LANGUAGES
+)
 
 
 class KlausDefaultFormatter(HtmlFormatter):
     def __init__(self, language, ctags, **kwargs):
-        HtmlFormatter.__init__(self, linenos='table', lineanchors='L',
-                               linespans='L', anchorlinenos=True, **kwargs)
+        HtmlFormatter.__init__(
+            self,
+            linenos="table",
+            lineanchors="L",
+            linespans="L",
+            anchorlinenos=True,
+            **kwargs
+        )
         self.language = language
         if ctags:
             # Use Pygments' ctags system but provide our own CTags instance
@@ -31,7 +44,7 @@ class KlausDefaultFormatter(HtmlFormatter):
         for tag, line in HtmlFormatter._format_lines(self, tokensource):
             if tag == 1:
                 # sourcecode line
-                line = '<span class=line>%s</span>' % line
+                line = "<span class=line>%s</span>" % line
             yield tag, line
 
     def _lookup_ctag(self, token):
@@ -40,12 +53,15 @@ class KlausDefaultFormatter(HtmlFormatter):
         if not best_matches:
             return None, None
         else:
-            return (best_matches[0]['file'].decode("utf-8"),
-                    best_matches[0]['lineNumber'])
+            return (
+                best_matches[0]["file"].decode("utf-8"),
+                best_matches[0]["lineNumber"],
+            )
 
     def _get_all_ctags_matches(self, token):
-        FIELDS = ('file', 'lineNumber', 'kind', b'language')
+        FIELDS = ("file", "lineNumber", "kind", b"language")
         from ctags import TagEntry
+
         entry = TagEntry()  # target "buffer" for ctags
         if self._ctags.find(entry, token.encode("utf-8"), 0):
             yield dict((k, entry[k]) for k in FIELDS)
@@ -56,7 +72,10 @@ class KlausDefaultFormatter(HtmlFormatter):
         if self.language is None:
             return matches
         else:
-            return filter(lambda match: match[b'language'] == self.language.encode("utf-8"), matches)
+            return filter(
+                lambda match: match[b"language"] == self.language.encode("utf-8"),
+                matches,
+            )
 
 
 class KlausPythonFormatter(KlausDefaultFormatter):
@@ -69,12 +88,14 @@ class KlausPythonFormatter(KlausDefaultFormatter):
         # import of the tag in some other file.  We change the tag lookup mechanics
         # so that non-import matches are always preferred over import matches.
         return filter(
-            lambda match: match['kind'] != b'i',
-            super(KlausPythonFormatter, self).get_best_ctags_matches(matches)
+            lambda match: match["kind"] != b"i",
+            super(KlausPythonFormatter, self).get_best_ctags_matches(matches),
         )
 
 
-def highlight_or_render(code, filename, render_markup=True, ctags=None, ctags_baseurl=None):
+def highlight_or_render(
+    code, filename, render_markup=True, ctags=None, ctags_baseurl=None
+):
     """Render code using Pygments, markup (markdown, rst, ...) using the
     corresponding renderer, if available.
 
@@ -96,7 +117,7 @@ def highlight_or_render(code, filename, render_markup=True, ctags=None, ctags_ba
             lexer = TextLexer()
 
     formatter_cls = {
-        'Python': KlausPythonFormatter,
+        "Python": KlausPythonFormatter,
     }.get(lexer.name, KlausDefaultFormatter)
     if ctags:
         ctags_urlscheme = ctags_baseurl + "%(path)s%(fname)s%(fext)s"

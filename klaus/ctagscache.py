@@ -46,8 +46,8 @@ def compress_tagsfile(uncompressed_tagsfile_path):
     :return: path to the compressed version of the tagsfile
     """
     _, compressed_tagsfile_path = tempfile.mkstemp()
-    with open(uncompressed_tagsfile_path, 'rb') as uncompressed:
-        with gzip.open(compressed_tagsfile_path, 'wb', COMPRESSION_LEVEL) as compressed:
+    with open(uncompressed_tagsfile_path, "rb") as uncompressed:
+        with gzip.open(compressed_tagsfile_path, "wb", COMPRESSION_LEVEL) as compressed:
             shutil.copyfileobj(uncompressed, compressed)
     return compressed_tagsfile_path
 
@@ -58,13 +58,14 @@ def uncompress_tagsfile(compressed_tagsfile_path):
     :return: path to the uncompressed version of the tagsfile
     """
     _, uncompressed_tagsfile_path = tempfile.mkstemp()
-    with gzip.open(compressed_tagsfile_path, 'rb') as compressed:
-        with open(uncompressed_tagsfile_path, 'wb') as uncompressed:
+    with gzip.open(compressed_tagsfile_path, "rb") as compressed:
+        with open(uncompressed_tagsfile_path, "wb") as uncompressed:
             shutil.copyfileobj(compressed, uncompressed)
     return uncompressed_tagsfile_path
 
 
 MiB = 1024 * 1024
+
 
 class CTagsCache(object):
     """A ctags cache. Both uncompressed and compressed entries are kept in
@@ -84,13 +85,18 @@ class CTagsCache(object):
     - When the tagsfile is requested and it's in the compressed cache sector,
       it is moved back to the uncompressed sector prior to using it.
     """
-    def __init__(self, uncompressed_max_bytes=30*MiB, compressed_max_bytes=20*MiB):
+
+    def __init__(self, uncompressed_max_bytes=30 * MiB, compressed_max_bytes=20 * MiB):
         self.uncompressed_max_bytes = uncompressed_max_bytes
         self.compressed_max_bytes = compressed_max_bytes
         # Note: We use dulwich's LRU cache to store the tagsfile paths here,
         # but we could easily replace it by any other (LRU) cache implementation.
-        self._uncompressed_cache = LRUSizeCache(uncompressed_max_bytes, compute_size=os.path.getsize)
-        self._compressed_cache   = LRUSizeCache(compressed_max_bytes,   compute_size=os.path.getsize)
+        self._uncompressed_cache = LRUSizeCache(
+            uncompressed_max_bytes, compute_size=os.path.getsize
+        )
+        self._compressed_cache = LRUSizeCache(
+            compressed_max_bytes, compute_size=os.path.getsize
+        )
         self._clearing = False
         self._lock = threading.Lock()
 
@@ -128,13 +134,18 @@ class CTagsCache(object):
 
             if git_rev in self._compressed_cache:
                 compressed_tagsfile_path = self._compressed_cache[git_rev]
-                uncompressed_tagsfile_path = uncompress_tagsfile(compressed_tagsfile_path)
-                self._compressed_cache._remove_node(self._compressed_cache._cache[git_rev])
+                uncompressed_tagsfile_path = uncompress_tagsfile(
+                    compressed_tagsfile_path
+                )
+                self._compressed_cache._remove_node(
+                    self._compressed_cache._cache[git_rev]
+                )
             else:
                 # Not in cache.
                 uncompressed_tagsfile_path = create_tagsfile(git_repo_path, git_rev)
-            self._uncompressed_cache.add(git_rev, uncompressed_tagsfile_path,
-                                         self._clear_uncompressed_entry)
+            self._uncompressed_cache.add(
+                git_rev, uncompressed_tagsfile_path, self._clear_uncompressed_entry
+            )
             return uncompressed_tagsfile_path
 
     def _clear_uncompressed_entry(self, git_rev, uncompressed_tagsfile_path):
@@ -149,8 +160,11 @@ class CTagsCache(object):
         if not self._clearing:
             # If we're clearing the whole cache, don't waste time moving tagsfiles
             # from uncompressed to compressed cache, but remove them directly instead.
-            self._compressed_cache.add(git_rev, compress_tagsfile(uncompressed_tagsfile_path),
-                                       self._clear_compressed_entry)
+            self._compressed_cache.add(
+                git_rev,
+                compress_tagsfile(uncompressed_tagsfile_path),
+                self._clear_compressed_entry,
+            )
         delete_tagsfile(uncompressed_tagsfile_path)
 
     def _clear_compressed_entry(self, git_rev, compressed_tagsfile_path):

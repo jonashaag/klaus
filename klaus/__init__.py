@@ -7,16 +7,16 @@ from klaus import views, utils
 from klaus.repo import FancyRepo, InvalidRepo
 
 
-KLAUS_VERSION = utils.guess_git_revision() or '1.5.2'
+KLAUS_VERSION = utils.guess_git_revision() or "1.5.2"
 
 
 class Klaus(flask.Flask):
     jinja_options = {
-        'extensions': ['jinja2.ext.autoescape'],
-        'undefined': jinja2.StrictUndefined
+        "extensions": ["jinja2.ext.autoescape"],
+        "undefined": jinja2.StrictUndefined,
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy='none'):
+    def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy="none"):
         """(See `make_app` for parameter descriptions.)"""
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
@@ -34,22 +34,23 @@ class Klaus(flask.Flask):
         """Called by Flask.__init__"""
         env = super(Klaus, self).create_jinja_environment()
         for func in [
-            'force_unicode',
-            'timesince',
-            'shorten_sha1',
-            'shorten_message',
-            'extract_author_name',
-            'formattimestamp',
+            "force_unicode",
+            "timesince",
+            "shorten_sha1",
+            "shorten_message",
+            "extract_author_name",
+            "formattimestamp",
         ]:
             env.filters[func] = getattr(utils, func)
 
-        env.globals['KLAUS_VERSION'] = KLAUS_VERSION
-        env.globals['USE_SMARTHTTP'] = self.use_smarthttp
-        env.globals['SITE_NAME'] = self.site_name
+        env.globals["KLAUS_VERSION"] = KLAUS_VERSION
+        env.globals["USE_SMARTHTTP"] = self.use_smarthttp
+        env.globals["SITE_NAME"] = self.site_name
 
         return env
 
     def setup_routes(self):
+        # fmt: off
         for endpoint, rule in [
             ('repo_list',   '/'),
             ('robots_txt',  '/robots.txt/'),
@@ -71,13 +72,14 @@ class Klaus(flask.Flask):
             ('download',    '/<repo>/tarball/<path:rev>/'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
+        # fmt: on
 
     def should_use_ctags(self, git_repo, git_commit):
-        if self.ctags_policy == 'none':
+        if self.ctags_policy == "none":
             return False
-        elif self.ctags_policy == 'ALL':
+        elif self.ctags_policy == "ALL":
             return True
-        elif self.ctags_policy == 'tags-and-branches':
+        elif self.ctags_policy == "tags-and-branches":
             return git_commit.id in git_repo.get_tag_and_branch_shas()
         else:
             raise ValueError("Unknown ctags policy %r" % self.ctags_policy)
@@ -93,9 +95,16 @@ class Klaus(flask.Flask):
         return valid_repos, invalid_repos
 
 
-def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
-             require_browser_auth=False, disable_push=False, unauthenticated_push=False,
-             ctags_policy='none'):
+def make_app(
+    repo_paths,
+    site_name,
+    use_smarthttp=False,
+    htdigest_file=None,
+    require_browser_auth=False,
+    disable_push=False,
+    unauthenticated_push=False,
+    ctags_policy="none",
+):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
     already patched in.
@@ -125,9 +134,13 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
         if disable_push:
             raise ValueError("'unauthenticated_push' set with 'disable_push'")
         if require_browser_auth:
-            raise ValueError("Incompatible options 'unauthenticated_push' and 'require_browser_auth'")
+            raise ValueError(
+                "Incompatible options 'unauthenticated_push' and 'require_browser_auth'"
+            )
     if htdigest_file and not (require_browser_auth or use_smarthttp):
-        raise ValueError("'htdigest_file' set without 'use_smarthttp' or 'require_browser_auth'")
+        raise ValueError(
+            "'htdigest_file' set without 'use_smarthttp' or 'require_browser_auth'"
+        )
 
     app = Klaus(
         repo_paths,
@@ -140,7 +153,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
-            {'/'+name: repo for name, repo in app.valid_repos.items()}
+            {"/" + name: repo for name, repo in app.valid_repos.items()}
         )
         # Dulwich takes care of all Git related requests/URLs
         # and passes through everything else to klaus
@@ -164,7 +177,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
         # Git will never call /<repo-name>/git-receive-pack if authentication
         # failed for /info/refs, but since it's used to upload stuff to the server
         # we must secure it anyway for security reasons.
-        PATTERN = r'^/[^/]+/(info/refs\?service=git-receive-pack|git-receive-pack)$'
+        PATTERN = r"^/[^/]+/(info/refs\?service=git-receive-pack|git-receive-pack)$"
         if unauthenticated_push:
             # DANGER ZONE: Don't require authentication for push'ing
             app.wsgi_app = dulwich_wrapped_app
@@ -193,8 +206,7 @@ def make_app(repo_paths, site_name, use_smarthttp=False, htdigest_file=None,
 
     if require_browser_auth:
         app.wsgi_app = httpauth.DigestFileHttpAuthMiddleware(
-            htdigest_file,
-            wsgi_app=app.wsgi_app
+            htdigest_file, wsgi_app=app.wsgi_app
         )
 
     return app

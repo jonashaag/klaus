@@ -25,7 +25,12 @@ TEST_REPO_DONT_RENDER_URL = UNAUTH_TEST_SERVER + "dont-render/"
 
 TEST_INVALID_REPO = os.path.abspath("tests/repos/build/invalid_repo")
 
-ALL_TEST_REPOS = [TEST_REPO, TEST_REPO_NO_NEWLINE, TEST_REPO_DONT_RENDER, TEST_INVALID_REPO]
+ALL_TEST_REPOS = [
+    TEST_REPO,
+    TEST_REPO_NO_NEWLINE,
+    TEST_REPO_DONT_RENDER,
+    TEST_INVALID_REPO,
+]
 
 
 @contextlib.contextmanager
@@ -45,12 +50,12 @@ def serve_app(app):
         yield
     finally:
         server.server_close()
-        if 'TRAVIS' in os.environ:
+        if "TRAVIS" in os.environ:
             # This fixes some "Address already in use" cases on Travis.
             time.sleep(1)
 
 
 def serve_require_auth(*args, **kwargs):
-    kwargs['htdigest_file'] = open(HTDIGEST_FILE)
-    kwargs['require_browser_auth'] = True
+    kwargs["htdigest_file"] = open(HTDIGEST_FILE)
+    kwargs["require_browser_auth"] = True
     return testserver(*args, **kwargs)

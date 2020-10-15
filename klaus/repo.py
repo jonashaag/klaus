@@ -9,12 +9,17 @@ from dulwich.objects import Blob
 from dulwich.errors import NotTreeError
 import dulwich, dulwich.patch
 
-from klaus.utils import force_unicode, parent_directory, repo_human_name, \
-                        encode_for_git, decode_from_git
+from klaus.utils import (
+    force_unicode,
+    parent_directory,
+    repo_human_name,
+    encode_for_git,
+    decode_from_git,
+)
 from klaus.diff import render_diff
 
 
-NOT_SET = '__not_set__'
+NOT_SET = "__not_set__"
 
 
 def cached_call(key, validator, producer, _cache={}):
@@ -27,6 +32,7 @@ def cached_call(key, validator, producer, _cache={}):
 
 class FancyRepo(dulwich.repo.Repo):
     """A wrapper around Dulwich's Repo that adds some helper methods."""
+
     @property
     def name(self):
         return repo_human_name(self.path)
@@ -38,9 +44,9 @@ class FancyRepo(dulwich.repo.Repo):
         # If self.get_refs() has changed, we should invalidate the cache.
         all_refs = self.get_refs()
         return cached_call(
-            key=(id(self), 'get_last_updated_at'),
+            key=(id(self), "get_last_updated_at"),
             validator=all_refs,
-            producer=lambda: self._get_last_updated_at(all_refs)
+            producer=lambda: self._get_last_updated_at(all_refs),
         )
 
     def _get_last_updated_at(self, all_refs):
@@ -52,8 +58,7 @@ class FancyRepo(dulwich.repo.Repo):
                 # Whoops. The ref points at a non-existant object
                 pass
         resolveable_refs.sort(
-            key=lambda obj:getattr(obj, 'commit_time', float('-inf')),
-            reverse=True
+            key=lambda obj: getattr(obj, "commit_time", float("-inf")), reverse=True
         )
         for ref in resolveable_refs:
             # Find the latest ref that has a commit_time; tags do not
@@ -65,12 +70,12 @@ class FancyRepo(dulwich.repo.Repo):
     @property
     def cloneurl(self):
         """Retrieve the gitweb notion of the public clone URL of this repo."""
-        f = self.get_named_file('cloneurl')
+        f = self.get_named_file("cloneurl")
         if f is not None:
             return f.read()
         c = self.get_config()
         try:
-            return force_unicode(c.get(b'gitweb', b'url'))
+            return force_unicode(c.get(b"gitweb", b"url"))
         except KeyError:
             return None
 
@@ -80,16 +85,18 @@ class FancyRepo(dulwich.repo.Repo):
         """
         # Cache result to speed up repo_list.html template.
         # If description file mtime has changed, we should invalidate the cache.
-        description_file = os.path.join(self._controldir, 'description')
+        description_file = os.path.join(self._controldir, "description")
         try:
-            description_mtime = os.stat(os.path.join(self._controldir, 'description')).st_mtime
+            description_mtime = os.stat(
+                os.path.join(self._controldir, "description")
+            ).st_mtime
         except OSError:
             description_mtime = None
 
         return cached_call(
-            key=(id(self), 'get_description'),
+            key=(id(self), "get_description"),
             validator=description_mtime,
-            producer=self._get_description
+            producer=self._get_description,
         )
 
     def _get_description(self):
@@ -101,7 +108,7 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_commit(self, rev):
         """Get commit object identified by `rev` (SHA or branch or tag name)."""
-        for prefix in ['refs/heads/', 'refs/tags/', '']:
+        for prefix in ["refs/heads/", "refs/tags/", ""]:
             key = prefix + rev
             try:
                 obj = self[encode_for_git(key)]
@@ -114,7 +121,7 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_default_branch(self):
         """Tries to guess the default repo branch name."""
-        for candidate in ['master', 'trunk', 'default', 'gh-pages']:
+        for candidate in ["master", "trunk", "default", "gh-pages"]:
             try:
                 self.get_commit(candidate)
                 return candidate
@@ -129,6 +136,7 @@ class FancyRepo(dulwich.repo.Repo):
         """Return a list of ref names that begin with `prefix`, ordered by the
         time they have been committed to last.
         """
+
         def get_commit_time(refname):
             try:
                 obj = self[refs[refname]]
@@ -150,16 +158,16 @@ class FancyRepo(dulwich.repo.Repo):
         """Return a list of branch names of this repo, ordered by the time they
         have been committed to last.
         """
-        return self.get_ref_names_ordered_by_last_commit('refs/heads', exclude)
+        return self.get_ref_names_ordered_by_last_commit("refs/heads", exclude)
 
     def get_tag_names(self):
         """Return a list of tag names of this repo, ordered by creation time."""
-        return self.get_ref_names_ordered_by_last_commit('refs/tags')
+        return self.get_ref_names_ordered_by_last_commit("refs/tags")
 
     def get_tag_and_branch_shas(self):
         """Return a list of SHAs of all tags and branches."""
-        tag_shas = self.refs.as_dict(b'refs/tags/').values()
-        branch_shas = self.refs.as_dict(b'refs/heads/').values()
+        tag_shas = self.refs.as_dict(b"refs/tags/").values()
+        branch_shas = self.refs.as_dict(b"refs/heads/").values()
         return set(tag_shas) | set(branch_shas)
 
     def history(self, commit, path=None, max_commits=None, skip=0):
@@ -176,17 +184,17 @@ class FancyRepo(dulwich.repo.Repo):
         #     Therefore we use `git log` here until dulwich gets faster.
         #     For the pure-Python implementation, see the 'purepy-hist' branch.
 
-        cmd = ['git', 'log', '--format=%H']
+        cmd = ["git", "log", "--format=%H"]
         if skip:
-            cmd.append('--skip=%d' % skip)
+            cmd.append("--skip=%d" % skip)
         if max_commits:
-            cmd.append('--max-count=%d' % max_commits)
+            cmd.append("--max-count=%d" % max_commits)
         cmd.append(decode_from_git(commit.id))
         if path:
-            cmd.extend(['--', path])
+            cmd.extend(["--", path])
 
         output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
-        sha1_sums = output.strip().split(b'\n')
+        sha1_sums = output.strip().split(b"\n")
         return [self[sha1] for sha1 in sha1_sums]
 
     def blame(self, commit, path):
@@ -194,16 +202,20 @@ class FancyRepo(dulwich.repo.Repo):
         the file, the list contains the commit that last changed that line.
         """
         # XXX see comment in `.history()`
-        cmd = ['git', 'blame', '-ls', '--root', decode_from_git(commit.id), '--', path]
+        cmd = ["git", "blame", "-ls", "--root", decode_from_git(commit.id), "--", path]
         output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
-        sha1_sums = [line[:40] for line in output.strip().split(b'\n')]
-        return [None if self[sha1] is None else decode_from_git(self[sha1].id) for sha1 in sha1_sums]
+        sha1_sums = [line[:40] for line in output.strip().split(b"\n")]
+        return [
+            None if self[sha1] is None else decode_from_git(self[sha1].id)
+            for sha1 in sha1_sums
+        ]
 
     def get_blob_or_tree(self, commit, path):
         """Return the Git tree or blob object for `path` at `commit`."""
         try:
-            (mode, oid) = tree_lookup_path(self.__getitem__, commit.tree,
-                                           encode_for_git(path))
+            (mode, oid) = tree_lookup_path(
+                self.__getitem__, commit.tree, encode_for_git(path)
+            )
         except NotTreeError:
             # Some part of the path was a file where a folder was expected.
             # Example: path="/path/to/foo.txt" but "to" is a file in "/path".
@@ -234,9 +246,9 @@ class FancyRepo(dulwich.repo.Repo):
         dirs.sort(key=keyfunc)
 
         if path:
-            dirs.insert(0, ('..', parent_directory(path)))
+            dirs.insert(0, ("..", parent_directory(path)))
 
-        return {'submodules': submodules, 'dirs' : dirs, 'files' : files}
+        return {"submodules": submodules, "dirs": dirs, "files": files}
 
     def commit_diff(self, commit):
         """Return the list of changes introduced by `commit`."""
@@ -247,43 +259,45 @@ class FancyRepo(dulwich.repo.Repo):
         else:
             parent_tree = None
 
-        summary = {'nfiles': 0, 'nadditions':  0, 'ndeletions':  0}
+        summary = {"nfiles": 0, "nadditions": 0, "ndeletions": 0}
         file_changes = []  # the changes in detail
 
         dulwich_changes = self.object_store.tree_changes(parent_tree, commit.tree)
         for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in dulwich_changes:
-            summary['nfiles'] += 1
+            summary["nfiles"] += 1
             try:
-                oldblob = self.object_store[oldsha] if oldsha else Blob.from_string(b'')
-                newblob = self.object_store[newsha] if newsha else Blob.from_string(b'')
+                oldblob = self.object_store[oldsha] if oldsha else Blob.from_string(b"")
+                newblob = self.object_store[newsha] if newsha else Blob.from_string(b"")
             except KeyError:
                 # newsha/oldsha are probably related to submodules.
                 # Dulwich will handle that.
                 pass
 
             # Check for binary files -- can't show diffs for these
-            if guess_is_binary(newblob) or \
-               guess_is_binary(oldblob):
-                file_changes.append({
-                    'is_binary': True,
-                    'old_filename': oldpath or '/dev/null',
-                    'new_filename': newpath or '/dev/null',
-                    'chunks': None
-                })
+            if guess_is_binary(newblob) or guess_is_binary(oldblob):
+                file_changes.append(
+                    {
+                        "is_binary": True,
+                        "old_filename": oldpath or "/dev/null",
+                        "new_filename": newpath or "/dev/null",
+                        "chunks": None,
+                    }
+                )
                 continue
 
             additions, deletions, chunks = render_diff(
-                oldblob.splitlines(), newblob.splitlines())
+                oldblob.splitlines(), newblob.splitlines()
+            )
             change = {
-                'is_binary': False,
-                'old_filename': oldpath or '/dev/null',
-                'new_filename': newpath or '/dev/null',
-                'chunks': chunks,
-                'additions': additions,
-                'deletions': deletions,
+                "is_binary": False,
+                "old_filename": oldpath or "/dev/null",
+                "new_filename": newpath or "/dev/null",
+                "chunks": chunks,
+                "additions": additions,
+                "deletions": deletions,
             }
-            summary['nadditions'] += additions
-            summary['ndeletions'] += deletions
+            summary["nadditions"] += additions
+            summary["ndeletions"] += deletions
             file_changes.append(change)
 
         return summary, file_changes
@@ -294,7 +308,9 @@ class FancyRepo(dulwich.repo.Repo):
         else:
             parent_tree = None
         bytesio = io.BytesIO()
-        dulwich.patch.write_tree_diff(bytesio, self.object_store, parent_tree, commit.tree)
+        dulwich.patch.write_tree_diff(
+            bytesio, self.object_store, parent_tree, commit.tree
+        )
         return bytesio.getvalue()
 
     def freeze(self):
@@ -305,12 +321,13 @@ class FrozenFancyRepo(object):
     """A special version of FancyRepo that assumes the underlying Git
     repository does not change.  Used for performance optimizations.
     """
+
     def __init__(self, repo):
         self.__repo = repo
         self.__last_updated_at = NOT_SET
 
     def __setattr__(self, name, value):
-        if not name.startswith('_FrozenFancyRepo__'):
+        if not name.startswith("_FrozenFancyRepo__"):
             raise TypeError("Can't set %s attribute on FrozenFancyRepo" % name)
         super(FrozenFancyRepo, self).__setattr__(name, value)
 
@@ -325,6 +342,7 @@ class FrozenFancyRepo(object):
 
 class InvalidRepo:
     """Represent an invalid repository and store pertinent data."""
+
     def __init__(self, path):
         self.path = path
 

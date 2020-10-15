@@ -8,25 +8,35 @@ def install_data_files_hack():
     # policy "install once, find never". Definitely a TODO!
     # -- https://groups.google.com/group/comp.lang.python/msg/2105ee4d9e8042cb
     from distutils.command.install import INSTALL_SCHEMES
+
     for scheme in INSTALL_SCHEMES.values():
-        scheme['data'] = scheme['purelib']
+        scheme["data"] = scheme["purelib"]
 
 
 install_data_files_hack()
 
-requires = ['six', 'flask', 'Werkzeug>=0.15.0', 'pygments', 'httpauth', 'humanize', 'dulwich>=0.19.3;python_version>="3.5"', 'dulwich>=0.19.3,<0.20;python_version<"3.5"']
+requires = [
+    "six",
+    "flask",
+    "Werkzeug>=0.15.0",
+    "pygments",
+    "httpauth",
+    "humanize",
+    'dulwich>=0.19.3;python_version>="3.5"',
+    'dulwich>=0.19.3,<0.20;python_version<"3.5"',
+]
 
 setup(
-    name='klaus',
-    version='1.5.2',
-    author='Jonas Haag',
-    author_email='jonas@lophus.org',
-    packages=['klaus', 'klaus.contrib'],
-    scripts=['bin/klaus'],
+    name="klaus",
+    version="1.5.2",
+    author="Jonas Haag",
+    author_email="jonas@lophus.org",
+    packages=["klaus", "klaus.contrib"],
+    scripts=["bin/klaus"],
     include_package_data=True,
     zip_safe=False,
-    url='https://github.com/jonashaag/klaus',
-    description='The first Git web viewer that Just Works™.',
+    url="https://github.com/jonashaag/klaus",
+    description="The first Git web viewer that Just Works™.",
     long_description=__doc__,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -41,4 +51,3 @@ setup(
     ],
     install_requires=requires,
 )
-

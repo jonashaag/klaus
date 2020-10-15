@@ -28,9 +28,9 @@ def _load_markdown():
         return
 
     def render_markdown(content):
-        return markdown.markdown(content, extensions=['toc', 'extra'])
+        return markdown.markdown(content, extensions=["toc", "extra"])
 
-    LANGUAGES.append((['.md', '.mkdn', '.mdwn', '.markdown'], render_markdown))
+    LANGUAGES.append(([".md", ".mkdn", ".mdwn", ".markdown"], render_markdown))
 
 
 def _load_restructured_text():
@@ -43,12 +43,12 @@ def _load_restructured_text():
     def render_rest(content):
         # start by h2 and ignore invalid directives and so on
         # (most likely from Sphinx)
-        settings = {'initial_header_level': 2, 'report_level': 0}
-        return publish_parts(content,
-                             writer=Writer(),
-                             settings_overrides=settings).get('html_body')
+        settings = {"initial_header_level": 2, "report_level": 0}
+        return publish_parts(content, writer=Writer(), settings_overrides=settings).get(
+            "html_body"
+        )
 
-    LANGUAGES.append((['.rst', '.rest'], render_rest))
+    LANGUAGES.append(([".rst", ".rest"], render_rest))
 
 
 for loader in [_load_markdown, _load_restructured_text]:

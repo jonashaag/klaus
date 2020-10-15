@@ -11,7 +11,7 @@ def test_download():
         response_body = BytesIO(response.raw.read())
         tarball = tarfile.TarFile.gzopen("test.tar.gz", fileobj=response_body)
         with contextlib.closing(tarball):
-            assert tarball.extractfile('test_repo@master/test.c').read() == b'int a;\n'
+            assert tarball.extractfile("test_repo@master/test.c").read() == b"int a;\n"
 
 
 def test_no_newline_at_end_of_file():
@@ -44,8 +44,9 @@ def test_regression_gh233_treeview_paths():
         assert "blob/HEAD/test.txt" not in response
         assert "blob/HEAD/folder/test.txt" in response
 
+
 def test_display_invalid_repos():
     with serve():
         response = requests.get(UNAUTH_TEST_SERVER).text
         assert '<ul class="repolist invalid">' in response
-        assert '<div class=name>invalid_repo</div>' in response
+        assert "<div class=name>invalid_repo</div>" in response
