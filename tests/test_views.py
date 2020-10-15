@@ -5,6 +5,26 @@ import contextlib
 from .utils import *
 
 
+def test_repo_list():
+    with serve():
+        response = requests.get(UNAUTH_TEST_SERVER).text
+        assert TEST_REPO_BASE_URL in response
+        assert TEST_REPO_DONT_RENDER_BASE_URL in response
+        assert TEST_REPO_NO_NEWLINE_BASE_URL in response
+        assert TEST_INVALID_REPO_NAME in response
+
+
+def test_repo_list_search_repo():
+    with serve():
+        response = requests.get(
+            UNAUTH_TEST_SERVER + "?q=" + TEST_INVALID_REPO_NAME
+        ).text
+        assert not TEST_REPO_BASE_URL in response
+        assert not TEST_REPO_DONT_RENDER_BASE_URL in response
+        assert not TEST_REPO_NO_NEWLINE_BASE_URL in response
+        assert TEST_INVALID_REPO_NAME in response
+
+
 def test_download():
     with serve():
         response = requests.get(UNAUTH_TEST_REPO_URL + "tarball/master", stream=True)

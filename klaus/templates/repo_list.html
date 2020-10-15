@@ -6,14 +6,22 @@
 
 <h2>
   Repositories
-  <span>
-    {% if order_by == 'name' %}
-      (<a href="?">order by last updated</a>)
-    {% else %}
-      (<a href="?by-name=yep">order by name</a>)
-    {% endif %}
-  </span>
 </h2>
+
+<form>
+  <div>
+    Order by:
+    <input type="radio" id="order_by_last_updated" name="order_by" value="last_updated" onChange="this.form.submit()" {% if order_by == "last_updated" %} checked {% endif %}>
+    <label for="order_by_last_updated">Last updated</label>
+    <input type="radio" id="order_by_name" name="order_by" value="name" onChange="this.form.submit()" {% if order_by == "name" %} checked {% endif %}>
+    <label for="order_by_name">Name</label>
+  </div>
+  <br>
+  <label for="search_query">Search repos:</label>
+  <input type="search" id="search_query" name="q" value="{{ search_query|default }}">
+  <button type="submit">Search</button>
+</form>
+ 
 <ul class=repolist>
   {% for repo in repos %}
     {% set last_updated_at = repo.fast_get_last_updated_at() %}
@@ -37,6 +45,8 @@
         </div>
       </a>
     </li>
+  {% else %}
+    <li><div class=name>No repositories to show!</div></li>
   {% endfor %}
 </ul>
 

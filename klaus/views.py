@@ -47,24 +47,36 @@ README_FILENAMES = [
 
 
 def repo_list():
-    """Show a list of all repos and can be sorted by last update."""
-    if "by-name" in request.args:
-        order_by = "name"
+    """Show a list of all repos. Can be sorted by last update and repo names can be searched."""
+    repos = [repo.freeze() for repo in current_app.valid_repos.values()]
+    invalid_repos = current_app.invalid_repos.values()
+
+    order_by = request.args.get("order_by") or "last_updated"
+    search_query = request.args.get("q") or ""
+
+    if search_query:
+        repos = [r for r in repos if search_query.lower() in r.name.lower()]
+        invalid_repos = [
+            r for r in invalid_repos if search_query.lower() in r.name.lower()
+        ]
+
+    if order_by == "name":
         sort_key = lambda repo: repo.name
     else:
-        order_by = "last_updated"
-        sort_key = lambda repo: (-(repo.fast_get_last_updated_at() or -1), repo.name)
-    repos = sorted(
-        [repo.freeze() for repo in current_app.valid_repos.values()], key=sort_key
-    )
-    invalid_repos = sorted(
-        current_app.invalid_repos.values(), key=lambda repo: repo.name
-    )
+        sort_key = lambda repo: (
+            -(repo.fast_get_last_updated_at() or -1),
+            repo.name,
+        )
+
+    repos = sorted(repos, key=sort_key)
+    invalid_repos = sorted(invalid_repos, key=lambda repo: repo.name)
+
     return render_template(
         "repo_list.html",
         repos=repos,
         invalid_repos=invalid_repos,
         order_by=order_by,
+        search_query=search_query,
         base_href=None,
     )
 
