@@ -23,8 +23,8 @@ class Klaus(flask.Flask):
         self.ctags_policy = ctags_policy
 
         valid_repos, invalid_repos = self.load_repos(repo_paths)
-        self.valid_repos = {repo.name: repo for repo in valid_repos}
-        self.invalid_repos = {repo.name: repo for repo in invalid_repos}
+        self.valid_repos = {repo.namespaced_name: repo for repo in valid_repos}
+        self.invalid_repos = {repo.namespaced_name: repo for repo in invalid_repos}
 
         flask.Flask.__init__(self, __name__)
 
@@ -72,6 +72,10 @@ class Klaus(flask.Flask):
             ('download',    '/<repo>/tarball/<path:rev>/'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
+            if "<repo>" in rule:
+                self.add_url_rule(
+                    "/~<namespace>" + rule, view_func=getattr(views, endpoint)
+                )
         # fmt: on
 
     def should_use_ctags(self, git_repo, git_commit):
@@ -87,11 +91,12 @@ class Klaus(flask.Flask):
     def load_repos(self, repo_paths):
         valid_repos = []
         invalid_repos = []
-        for path in repo_paths:
-            try:
-                valid_repos.append(FancyRepo(path))
-            except NotGitRepository:
-                invalid_repos.append(InvalidRepo(path))
+        for namespace, paths in repo_paths.items():
+            for path in paths:
+                try:
+                    valid_repos.append(FancyRepo(path, namespace))
+                except NotGitRepository:
+                    invalid_repos.append(InvalidRepo(path, namespace))
         return valid_repos, invalid_repos
 
 
@@ -108,8 +113,14 @@ def make_app(
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
     already patched in.
-
-    :param repo_paths: List of paths of repositories to serve.
+    :param repo_paths: Repositories to serve. This can either be a list of paths
+        or dictionary of the following form:
+            {
+                "namespace1": [list of paths of repositories],
+                "namespace2": [list of paths of repositories],
+                ...
+                None: [list of paths of repositories without namespace]
+            }
     :param site_name: Name of the Web site (e.g. "John Doe's Git Repositories")
     :param use_smarthttp: Enable Git Smart HTTP mode, which makes it possible to
         pull from the served repositories. If `htdigest_file` is set as well,
@@ -141,6 +152,9 @@ def make_app(
         raise ValueError(
             "'htdigest_file' set without 'use_smarthttp' or 'require_browser_auth'"
         )
+    if not isinstance(repo_paths, dict):
+        # If repos is given as a flat list, put all repos under the "no namespace" namespace
+        repo_paths = {None: repo_paths}
 
     app = Klaus(
         repo_paths,
@@ -153,7 +167,10 @@ def make_app(
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
-            {"/" + name: repo for name, repo in app.valid_repos.items()}
+            {
+                "/" + namespaced_name: repo
+                for namespaced_name, repo in app.valid_repos.items()
+            }
         )
         # Dulwich takes care of all Git related requests/URLs
         # and passes through everything else to klaus
@@ -177,7 +194,9 @@ def make_app(
         # Git will never call /<repo-name>/git-receive-pack if authentication
         # failed for /info/refs, but since it's used to upload stuff to the server
         # we must secure it anyway for security reasons.
-        PATTERN = r"^/[^/]+/(info/refs\?service=git-receive-pack|git-receive-pack)$"
+        PATTERN = (
+            r"^/(~[^/]+/)?[^/]+/(info/refs\?service=git-receive-pack|git-receive-pack)$"
+        )
         if unauthenticated_push:
             # DANGER ZONE: Don't require authentication for push'ing
             app.wsgi_app = dulwich_wrapped_app

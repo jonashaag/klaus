@@ -13,6 +13,13 @@ import requests.auth
 from .utils import *
 
 
+def test_make_app_using_list():
+    app = klaus.make_app(REPOS, TEST_SITE_NAME)
+    with serve_app(app):
+        response = requests.get(UNAUTH_TEST_SERVER).text
+        assert TEST_REPO_NO_NEWLINE_BASE_URL in response
+
+
 def test_htdigest_file_without_smarthttp_or_require_browser_auth():
     with pytest.raises(ValueError):
         klaus.make_app([], None, htdigest_file=object())
@@ -50,7 +57,7 @@ def options_test(make_app_args, expected_permissions):
                 else:
                     checks = ["can_%s_unauth" % check, "can_%s_auth" % check]
                 for check in checks:
-                    assert globals()[check]() == permitted
+                    assert globals()[check]() == permitted, check
 
     return test
 
@@ -116,11 +123,11 @@ test_ctags_all = options_test(
 
 # Reach
 def can_reach_unauth():
-    return _check_http200(_GET_unauth, "test_repo")
+    return _check_http200(_GET_unauth, TEST_REPO_BASE_URL)
 
 
 def can_reach_auth():
-    return _check_http200(_GET_auth, "test_repo")
+    return _check_http200(_GET_auth, TEST_REPO_BASE_URL)
 
 
 # Clone
@@ -137,9 +144,9 @@ def _can_clone(http_get, url):
     try:
         return any(
             [
-                "git clone" in http_get(TEST_REPO_URL).text,
+                "git clone" in http_get(TEST_REPO_BASE_URL).text,
                 _check_http200(
-                    http_get, TEST_REPO_URL + "info/refs?service=git-upload-pack"
+                    http_get, TEST_REPO_BASE_URL + "info/refs?service=git-upload-pack"
                 ),
                 subprocess.call(["git", "clone", url, tmp]) == 0,
             ]
@@ -161,9 +168,9 @@ def _can_push(http_get, url):
     return any(
         [
             _check_http200(
-                http_get, TEST_REPO_URL + "info/refs?service=git-receive-pack"
+                http_get, TEST_REPO_BASE_URL + "info/refs?service=git-receive-pack"
             ),
-            _check_http200(http_get, TEST_REPO_URL + "git-receive-pack"),
+            _check_http200(http_get, TEST_REPO_BASE_URL + "git-receive-pack"),
             subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
         ]
     )
@@ -191,7 +198,7 @@ def ctags_all():
 def _ctags_enabled(ref, filename):
     response = requests.get(UNAUTH_TEST_REPO_URL + "blob/%s/%s" % (ref, filename))
     assert response.status_code == 200, response.text
-    href = '<a href="/%sblob/%s/%s#L-1">' % (TEST_REPO_URL, ref, filename)
+    href = '<a href="/%sblob/%s/%s#L-1">' % (TEST_REPO_BASE_URL, ref, filename)
     return href in response.text
 
 
@@ -210,7 +217,4 @@ def _GET_auth(url=""):
 
 
 def _check_http200(http_get, url):
-    try:
-        return http_get(url).status_code == 200
-    except:
-        return False
+    return http_get(url).status_code == 200

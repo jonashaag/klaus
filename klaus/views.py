@@ -55,21 +55,23 @@ def repo_list():
     search_query = request.args.get("q") or ""
 
     if search_query:
-        repos = [r for r in repos if search_query.lower() in r.name.lower()]
+        repos = [r for r in repos if search_query.lower() in r.namespaced_name.lower()]
         invalid_repos = [
-            r for r in invalid_repos if search_query.lower() in r.name.lower()
+            r
+            for r in invalid_repos
+            if search_query.lower() in r.namespaced_name.lower()
         ]
 
     if order_by == "name":
-        sort_key = lambda repo: repo.name
+        sort_key = lambda repo: repo.namespaced_name
     else:
         sort_key = lambda repo: (
             -(repo.fast_get_last_updated_at() or -1),
-            repo.name,
+            repo.namespaced_name,
         )
 
     repos = sorted(repos, key=sort_key)
-    invalid_repos = sorted(invalid_repos, key=lambda repo: repo.name)
+    invalid_repos = sorted(invalid_repos, key=lambda repo: repo.namespaced_name)
 
     return render_template(
         "repo_list.html",
@@ -86,12 +88,16 @@ def robots_txt():
     return current_app.send_static_file("robots.txt")
 
 
-def _get_repo_and_rev(repo, rev=None, path=None):
+def _get_repo_and_rev(repo, namespace=None, rev=None, path=None):
     if path and rev:
         rev += "/" + path.rstrip("/")
 
+    if namespace:
+        repo_key = f"~{namespace}/{repo}"
+    else:
+        repo_key = repo
     try:
-        repo = current_app.valid_repos[repo]
+        repo = current_app.valid_repos[repo_key]
     except KeyError:
         raise NotFound("No such repository %r" % repo)
 
@@ -145,7 +151,7 @@ class BaseRepoView(View):
         self.view_name = view_name
         self.context = {}
 
-    def dispatch_request(self, repo, rev=None, path=""):
+    def dispatch_request(self, repo, namespace=None, rev=None, path=""):
         """Dispatch repository, revision (if any) and path (if any). To retain
         compatibility with :func:`url_for`, view routing uses two arguments:
         rev and path, although a single path is sufficient (from Git's point of
@@ -158,14 +164,14 @@ class BaseRepoView(View):
 
         [1] https://github.com/jonashaag/klaus/issues/36#issuecomment-23990266
         """
-        self.make_template_context(repo, rev, path.strip("/"))
+        self.make_template_context(repo, namespace, rev, path.strip("/"))
         return self.get_response()
 
     def get_response(self):
         return render_template(self.template_name, **self.context)
 
-    def make_template_context(self, repo, rev, path):
-        repo, rev, path, commit = _get_repo_and_rev(repo, rev, path)
+    def make_template_context(self, repo, namespace, rev, path):
+        repo, rev, path, commit = _get_repo_and_rev(repo, namespace, rev, path)
 
         try:
             blob_or_tree = repo.get_blob_or_tree(commit, path)
@@ -175,6 +181,7 @@ class BaseRepoView(View):
         self.context = {
             "view": self.view_name,
             "repo": repo,
+            "namespace": namespace,
             "rev": rev,
             "commit": commit,
             "branches": repo.get_branch_names(exclude=rev),
@@ -285,7 +292,10 @@ class IndexView(TreeViewMixin, BaseRepoView):
         super(IndexView, self).make_template_context(*args)
 
         self.context["base_href"] = url_for(
-            "blob", repo=self.context["repo"].name, rev=self.context["rev"], path=""
+            "blob",
+            repo=self.context["repo"].namespaced_name,
+            rev=self.context["rev"],
+            path="",
         )
 
         self.context["page"] = 0
@@ -343,8 +353,8 @@ class SubmoduleView(BaseRepoView):
 
     template_name = "submodule.html"
 
-    def make_template_context(self, repo, rev, path):
-        repo, rev, path, commit = _get_repo_and_rev(repo, rev, path)
+    def make_template_context(self, repo, namespace, rev, path):
+        repo, rev, path, commit = _get_repo_and_rev(repo, namespace, rev, path)
 
         try:
             submodule_rev = tree_lookup_path(
@@ -393,7 +403,7 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
                 raise ImportError("Ctags enabled but python-ctags not installed")
             ctags_base_url = url_for(
                 self.view_name,
-                repo=self.context["repo"].name,
+                repo=self.context["repo"].namespaced_name,
                 rev=self.context["rev"],
                 path="",
             )
@@ -413,7 +423,7 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
             force_unicode(self.context["blob_or_tree"].data),
             self.context["filename"],
             render_markup,
-            **ctags_args
+            **ctags_args,
         )
 
     def make_template_context(self, *args):

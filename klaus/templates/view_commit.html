@@ -33,7 +33,7 @@
       and <span class=deletions>{{ summary.ndeletions }} deletion(s)</span>.
     </span>
     <span>
-      <a href="{{ url_for('patch', repo=repo.name, rev=commit.id|force_unicode) }}">Raw diff</a>
+      <a href="{{ url_for('patch', repo=repo.name, namespace=namespace, rev=commit.id|force_unicode) }}">Raw diff</a>
     </span>
     <span>
       <a href=# onclick="toggler.collapseAll('.file'); return false">Collapse all</a>
@@ -63,7 +63,7 @@
           {% if file.new_filename == '/dev/null' %}
             <del>{{ file.old_filename|force_unicode }}</del>
           {% else %}
-            <a href="{{ url_for('blob', repo=repo.name, rev=rev, path=file.new_filename) }}">
+            <a href="{{ url_for('blob', repo=repo.name, namespace=namespace, rev=rev, path=file.new_filename) }}">
               {{ file.new_filename|force_unicode }}
             </a>
           {% endif %}

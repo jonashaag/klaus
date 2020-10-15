@@ -29,10 +29,10 @@
     <li>
       <a
         {% if last_updated_at %}
-          href="{{ url_for('index', repo=repo.name) }}"
+          href="{{ url_for('index', namespace=repo.namespace, repo=repo.name) }}"
         {% endif %}
       >
-        <div class=name>{{ repo.name }}</div>
+        <div class=name>{{ repo.namespaced_name }}</div>
         {% if description %}
           <div class=description>{{ description }}</div>
         {% endif %}
@@ -54,7 +54,7 @@
 <ul class="repolist invalid">
   {% for repo in invalid_repos %}
     <li>
-        <div class=name>{{ repo.name }}</div>
+        <div class=name>{{ repo.namespaced_name }}</div>
         <div class=reason>
           Invalid git repository
         </div>

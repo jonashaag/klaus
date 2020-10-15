@@ -33,9 +33,20 @@ def cached_call(key, validator, producer, _cache={}):
 class FancyRepo(dulwich.repo.Repo):
     """A wrapper around Dulwich's Repo that adds some helper methods."""
 
+    def __init__(self, path, namespace):
+        super().__init__(path)
+        self.namespace = namespace
+
     @property
     def name(self):
         return repo_human_name(self.path)
+
+    @property
+    def namespaced_name(self):
+        if self.namespace:
+            return f"~{self.namespace}/{self.name}"
+        else:
+            return self.name
 
     # TODO: factor out stuff into dulwich
     def get_last_updated_at(self):
@@ -343,9 +354,17 @@ class FrozenFancyRepo(object):
 class InvalidRepo:
     """Represent an invalid repository and store pertinent data."""
 
-    def __init__(self, path):
+    def __init__(self, path, namespace):
         self.path = path
+        self.namespace = namespace
 
     @property
     def name(self):
         return repo_human_name(self.path)
+
+    @property
+    def namespaced_name(self):
+        if self.namespace:
+            return f"~{self.namespace}/{self.name}"
+        else:
+            return self.name

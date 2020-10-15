@@ -5,12 +5,12 @@
         {% if n is none %}
           <span class=n>...</span>
         {% else %}
-          <a href="{{ url_for('history', repo=repo.name, rev=rev, path=path)}}?page={{n}}" class=n>{{ n }}</a>
+          <a href="{{ url_for('history', repo=repo.name, namespace=namespace, rev=rev, path=path)}}?page={{n}}" class=n>{{ n }}</a>
         {% endif %}
       {% endfor %}
     {% endif %}
     {% if more_commits %}
-    <a href="{{ url_for('history', repo=repo.name, rev=rev, path=path)}}?page={{page+1}}">»»</a>
+    <a href="{{ url_for('history', repo=repo.name, namespace=namespace, rev=rev, path=path)}}?page={{page+1}}">»»</a>
     {% elif page %}
       <span>»»</span>
     {% endif%}
@@ -32,10 +32,10 @@
       Commit History
     {% endif %}
     <span>
-      @<a href="{{ url_for('index', repo=repo.name, rev=rev) }}">{{ rev }}</a>
+      @<a href="{{ url_for('index', repo=repo.name, namespace=namespace, rev=rev) }}">{{ rev }}</a>
     </span>
     {% if USE_SMARTHTTP %}
-        <code>git clone {{ url_for('index', repo=repo.name, _external=True) }}</code>
+        <code>git clone {{ url_for('index', repo=repo.name, namespace=namespace, _external=True) }}</code>
     {% endif %}
     {% if repo.cloneurl %}
         <code>git clone {{ repo.cloneurl }}</code>
@@ -47,7 +47,7 @@
   <ul>
   {% for commit in history %}
     <li>
-      <a class=commit href="{{ url_for('commit', repo=repo.name, rev=commit.id|force_unicode) }}">
+      <a class=commit href="{{ url_for('commit', repo=repo.name, namespace=namespace, rev=commit.id|force_unicode) }}">
         <span class=line1>
           <span>{{ commit.message|force_unicode|shorten_message }}</span>
         </span>

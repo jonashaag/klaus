@@ -12,7 +12,7 @@
   <h2>
     {{ filename|force_unicode }}
     <span>
-      @<a href="{{ url_for('commit', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
+      @<a href="{{ url_for('commit', repo=repo.name, namespace=namespace, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
     </span>
   </h2>
   {% if not can_render %}
@@ -27,7 +27,7 @@
                 {%- if commit == None %}
 &nbsp;
                 {%- else %}
-<a href="{{ url_for('commit', repo=repo.name, rev=commit) }}">{{ commit | shorten_sha1 }}</a>
+<a href="{{ url_for('commit', repo=repo.name, namespace=namespace, rev=commit) }}">{{ commit | shorten_sha1 }}</a>
                 {%- endif -%}
               {%- endfor -%}
             </pre>

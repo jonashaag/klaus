@@ -6,9 +6,9 @@
 
 {% block breadcrumbs %}
   <span>
-    <a href="{{ url_for('index', repo=repo.name) }}">{{ repo.name }}</a>
+    <a href="{{ url_for('index', repo=repo.name, namespace=namespace) }}">{{ repo.namespaced_name }}</a>
     <span class=slash>/</span>
-    <a href="{{ url_for('history', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
+    <a href="{{ url_for('history', repo=repo.name, namespace=namespace, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
   </span>
 
   {% if subpaths %}
@@ -17,7 +17,7 @@
       {% if loop.last %}
       <a href="">{{ name|force_unicode }}</a>
       {% else %}
-      <a href="{{ url_for('history', repo=repo.name, rev=rev, path=subpath) }}">{{ name|force_unicode }}</a>
+      <a href="{{ url_for('history', repo=repo.name, namespace=namespace, rev=rev, path=subpath) }}">{{ name|force_unicode }}</a>
       <span class=slash>/</span>
       {% endif %}
     {% endfor %}
@@ -31,13 +31,13 @@
   <div>
     <ul class=branches>
       {% for branch in branches %}
-      <li><a href="{{ url_for(view, repo=repo.name, rev=branch, path=path) }}">{{ branch }}</a></li>
+      <li><a href="{{ url_for(view, repo=repo.name, namespace=namespace, rev=branch, path=path) }}">{{ branch }}</a></li>
       {% endfor %}
     </ul>
     {% if tags %}
     <ul class=tags>
       {% for tag in tags %}
-      <li><a href="{{ url_for(view, repo=repo.name, rev=tag, path=path) }}">{{ tag }}</a></li>
+      <li><a href="{{ url_for(view, repo=repo.name, namespace=namespace, rev=tag, path=path) }}">{{ tag }}</a></li>
       {% endfor %}
     </ul>
     {% endif %}

@@ -9,7 +9,7 @@
 <h2>
 {{ path|force_unicode }}
 <span>
-  @<a href="{{ url_for('commit', repo=repo.name, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
+  @<a href="{{ url_for('commit', repo=repo.name, namespace=namespace, rev=rev) }}">{{ rev|shorten_sha1 }}</a>
 </span>
 </h2>
 <p>The path at {{ path|force_unicode }} contains a submodule, revision {{ submodule_rev }}.  {% if submodule_url %} It can be checked out from <a href="{{ submodule_url }}">{{ submodule_url }}</a>. {% endif %}

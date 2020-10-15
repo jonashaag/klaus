@@ -25,6 +25,15 @@ def test_repo_list_search_repo():
         assert TEST_INVALID_REPO_NAME in response
 
 
+def test_repo_list_search_namespace():
+    with serve():
+        response = requests.get(UNAUTH_TEST_SERVER + "?q=" + NAMESPACE).text
+        assert TEST_REPO_BASE_URL in response
+        assert not TEST_REPO_DONT_RENDER_BASE_URL in response
+        assert not TEST_REPO_NO_NEWLINE_BASE_URL in response
+        assert not TEST_INVALID_REPO_NAME in response
+
+
 def test_download():
     with serve():
         response = requests.get(UNAUTH_TEST_REPO_URL + "tarball/master", stream=True)
@@ -36,25 +45,31 @@ def test_download():
 
 def test_no_newline_at_end_of_file():
     with serve():
-        response = requests.get(TEST_REPO_NO_NEWLINE_URL + "commit/HEAD/").text
+        response = requests.get(UNAUTH_TEST_REPO_NO_NEWLINE_URL + "commit/HEAD/").text
         assert response.count("No newline at end of file") == 1
 
 
 def test_dont_render_binary():
     with serve():
-        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/binary").text
+        response = requests.get(
+            UNAUTH_TEST_REPO_DONT_RENDER_URL + "blob/HEAD/binary"
+        ).text
         assert "Binary data not shown" in response
 
 
 def test_render_image():
     with serve():
-        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/image.jpg").text
+        response = requests.get(
+            UNAUTH_TEST_REPO_DONT_RENDER_URL + "blob/HEAD/image.jpg"
+        ).text
         assert '<img src="/dont-render/raw/HEAD/image.jpg"' in response
 
 
 def test_dont_render_large_file():
     with serve():
-        response = requests.get(TEST_REPO_DONT_RENDER_URL + "blob/HEAD/toolarge").text
+        response = requests.get(
+            UNAUTH_TEST_REPO_DONT_RENDER_URL + "blob/HEAD/toolarge"
+        ).text
         assert "Large file not shown" in response
 
 
