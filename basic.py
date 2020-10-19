@@ -1,7 +1,7 @@
 from klaus import Klaus
 
 repos = [
-    "./repositories/moon-landing.git",
+    "./repositories/huggingface/moon-landing.git",
     "./repositories/transformers.git",
 ]
 
