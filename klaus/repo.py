@@ -34,7 +34,7 @@ class FancyRepo(dulwich.repo.Repo):
     """A wrapper around Dulwich's Repo that adds some helper methods."""
 
     def __init__(self, path, namespace):
-        super().__init__(path)
+        super(FancyRepo, self).__init__(path)
         self.namespace = namespace
 
     @property
