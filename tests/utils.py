@@ -16,7 +16,7 @@ NAMESPACE = "namespace1"
 
 TEST_REPO = os.path.abspath("tests/repos/build/test_repo")
 TEST_REPO_ROOT = os.path.abspath("tests/repos/build")
-TEST_REPO_BASE_URL = f"~{NAMESPACE}/test_repo/"
+TEST_REPO_BASE_URL = "~{}/test_repo/".format(NAMESPACE)
 UNAUTH_TEST_REPO_URL = UNAUTH_TEST_SERVER + TEST_REPO_BASE_URL
 AUTH_TEST_REPO_URL = AUTH_TEST_SERVER + TEST_REPO_BASE_URL
 

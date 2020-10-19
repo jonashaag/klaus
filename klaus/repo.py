@@ -44,7 +44,7 @@ class FancyRepo(dulwich.repo.Repo):
     @property
     def namespaced_name(self):
         if self.namespace:
-            return f"~{self.namespace}/{self.name}"
+            return "~{}/{}".format(self.namespace, self.name)
         else:
             return self.name
 
@@ -365,6 +365,6 @@ class InvalidRepo:
     @property
     def namespaced_name(self):
         if self.namespace:
-            return f"~{self.namespace}/{self.name}"
+            return "~{}/{}".format(self.namespace, self.name)
         else:
             return self.name

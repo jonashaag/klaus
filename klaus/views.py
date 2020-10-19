@@ -93,7 +93,7 @@ def _get_repo_and_rev(repo, namespace=None, rev=None, path=None):
         rev += "/" + path.rstrip("/")
 
     if namespace:
-        repo_key = f"~{namespace}/{repo}"
+        repo_key = "~{}/{}".format(namespace, repo)
     else:
         repo_key = repo
     try:
@@ -423,7 +423,7 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
             force_unicode(self.context["blob_or_tree"].data),
             self.context["filename"],
             render_markup,
-            **ctags_args,
+            **ctags_args
         )
 
     def make_template_context(self, *args):
