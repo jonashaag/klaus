@@ -1,4 +1,4 @@
-<div class=history>
+<div class="history">
   <h2>
     Commit History
   </h2>
@@ -6,10 +6,10 @@
   {{#each history as |commit|}}
     <li>
       <a class="commit" href="/{{ ../context.repoName }}/commit/{{commit.id}}">
-        <span class=line1>
+        <span class="line1">
           <span>{{ call commit "message" }}</span>
         </span>
-        <span class=line2>
+        <span class="line2">
           <span>
             {{ call commit "author" }}
           </span>
@@ -17,7 +17,7 @@
             {{ call commit "date" }}
           </span>
         </span>
-        <span class=clearfloat></span>
+        <span class="clearfloat"></span>
       </a>
     </li>
   {{/each}}
