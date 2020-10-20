@@ -160,10 +160,10 @@ export class BlobContext extends Context {
 	renderText() {
 		const ext = Utils.trimPrefix(extname(this.path!), ".");
 		const str = this.blob.toString();
-		try {
+		if (hljs.getLanguage(ext)) {
 			const res = hljs.highlight(ext, str, true);
 			this.data.code = res.value;
-		} catch {
+		} else {
 			/// Fallback to automatic detection.
 			const res = hljs.highlightAuto(str);
 			this.data.code = res.value;

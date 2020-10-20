@@ -115,8 +115,8 @@ app.get('/:namespace/:repo/raw/:rev/*', rawBlob);
 app.get(           '/:repo/blame/:rev/*', blameBlob);
 app.get('/:namespace/:repo/blame/:rev/*', blameBlob);
 
-app.get(           '/:repo/commit/:sha', viewCommit);
-app.get('/:namespace/:repo/commit/:sha', viewCommit);
+app.get(           '/:repo/commit/:rev', viewCommit);
+app.get('/:namespace/:repo/commit/:rev', viewCommit);
 
 
 
