@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="/static/klaus.css">
 <link rel=icon type="image/png" href="/static/favicon.png">
 {{#if meta.base_href}}
-	<base href="{{ meta.base_href }}">
+  <base href="{{ meta.base_href }}">
 {{/if}}
 <title>{{meta.title}} - {{ SITE_NAME }}</title>
 
@@ -15,11 +15,9 @@
   <a href="/">
     {{ SITE_NAME }}
   </a>
-  {{!-- <span class=breadcrumbs>{% block breadcrumbs %}{% endblock %}</span>
-  {% block extra_header %}{% endblock %} --}}
 </header>
 
-<div id=content>
+<div id="content">
   {{{ body }}}
 </div>
 

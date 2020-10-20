@@ -56,6 +56,13 @@ export namespace Utils {
 	}
 	
 	/**
+	 * Filter-out undefined values
+	 */
+	export function filterUndef<T>(arr: (T | undefined)[]): T[] {
+		return arr.filter((x): x is T => x !== undefined);
+	}
+	
+	/**
 	 * Recursive readdir matching fs.Dirent[]
 	 * 
 	 * Use `matchDirEnt` to select what's returned

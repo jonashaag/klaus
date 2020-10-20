@@ -10,12 +10,14 @@
   "license": "ISC",
   "dependencies": {
     "@types/express": "^4.17.8",
+    "@types/luxon": "^1.25.0",
     "@types/node": "^14.11.5",
     "@types/nodegit": "^0.26.10",
     "chokidar": "^3.4.2",
     "colors": "^1.4.0",
     "express": "^4.17.1",
     "handlebars": "^4.7.6",
+    "luxon": "^1.25.0",
     "nodegit": "^0.27.0"
   }
 }

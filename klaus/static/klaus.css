@@ -159,7 +159,7 @@ footer a:hover { text-decoration: none; }
 a.commit { color: black !important; }
 
 .tree ul { font-family: monospace; border-top: 1px solid #e0e0e0; }
-.tree li { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-top: 0; }
+.tree li { background-color: white; border: 1px solid #e0e0e0; border-top: 0; }
 .tree li a {
   padding: 5px 7px 6px 7px;
   display: block;

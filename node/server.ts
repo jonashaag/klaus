@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as util from 'util';
 import * as child_process from 'child_process';
 import * as Git from 'nodegit';
@@ -8,7 +6,8 @@ import { c } from './lib/Log';
 import { hbs } from './lib/Hbs';
 import __rootDir, { __klausDir, __nodeDir } from './lib/RootDirFinder';
 import { Utils } from './lib/Utils';
-import { Repo } from './lib/Repo';
+import { Repo } from './app/Repo';
+import { indexTree, indexBlob } from './app/routes';
 const __exec = util.promisify(child_process.exec);
 
 const app = express();
@@ -24,50 +23,17 @@ app.use(
 	'/static',
 	express.static(`${__klausDir}/static`)
 );
+app.get(
+	'/favicon.ico',
+	(req, res) => res.sendFile(`${__klausDir}/static/favicon.png`)
+);
 
+/**
+ * Note: we only support branch names and tag names
+ * not containing a `/`.
+ */
 
-const _get_repo_and_rev = async (
-	repoName: string,
-	/**
-	 * Branch/commit-sha/tag
-	 */
-	revId?: string,
-	path?: string,
-) => {
-	if (path && revId) {
-		revId += `/` + Utils.trimSuffix(path, '/');
-	}
-	let repo: Git.Repository;
-	try {
-		repo = await Git.Repository.openBare(`${Repo.ROOT_REPOS}/${repoName}.git`);
-	} catch {
-		throw new Error(`No such repository ${repoName}`);
-	}
-	if (!revId) {
-		revId = `master`;
-	}
-	
-	let commit: Git.Commit;
-	try {
-		commit = await repo.getCommit(revId);
-	} catch {
-		try {
-			c.log(revId);
-			commit = await repo.getBranchCommit(revId);
-		} catch {
-			throw new Error(`Invalid rev id`);
-		}
-	};
-	return {
-		repoName,
-		repo,
-		revId,
-		path,
-		commit,
-	};
-};
-
-
+ 
 /**
  * Routes(html)
  */
@@ -108,19 +74,35 @@ app.get('/', async function(req, res) {
 });
 
 
-app.get('/:repo', async function(req, res) {
-	/// Show commits of a branch, just like `git log`
-	const context = await _get_repo_and_rev(req.params.repo);
-	const revWalk = context.repo.createRevWalk();
-	revWalk.pushHead();
-	const history = await revWalk.getCommits(50);
+app.get('/:repo',                        indexTree);
+app.get('/:namespace/:repo',             indexTree);
+app.get('/:repo/tree/:rev/*',            indexTree);
+app.get('/:namespace/:repo/tree/:rev/*', indexTree);
+
+// app.get('/:repo', async function(req, res) {
+// 	/// Show commits of a branch, just like `git log`
+// 	const context = await _get_repo_and_rev(req.params.repo);
+// 	// const tree = await context.entry.getTree();
+// 	const dirs  = context.tree.entries().filter(x => x.isTree());
+// 	const files = context.tree.entries().filter(x => x.isBlob());
 	
-	res.render('index', {
-		context,
-		history,
-		layout: 'base',
-	});
-});
+// 	const revWalk = context.repo.createRevWalk();
+// 	revWalk.pushHead();
+// 	const history = await revWalk.getCommits(50);
+	
+// 	res.render('index', {
+// 		context,
+// 		history,
+// 		listdir: { dirs, files },
+// 		layout: 'base',
+// 	});
+// });
+
+
+
+app.get(           '/:repo/blob/:rev/*', indexBlob);
+app.get('/:namespace/:repo/blob/:rev/*', indexBlob);
+
 
 
 app.get('/:repo/commit/*/', async function(req, res) {

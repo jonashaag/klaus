@@ -1,0 +1,27 @@
+<div class="branch-selector">
+  <span>{{ context.rev }}</span>
+  <div>
+    <ul class="branches">
+      {{#each refs.branches}}
+        <li>
+          <a
+            href="/{{ ../context.repoName }}/{{ ../context.view }}/{{ this }}/{{ ../context.path }}"
+          >
+            {{ this }}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+    <ul class="tags">
+      {{#each refs.tags}}
+        <li>
+          <a
+            href="/{{ ../context.repoName }}/{{ ../context.view }}/{{ this }}/{{ ../context.path }}"
+          >
+            {{ this }}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</div>

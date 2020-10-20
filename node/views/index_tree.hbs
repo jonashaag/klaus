@@ -1,0 +1,90 @@
+<div class="dummy"></div>
+
+<div class="tree">
+  <h2>
+    Tree @
+    <a
+      href="/{{ context.repoName }}/commit/{{ context.rev }}"
+    >
+      {{ shorten_sha1 context.rev}}
+    </a>
+  </h2>
+  <div class="link-history clearfloat">
+    <a
+      href="/{{ context.repoName }}/commits/{{ context.rev }}/{{ context.path }}"
+      style="float: right; font-weight: bold;"
+    >
+      {{#if context.data.historyLink}}
+        {{context.data.historyLink}}
+      {{else}}
+        History
+      {{/if}}
+    </a>
+    <br>
+  </div>
+  
+  <div
+    class="last-commit"
+  >
+    <a class="commit" href="/{{ context.repoName }}/commit/{{ call commitLast "id"}}">
+      <span class="line1">
+        <span>{{ call commitLast "message" }}</span>
+      </span>
+      <span class="line2">
+        <span>
+          {{ call commitLast "author" }}
+        </span>
+        <span title="{{ call commitLast "date" }}">
+          {{ shorten_sha1 (call commitLast "id") }} – {{ dateUTC (call commitLast "date") }}
+        </span>
+      </span>
+      <span class="clearfloat"></span>
+    </a>
+  </div>
+  
+  <ul>
+    {{#each dirs}}
+      <li>
+        <a
+          href="/{{ ../context.repoName }}/tree/{{ ../context.rev }}/{{ path }}"
+          class="dir"
+        >
+          {{ name }}
+        </a>
+        <a
+          href="/{{ ../context.repoName }}/commit/{{ call lastCommit "id" }}"
+          style="display: inline; padding-left: 60px;"
+        >
+          {{ call lastCommit "message" }}
+        </a>
+        <a
+          href="/{{ ../context.repoName }}/commit/{{ call lastCommit "id" }}"
+          style="display: inline; float: right;"
+        >
+          {{ fromNow (call lastCommit "date") }}
+        </a>
+      </li>
+    {{/each}}
+    {{#each files}}
+      <li>
+        <a
+          href="/{{ ../context.repoName }}/blob/{{ ../context.rev }}/{{ path }}"
+        >
+          {{ name }}
+        </a>
+        <a
+          href="/{{ ../context.repoName }}/commit/{{ call lastCommit "id" }}"
+          style="display: inline; padding-left: 60px;"
+        >
+          {{ call lastCommit "message" }}
+        </a>
+        <a
+          href="/{{ ../context.repoName }}/commit/{{ call lastCommit "id" }}"
+          style="display: inline; float: right;"
+        >
+          {{ fromNow (call lastCommit "date") }}
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+</div>

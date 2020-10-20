@@ -1,10 +1,9 @@
 import type { Repository } from 'nodegit';
-import { basename } from 'path';
+import { DateTime } from 'luxon';
 import { __nodeDir } from './RootDirFinder';
 import { HbsEngine } from './HbsEngine';
-import { Utils } from './Utils';
+import { Repo } from '../app/Repo';
 import { c } from './Log';
-import { Repo } from './Repo';
 
 export const hbs = new HbsEngine();
 
@@ -107,9 +106,24 @@ hbs.handlebars.registerHelper('dateISO', (o: Date) => {
 	return o.toISOString().slice(0, 19);
 });
 
-hbs.handlebars.registerHelper('dateString', (o: number) => {
-	const date = new Date(o);
+hbs.handlebars.registerHelper('dateString', (x: number) => {
+	/// `10/19/2020`
+	/// input is milliseconds since epoch.
+	const date = new Date(x);
 	return date.toLocaleDateString('en-US');
+});
+
+hbs.handlebars.registerHelper('fromNow', (o: Date) => {
+	const dt = DateTime.fromJSDate(o);
+	return dt.toRelative();
+});
+
+hbs.handlebars.registerHelper('firstLine', (s: string) => {
+	return s.split('\n')[0];
+});
+
+hbs.handlebars.registerHelper('typeof', (o: any) => {
+	return typeof o;
 });
 
 hbs.handlebars.registerHelper('call', function(o: any, method: string, ...args: any[]) {
@@ -127,5 +141,14 @@ hbs.handlebars.registerHelper('repo_name', (r: Repository) => {
 	return Repo.name(r);
 });
 
+hbs.handlebars.registerHelper('shorten_sha1', (rev: string) => {
+	if (typeof rev !== 'string') {
+		rev = (<any>rev).toString();
+	}
+	if (/^[A-F0-9]+$/i.test(rev) && rev.length >= 20) {
+		return rev.substr(0, 7);
+	}
+	return rev;
+});
 
 hbs.registerPartials(__nodeDir+`/views/partials`);
