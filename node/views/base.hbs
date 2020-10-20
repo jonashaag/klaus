@@ -40,7 +40,9 @@
       </span>
     {{/if}}
   </span>
-  {{> branch_selector}}
+  {{#unless no_branch_selector}}
+    {{> branch_selector}}
+  {{/unless}}
 </header>
 
 <div id="content">

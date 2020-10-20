@@ -7,6 +7,7 @@ import {
 	TreeContext,
 	BlobContext,
 	NotFoundError,
+	CommitContext,
 } from './Context';
 
 
@@ -124,7 +125,9 @@ export const blameBlob: express.RequestHandler = async function(req, res) {
 	
 	const line_commits: (Git.Oid | undefined)[] = [];
 	let last_dedup: Git.Oid | undefined;
-	const blame = await Git.Blame.file(context.repo, context.path!);
+	const blame = await Git.Blame.file(context.repo, context.path!, {
+		newestCommit: context.commit.id(),
+	});
 	for (let i = 0; i < blame.getHunkCount(); i++) {
 		const hunk = blame.getHunkByIndex(i);
 		if (hunk.finalCommitId().tostrS() !== last_dedup?.tostrS()) {
@@ -146,6 +149,18 @@ export const blameBlob: express.RequestHandler = async function(req, res) {
 		refs: await Repo.refs(context.repo),
 		context,
 		line_commits,
+		layout: 'base',
+	});
+}
+
+export const viewCommit: express.RequestHandler = async function(req, res) {
+	const context = new CommitContext(req);
+	await context.initialize();
+	
+	res.render('view_commit', {
+		refs: await Repo.refs(context.repo),
+		context,
+		no_branch_selector: true,
 		layout: 'base',
 	});
 }

@@ -17,6 +17,14 @@ interface BreadcrumbPath {
 export class NotFoundError extends Error {}
 
 
+export const repoNameFromRequest = (req: express.Request) => {
+	return req.params.namespace
+		? `${req.params.namespace}/${req.params.repo}`
+		: req.params.repo
+	;
+}
+
+
 export class Context {
 	/**
 	 * Repo id (repo or user/repo)
@@ -35,7 +43,6 @@ export class Context {
 	/// After `.initialize()`
 	repo:      Git.Repository;
 	commit:    Git.Commit;
-	treeEntry: Git.TreeEntry;
 	/// Other ad hoc data, for convenient access from templates
 	data: Record<string, any> = {};
 	
@@ -44,10 +51,7 @@ export class Context {
 		 * Note: we only support branch names and tag names
 		 * not containing a `/`.
 		 */
-		this.repoName = req.params.namespace
-			? `${req.params.namespace}/${req.params.repo}`
-			: req.params.repo
-		;
+		this.repoName = repoNameFromRequest(req);
 		this.rev = req.params.rev ?? DEFAULT_BRANCH;
 		this.path = req.params[0];
 	}
@@ -95,6 +99,10 @@ export class Context {
 	}
 }
 
+
+export class CommitContext extends Context {}
+
+
 export class TreeContext extends Context {
 	tree: Git.Tree;
 	
@@ -118,6 +126,7 @@ export class TreeContext extends Context {
 		return `tree`;
 	}
 }
+
 
 export class BlobContext extends Context {
 	blob: Git.Blob;
@@ -163,3 +172,4 @@ export class BlobContext extends Context {
 		this.data.line_gutter = Utils.range(1, n_lines+1).join("\n");
 	}
 }
+

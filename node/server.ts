@@ -12,6 +12,7 @@ import {
 	indexBlob,
 	rawBlob,
 	blameBlob,
+	viewCommit,
 } from './app/routes';
 const __exec = util.promisify(child_process.exec);
 
@@ -114,17 +115,10 @@ app.get('/:namespace/:repo/raw/:rev/*', rawBlob);
 app.get(           '/:repo/blame/:rev/*', blameBlob);
 app.get('/:namespace/:repo/blame/:rev/*', blameBlob);
 
-app.get('/:repo/commit/*/', async function(req, res) {
-	const context = await _get_repo_and_rev(
-		req.params.repo,
-		Utils.trimSuffix(req.params[0], "/")
-	);
-	
-	res.render('view_commit', {
-		commit: context.commit,
-		layout: 'base',
-	});
-});
+app.get(           '/:repo/commit/:sha', viewCommit);
+app.get('/:namespace/:repo/commit/:sha', viewCommit);
+
+
 
 
 // Start engine.

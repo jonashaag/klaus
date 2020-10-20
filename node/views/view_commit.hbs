@@ -1,12 +1,14 @@
 <div class="full-commit">
   <div class="commit">
     <span class="line1">
-      <span>{{ call commit "message" }}</span>
+      <span>{{ call context.commit "message" }}</span>
     </span>
     <span class="line2 separated-by-dots">
       <span>
-        {{ call commit "author" }} authored
-        <span class="hastooltip" title="{{ call commit "date" }}">{{ call commit "date" }}</span>
+        {{ call context.commit "author" }} authored
+        <span class="hastooltip" title="{{ call context.commit "date" }}">
+          {{ call context.commit "date" }}
+        </span>
       </span>
     </span>
     <span class="clearfloat"></span>
