@@ -48,7 +48,24 @@
     {{else if context.isTooLarge}}
       File is too large
     {{else}}
-      <pre><code>{{{ context.data.code }}}</code></pre>
+      <div
+        style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 10px 20px;"
+      >
+        <table>
+          <tr>
+            <td style="vertical-align: top;">
+              <pre
+                style="
+                  background-color: #f9f9f9; text-align: right; padding-right: 6px;
+                  border-right: 1px solid #e4e4e4; margin-right: 4px;"
+              >{{ context.data.line_gutter }}</pre>
+            </td>
+            <td style="vertical-align: top;">
+              <pre><code>{{{ context.data.code }}}</code></pre>
+            </td>
+          </tr>
+        </table>
+      </div>
     {{/if}}
     
   </div>

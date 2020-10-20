@@ -1,7 +1,10 @@
 import * as express from 'express';
 import * as Git from 'nodegit';
+import * as hljs from 'highlight.js';
+import { extname } from 'path';
 import { c } from '../lib/Log';
 import { Repo } from './Repo';
+import { Utils } from '../lib/Utils';
 
 
 const DEFAULT_BRANCH = `master`;
@@ -143,5 +146,20 @@ export class BlobContext extends Context {
 	}
 	get isTooLarge(): boolean {
 		return this.blob.rawsize() > 10**9;
+	}
+	
+	renderText() {
+		const ext = Utils.trimPrefix(extname(this.path!), ".");
+		const str = this.blob.toString();
+		try {
+			const res = hljs.highlight(ext, str, true);
+			this.data.code = res.value;
+		} catch {
+			/// Fallback to automatic detection.
+			const res = hljs.highlightAuto(str);
+			this.data.code = res.value;
+		}
+		const n_lines = str.split('\n').length;
+		this.data.line_gutter = Utils.range(1, n_lines+1).join("\n");
 	}
 }
