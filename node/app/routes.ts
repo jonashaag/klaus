@@ -1,5 +1,7 @@
 import * as express from 'express';
 import * as Git from 'nodegit';
+import * as hljs from 'highlight.js';
+import { extname } from 'path';
 import { c } from '../lib/Log';
 import { Repo } from './Repo';
 import { Utils } from '../lib/Utils';
@@ -77,10 +79,38 @@ export const indexBlob: express.RequestHandler = async function(req, res) {
 	
 	const commitLast = await getLastCommit(context.repo, context.path!, context.commit);
 	
+	if (!context.isBinary && !context.isTooLarge) {
+		const ext = Utils.trimPrefix(extname(context.path!), ".");
+		try {
+			const res = hljs.highlight(ext, context.blob.toString(), true);
+			context.data.code = res.value;
+		} catch {
+			/// Fallback to automatic detection.
+			const res = hljs.highlightAuto(context.blob.toString());
+			context.data.code = res.value;
+		}
+		c.debug(context.data.code);
+	}
+	
 	res.render('index_blob', {
 		refs: await Repo.refs(context.repo),
 		context,
 		commitLast,
 		layout: 'base',
 	});
+};
+
+export const rawBlob: express.RequestHandler = async function(req, res) {
+	const context = new BlobContext(req);
+	try {
+		await context.initialize();
+	} catch(err) {
+		if (err instanceof NotFoundError) {
+			return res.status(404).send(`Not Found: ${err}`);
+		}
+	}
+	/// we don't really need to set a content-type.
+	const type = "text/plain";
+	res.set('content-type', type);
+	res.send(context.blob.content());
 };

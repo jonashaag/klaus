@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import { __nodeDir } from './RootDirFinder';
 import { HbsEngine } from './HbsEngine';
 import { Repo } from '../app/Repo';
+import { Utils } from './Utils';
 import { c } from './Log';
 
 export const hbs = new HbsEngine();
@@ -116,6 +117,10 @@ hbs.handlebars.registerHelper('dateString', (x: number) => {
 hbs.handlebars.registerHelper('fromNow', (o: Date) => {
 	const dt = DateTime.fromJSDate(o);
 	return dt.toRelative();
+});
+
+hbs.handlebars.registerHelper('prettyNumber', (x: number) => {
+	return Utils.prettyNumber(x);
 });
 
 hbs.handlebars.registerHelper('firstLine', (s: string) => {

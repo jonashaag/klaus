@@ -17,6 +17,7 @@
     "colors": "^1.4.0",
     "express": "^4.17.1",
     "handlebars": "^4.7.6",
+    "highlight.js": "^10.3.1",
     "luxon": "^1.25.0",
     "nodegit": "^0.27.0"
   }

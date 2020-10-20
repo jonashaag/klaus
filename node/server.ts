@@ -7,7 +7,11 @@ import { hbs } from './lib/Hbs';
 import __rootDir, { __klausDir, __nodeDir } from './lib/RootDirFinder';
 import { Utils } from './lib/Utils';
 import { Repo } from './app/Repo';
-import { indexTree, indexBlob } from './app/routes';
+import {
+	indexTree,
+	indexBlob,
+	rawBlob,
+} from './app/routes';
 const __exec = util.promisify(child_process.exec);
 
 const app = express();
@@ -103,6 +107,8 @@ app.get('/:namespace/:repo/tree/:rev/*', indexTree);
 app.get(           '/:repo/blob/:rev/*', indexBlob);
 app.get('/:namespace/:repo/blob/:rev/*', indexBlob);
 
+app.get(           '/:repo/raw/:rev/*', rawBlob);
+app.get('/:namespace/:repo/raw/:rev/*', rawBlob);
 
 
 app.get('/:repo/commit/*/', async function(req, res) {

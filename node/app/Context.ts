@@ -137,4 +137,11 @@ export class BlobContext extends Context {
 	get view() {
 		return `blob`;
 	}
+	
+	get isBinary(): boolean {
+		return this.blob.isBinary() !== 0;
+	}
+	get isTooLarge(): boolean {
+		return this.blob.rawsize() > 10**9;
+	}
 }

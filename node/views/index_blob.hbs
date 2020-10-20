@@ -1,21 +1,55 @@
 <div class="dummy"></div>
 
-<div
-  class="last-commit"
->
-  <a class="commit" href="/{{ context.repoName }}/commit/{{ call commitLast "id"}}">
-    <span class="line1">
-      <span>{{ call commitLast "message" }}</span>
-    </span>
-    <span class="line2">
-      <span>
-        {{ call commitLast "author" }}
+<div>
+  <div
+    class="last-commit"
+  >
+    <a class="commit" href="/{{ context.repoName }}/commit/{{ call commitLast "id"}}">
+      <span class="line1">
+        <span>{{ call commitLast "message" }}</span>
       </span>
-      <span title="{{ call commitLast "date" }}">
-        {{ shorten_sha1 (call commitLast "id") }} – {{ dateUTC (call commitLast "date") }}
+      <span class="line2">
+        <span>
+          {{ call commitLast "author" }}
+        </span>
+        <span title="{{ call commitLast "date" }}">
+          {{ shorten_sha1 (call commitLast "id") }} – {{ dateUTC (call commitLast "date") }}
+        </span>
       </span>
-    </span>
-    <span class="clearfloat"></span>
-  </a>
-</div>
+      <span class="clearfloat"></span>
+    </a>
+  </div>
 
+  <div class="blobview">
+    <h2>
+      {{ context.path }}
+      <span>
+        <a href="/{{ context.repoName }}/raw/{{ context.rev }}/{{ context.path }}">
+          raw
+        </a>
+        &middot;
+        <a href="/{{ context.repoName }}/commits/{{ context.rev }}/{{ context.path }}">
+          history
+        </a>
+        {{#if (and (not context.isBinary true) (not context.isTooLarge true)) }}
+          &middot;
+          <a href="/{{ context.repoName }}/blame/{{ context.rev }}/{{ context.path }}">
+            blame
+          </a>
+        {{/if}}
+      </span>
+    </h2>
+    <div class="details">
+      File size: {{ prettyNumber (call context.blob "rawsize") }} Bytes
+    </div>
+    
+    {{#if context.isBinary}}
+      Binary data
+    {{else if context.isTooLarge}}
+      File is too large
+    {{else}}
+      <pre><code>{{{ context.data.code }}}</code></pre>
+    {{/if}}
+    
+  </div>
+</div>

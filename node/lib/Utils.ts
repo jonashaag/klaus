@@ -49,6 +49,26 @@ export namespace Utils {
 	}
 	
 	/**
+	 * Number prettifier
+	 * Transforms 123456789 to 123,456,789
+	 */
+	export function prettyNumber(n: number): string {
+		const parts: string[] = [];
+		while (n > 1000) {
+			const remainer = n % 1000;
+			parts.unshift(`${remainer}`.padStart(3, "0"));
+			n -= remainer;
+			n /= 1000;
+		}
+		
+		let t = `${n}`;
+		if (parts.length > 0) {
+			t += `,${parts.join(',')}`;
+		}
+		return t;
+	}
+	
+	/**
 	 * Merge multiple containers into tuples.
 	 */
 	export function zip<U, V>(keys: U[], values: V[]): [U, V][] {
