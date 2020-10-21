@@ -14,5 +14,17 @@
     <span class="clearfloat"></span>
   </div>
   {{!-- removed for now --}}
+  <div class="parents">
+    {{ call context.commit "parentcount" }} Parent(s):
+    {{#each (call context.commit "parents") }}
+      <p>
+        <a
+          href="/{{ ../context.repoName }}/commit/{{ this }}"
+        >
+          {{ shorten_sha1 this }}
+        </a>
+      </p>
+    {{/each}}
+  </div>
 </div>
 
