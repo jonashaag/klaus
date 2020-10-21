@@ -8,15 +8,15 @@
     {{/eq}}
   </span>
 </h2>
-<ul class=repolist>
+<ul class="repolist">
   {{#each items as |item|}}
     <li>
       <a
-        href="/{{repo_name item.repo}}"
+        href="/{{ repo_name item.repo }}"
       >
-        <div class=name>{{repo_name item.repo}}</div>
-        <div class=last-updated>
-          last updated {{ call item.commit "date" }}
+        <div class="name">{{ repo_name item.repo }}</div>
+        <div class="last-updated">
+          last updated {{ dateUTC (call item.commit "date") }}
         </div>
       </a>
     </li>

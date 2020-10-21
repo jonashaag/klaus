@@ -39,7 +39,7 @@ app.get(
  * not containing a `/`.
  */
 
- 
+
 /**
  * Routes(html)
  */
@@ -47,12 +47,13 @@ app.get(
 app.get('/', async function(req, res) {
 	const repoFolders = await Utils.readdirREnt(
 		Repo.ROOT_REPOS,
-		(x) => x.name.endsWith(`.git`),
+		(x) => x.name === `.git` || x.name.endsWith(`.git`),
 		2
 	);
 	/// Assume top-level or nesting=1 folders in this dir
 	/// are our repos.
 	/// Also assume they are bare repos.
+	/// Update: Also support non-bare repos, but only at top-level.
 	const repos = await Promise.all(repoFolders.map(x => {
 		return Git.Repository.openBare(x);
 	}));
@@ -114,6 +115,7 @@ app.get('/:namespace/:repo/raw/:rev/*', rawBlob);
 
 app.get(           '/:repo/blame/:rev/*', blameBlob);
 app.get('/:namespace/:repo/blame/:rev/*', blameBlob);
+
 
 app.get(           '/:repo/commit/:rev', viewCommit);
 app.get('/:namespace/:repo/commit/:rev', viewCommit);

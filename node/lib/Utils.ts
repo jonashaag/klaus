@@ -93,6 +93,18 @@ export namespace Utils {
 	}
 	
 	/**
+	 * Does local file exist.
+	 */
+	export async function fileExists(path: string): Promise<boolean> {
+		try {
+			await fs.promises.access(path);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+	
+	/**
 	 * Recursive readdir matching fs.Dirent[]
 	 * 
 	 * Use `matchDirEnt` to select what's returned

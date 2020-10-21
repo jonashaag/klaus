@@ -17,7 +17,7 @@ interface BreadcrumbPath {
 export class NotFoundError extends Error {}
 
 
-export const repoNameFromRequest = (req: express.Request) => {
+const repoNameFromRequest = (req: express.Request) => {
 	return req.params.namespace
 		? `${req.params.namespace}/${req.params.repo}`
 		: req.params.repo
@@ -57,9 +57,13 @@ export class Context {
 	}
 	
 	async initialize(): Promise<void> {
-		try {
+		if (await Utils.fileExists(`${Repo.ROOT_REPOS}/${this.repoName}.git`)) {
+			/// bare repo
 			this.repo = await Git.Repository.openBare(`${Repo.ROOT_REPOS}/${this.repoName}.git`);
-		} catch {
+		} else if (await Utils.fileExists(`${Repo.ROOT_REPOS}/${this.repoName}/.git`)) {
+			/// non-bare repo
+			this.repo = await Git.Repository.open(`${Repo.ROOT_REPOS}/${this.repoName}/.git`);
+		} else {
 			throw new NotFoundError(`No such repository ${this.repoName}`);
 		}
 		
@@ -157,6 +161,10 @@ export class BlobContext extends Context {
 		return this.blob.rawsize() > 10**9;
 	}
 	
+	/**
+	 * Highlight content with hljs,
+	 * and store in this.data.
+	 */
 	renderText() {
 		const ext = Utils.trimPrefix(extname(this.path!), ".");
 		const str = this.blob.toString();

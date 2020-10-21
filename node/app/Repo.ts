@@ -11,16 +11,23 @@ import { Utils } from '../lib/Utils';
 export namespace Repo {
 	export const ROOT_REPOS = __rootDir+`/repositories`;
 
-	export function name(r: Git.Repository) {
-		return Utils.trimSuffix(path.relative(ROOT_REPOS, r.path()), '.git');
+	export function name(repo: Git.Repository) {
+		const rel = path.relative(ROOT_REPOS, repo.path());
+		if (rel.endsWith(`/.git`)) {
+			/// non-bare repo
+			return Utils.trimSuffix(rel, `/.git`);
+		} else {
+			/// bare repo
+			return Utils.trimSuffix(rel, '.git');
+		}
 	}
 	
-	export async function refs(r: Git.Repository): Promise<{
+	export async function refs(repo: Git.Repository): Promise<{
 		tags: string[];
 		branches: string[];
 	}> {
-		const tags = await Git.Tag.list(r);
-		const branches = (await r.getReferences())
+		const tags = await Git.Tag.list(repo);
+		const branches = (await repo.getReferences())
 			.filter(x => x.isBranch())
 			.map(x => x.shorthand())
 		;
@@ -33,11 +40,10 @@ export namespace Repo {
 	): Promise<number> {
 		const revWalk = repo.createRevWalk();
 		revWalk.push(before.id());
-		let i = 1;
+		let i = 0;
 		/// ^^ Include `before` in the count.
 		while (true) {
 			try {
-				await revWalk.next();
 				i++;
 			} catch(err) {
 				if (err.errno === Git.Error.CODE.ITEROVER) {
