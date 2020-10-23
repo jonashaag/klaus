@@ -44,6 +44,7 @@ export namespace Repo {
 		/// ^^ Include `before` in the count.
 		while (true) {
 			try {
+				await revWalk.next();
 				i++;
 			} catch(err) {
 				if (err.errno === Git.Error.CODE.ITEROVER) {
