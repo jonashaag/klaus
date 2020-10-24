@@ -79,6 +79,7 @@ export class Context {
 		} catch {
 			try {
 				this.commit = await this.repo.getBranchCommit(this.rev);
+				/// ^^ Also works for tags apparently.
 			} catch {
 				throw new NotFoundError(`Invalid rev id`);
 			}
