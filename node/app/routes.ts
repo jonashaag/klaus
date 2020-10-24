@@ -9,6 +9,7 @@ import {
 	NotFoundError,
 	CommitContext,
 } from './Context';
+import { TemplateInfo } from './TemplateInfo';
 
 
 
@@ -57,7 +58,7 @@ export const indexTree: express.RequestHandler = async function(req, res) {
 	}
 	
 	res.render('index_tree', {
-		refs: await Repo.refs(context.repo),
+		info: await TemplateInfo.info(context, req.path),
 		context,
 		commitLast,
 		dirs:  entries.filter(x => x.isTree()),
@@ -83,7 +84,7 @@ export const indexBlob: express.RequestHandler = async function(req, res) {
 	}
 	
 	res.render('index_blob', {
-		refs: await Repo.refs(context.repo),
+		info: await TemplateInfo.info(context, req.path),
 		context,
 		commitLast,
 		layout: 'base',
@@ -146,7 +147,7 @@ export const blameBlob: express.RequestHandler = async function(req, res) {
 	}).join("\n");
 	
 	res.render('blame_blob', {
-		refs: await Repo.refs(context.repo),
+		info: await TemplateInfo.info(context, req.path),
 		context,
 		line_commits,
 		layout: 'base',
@@ -155,10 +156,16 @@ export const blameBlob: express.RequestHandler = async function(req, res) {
 
 export const viewCommit: express.RequestHandler = async function(req, res) {
 	const context = new CommitContext(req);
-	await context.initialize();
+	try {
+		await context.initialize();
+	} catch(err) {
+		if (err instanceof NotFoundError) {
+			return res.status(404).send(`Not Found: ${err}`);
+		}
+	}
 	
 	res.render('view_commit', {
-		refs: await Repo.refs(context.repo),
+		info: await TemplateInfo.info(context, req.path),
 		context,
 		no_branch_selector: true,
 		layout: 'base',

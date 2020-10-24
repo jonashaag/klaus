@@ -1,8 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as util from 'util';
-import * as child_process from 'child_process';
-const __exec = util.promisify(child_process.exec);
 
 export type Scalar = string | number | boolean | undefined | null;
 

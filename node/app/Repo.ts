@@ -10,7 +10,12 @@ import { Utils } from '../lib/Utils';
  */
 export namespace Repo {
 	export const ROOT_REPOS = __rootDir+`/repositories`;
-
+	
+	export interface Refs {
+		tags:     string[];
+		branches: string[];
+	}
+	
 	export function name(repo: Git.Repository) {
 		const rel = path.relative(ROOT_REPOS, repo.path());
 		if (rel.endsWith(`/.git`)) {
@@ -37,10 +42,7 @@ export namespace Repo {
 		);
 	}
 	
-	export async function refs(repo: Git.Repository): Promise<{
-		tags: string[];
-		branches: string[];
-	}> {
+	export async function refs(repo: Git.Repository): Promise<Refs> {
 		const tags = await Git.Tag.list(repo);
 		const branches = (await repo.getReferences())
 			.filter(x => x.isBranch())

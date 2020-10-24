@@ -33,3 +33,7 @@ URL layout is different from `klaus` and is actually modeled after GitHub. Here 
 
 ![url-layout](./url-layout.png)
 
+## Helper
+
+We implement a "Check on GitHub" link that opens the "same" page on GitHub (for repos which have a remote there). Peruse it to check that things work the same.
+

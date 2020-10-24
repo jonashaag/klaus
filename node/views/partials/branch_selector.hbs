@@ -2,7 +2,7 @@
   <span>{{ context.rev }}</span>
   <div>
     <ul class="branches">
-      {{#each refs.branches}}
+      {{#each info.refs.branches}}
         <li>
           <a
             href="/{{ ../context.repoName }}/{{ ../context.view }}/{{ this }}/{{ ../context.path }}"
@@ -13,8 +13,10 @@
       {{/each}}
     </ul>
     <ul class="tags">
-      {{#each refs.tags}}
-        <li>
+      {{#each info.refs.tags}}
+        <li
+          style="background-color: #f9f7b1"
+        >
           <a
             href="/{{ ../context.repoName }}/{{ ../context.view }}/{{ this }}/{{ ../context.path }}"
           >

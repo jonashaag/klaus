@@ -57,12 +57,14 @@ export class Context {
 	}
 	
 	async initialize(): Promise<void> {
-		if (await Utils.fileExists(`${Repo.ROOT_REPOS}/${this.repoName}.git`)) {
+		const potentialBare    = `${Repo.ROOT_REPOS}/${this.repoName}.git`;
+		const potentialNonBare = `${Repo.ROOT_REPOS}/${this.repoName}/.git`;
+		if (await Utils.fileExists(potentialBare)) {
 			/// bare repo
-			this.repo = await Git.Repository.openBare(`${Repo.ROOT_REPOS}/${this.repoName}.git`);
-		} else if (await Utils.fileExists(`${Repo.ROOT_REPOS}/${this.repoName}/.git`)) {
+			this.repo = await Git.Repository.openBare(potentialBare);
+		} else if (await Utils.fileExists(potentialNonBare)) {
 			/// non-bare repo
-			this.repo = await Git.Repository.open(`${Repo.ROOT_REPOS}/${this.repoName}/.git`);
+			this.repo = await Git.Repository.open(potentialNonBare);
 		} else {
 			throw new NotFoundError(`No such repository ${this.repoName}`);
 		}

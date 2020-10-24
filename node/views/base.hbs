@@ -11,7 +11,7 @@
 {{#if meta.base_href}}
   <base href="{{ meta.base_href }}">
 {{/if}}
-<title>{{repo.name}} ({{rev}}) - {{ SITE_NAME }}</title>
+<title>{{ context.repoName }} ({{ context.rev }}) - {{ SITE_NAME }}</title>
 
 <script src="/static/klaus.js"></script>
 
@@ -19,6 +19,7 @@
   <a href="/">
     {{ SITE_NAME }}
   </a>
+  
   <span class="breadcrumbs">
     <span>
       <a href="/{{ context.repoName }}">{{ context.repoName }}</a>
@@ -40,6 +41,17 @@
       </span>
     {{/if}}
   </span>
+  
+  {{#if info.remoteLink}}
+    <a
+      target="_blank"
+      href="{{ info.remoteLink }}"
+      style="
+        position: absolute; top: 2px; right: 100px;
+        color: grey;"
+    >Check on GH</a>
+  {{/if}}
+  
   {{#unless no_branch_selector}}
     {{> branch_selector}}
   {{/unless}}
