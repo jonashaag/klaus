@@ -31,6 +31,9 @@ export namespace TemplateInfo {
 				`git config --get remote.origin.url`,
 				{ cwd: context.repo.path() }
 			)).stdout.trim();
+			if (! remoteUrl.startsWith('https:')) {
+				throw new Error(`non supported remote`);
+			}
 			remoteUrl = Utils.trimSuffix(remoteUrl, `.git`);
 			const relativeToRepo = Utils.trimPrefix(
 				pageUrl,

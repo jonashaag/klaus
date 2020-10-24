@@ -166,9 +166,38 @@ export const viewCommit: express.RequestHandler = async function(req, res) {
 		}
 	}
 	
+	const diffList = await context.commit.getDiff();
+	const diffStats = await Promise.all(diffList.map(async x => {
+		const stats = await x.getStats();
+		return `${stats.filesChanged()} changed files with ${stats.insertions()} additions and ${stats.deletions()} deletions`;
+	}));
+	
+	/// copy/paste of
+	/// github.com/nodegit/nodegit/blob/master/examples/diff-commits.js
+	let outputDiff = "";
+	for (const [i_diff, diff] of diffList.entries()) {
+		outputDiff += `Diff #${i_diff}\n`;
+		const patches = await diff.patches();
+		for (const [i_patch, patch] of patches.entries()) {
+			const hunks = await patch.hunks();
+			for (const [i_hunk, hunk] of hunks.entries()) {
+				const lines = await hunk.lines();
+				outputDiff += `\n<strong>Patch #${i_patch}, Hunk #${i_hunk}</strong>\n`;
+				outputDiff += `diff ${patch.oldFile().path()} ${patch.newFile().path()}\n`;
+				outputDiff += hunk.header().trim() + '\n\n';
+				
+				outputDiff += `<small style="color: grey">` + lines.map(line => {
+					return String.fromCharCode(line.origin()) + line.content().trim();
+				}).join('\n') + `</small>\n`;
+			}
+		}
+	}
+	
 	res.render('view_commit', {
 		info: await TemplateInfo.info(context, req.path),
 		context,
+		diffStats,
+		outputDiff,
 		no_branch_selector: true,
 		layout: 'base',
 	});

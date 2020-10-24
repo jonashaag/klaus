@@ -6,7 +6,7 @@
     <a
       href="/{{ context.repoName }}/commit/{{ context.rev }}"
     >
-      {{ shorten_sha1 context.rev}}
+      {{ shorten_sha1 context.rev }}
     </a>
   </h2>
   <div class="link-history clearfloat">
@@ -23,24 +23,7 @@
     <br>
   </div>
   
-  <div
-    class="last-commit"
-  >
-    <a class="commit" href="/{{ context.repoName }}/commit/{{ call commitLast "id"}}">
-      <span class="line1">
-        <span>{{ call commitLast "message" }}</span>
-      </span>
-      <span class="line2">
-        <span>
-          {{ call commitLast "author" }}
-        </span>
-        <span title="{{ call commitLast "date" }}">
-          {{ shorten_sha1 (call commitLast "id") }} – {{ dateUTC (call commitLast "date") }}
-        </span>
-      </span>
-      <span class="clearfloat"></span>
-    </a>
-  </div>
+  {{> last_commit commitLast=commitLast}}
   
   <ul>
     {{#each dirs}}
