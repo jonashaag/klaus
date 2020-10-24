@@ -67,6 +67,7 @@ export const indexTree: express.RequestHandler = async function(req, res) {
 	});
 }
 
+
 export const indexBlob: express.RequestHandler = async function(req, res) {
 	const context = new BlobContext(req);
 	try {
@@ -153,6 +154,7 @@ export const blameBlob: express.RequestHandler = async function(req, res) {
 		layout: 'base',
 	});
 }
+
 
 export const viewCommit: express.RequestHandler = async function(req, res) {
 	const context = new CommitContext(req);

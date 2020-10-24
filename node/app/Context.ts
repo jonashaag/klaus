@@ -7,7 +7,6 @@ import { Repo } from './Repo';
 import { Utils } from '../lib/Utils';
 
 
-const DEFAULT_BRANCH = `master`;
 
 interface BreadcrumbPath {
 	dir:   string;
@@ -52,7 +51,8 @@ export class Context {
 		 * not containing a `/`.
 		 */
 		this.repoName = repoNameFromRequest(req);
-		this.rev = req.params.rev ?? DEFAULT_BRANCH;
+		this.rev = req.params.rev;
+		/// ^ if undefined, we'll figure out when we have the Repo below.
 		this.path = req.params[0];
 	}
 	
@@ -67,6 +67,11 @@ export class Context {
 			this.repo = await Git.Repository.open(potentialNonBare);
 		} else {
 			throw new NotFoundError(`No such repository ${this.repoName}`);
+		}
+		
+		if (this.rev === undefined) {
+			const ref = await this.repo.head();
+			this.rev = ref.shorthand();
 		}
 		
 		try {
