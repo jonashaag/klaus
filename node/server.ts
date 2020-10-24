@@ -99,16 +99,9 @@ app.post('/fetch_all', async function(req, res) {
  * Actual git-viewer routes
  * 
  * see url-layout.png
+ * 
+ * CAUTION(Always keep the most generic routes at the end.)
  */
-
-app.get(           '/:repo',                indexTree);
-app.get('/:namespace/:repo',                indexTree);
-app.get(           '/:repo/tree/:rev',      indexTree);
-app.get('/:namespace/:repo/tree/:rev',      indexTree);
-app.get(           '/:repo/tree/:rev/*',    indexTree);
-app.get('/:namespace/:repo/tree/:rev/*',    indexTree);
-
-
 
 app.get(           '/:repo/blob/:rev/*',    indexBlob);
 app.get('/:namespace/:repo/blob/:rev/*',    indexBlob);
@@ -133,6 +126,13 @@ app.get(           '/:repo/commits/:rev/*', historyCommits);
 app.get('/:namespace/:repo/commits/:rev/*', historyCommits);
 
 
+
+app.get(           '/:repo/tree/:rev',      indexTree);
+app.get('/:namespace/:repo/tree/:rev',      indexTree);
+app.get(           '/:repo/tree/:rev/*',    indexTree);
+app.get('/:namespace/:repo/tree/:rev/*',    indexTree);
+app.get(           '/:repo',                indexTree);
+app.get('/:namespace/:repo',                indexTree);
 
 // Start engine.
 
