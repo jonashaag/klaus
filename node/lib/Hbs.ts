@@ -156,4 +156,14 @@ hbs.handlebars.registerHelper('shorten_sha1', (rev: string) => {
 	return rev;
 });
 
+hbs.handlebars.registerHelper('shorten_message', (s: string) => {
+	const x = s.split('\n')[0];
+	const maxLen = 80;
+	if (x.length > maxLen) {
+		return x.substr(0, maxLen) + "…";
+	} else {
+		return x;
+	}
+});
+
 hbs.registerPartials(__nodeDir+`/views/partials`);
