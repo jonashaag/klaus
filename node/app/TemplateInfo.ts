@@ -40,7 +40,6 @@ export namespace TemplateInfo {
 				`/${context.repoName}`
 			);
 			const remoteLink = remoteUrl+relativeToRepo;
-			c.debug(remoteLink);
 			return { refs, remoteLink };
 		} catch(err) {
 			return { refs };

@@ -35,5 +35,7 @@ URL layout is different from `klaus` and is actually modeled after GitHub. Here 
 
 ## Helper
 
-We implement a "Check on GitHub" link that opens the "same" page on GitHub (for repos which have a remote there). Peruse it to check that things work the same.
+We implement a "Check on GitHub" link that opens the "same" page on GitHub (for repos which have a remote there). Peruse it to check that things work the same. 
+
+Notably, the commit history pages. (because libgit2's revwalk is not super properly documented.)
 
