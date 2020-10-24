@@ -96,50 +96,33 @@ app.post('/fetch_all', async function(req, res) {
 
 /**
  * Actual git-viewer routes
+ * 
+ * see url-layout.png
  */
 
-app.get([
-	'/:repo',
-	'/:namespace/:repo',
-], indexTree);
-app.get(           '/:repo/tree/:rev',   indexTree);
-app.get('/:namespace/:repo/tree/:rev',   indexTree);
-app.get(           '/:repo/tree/:rev/*', indexTree);
-app.get('/:namespace/:repo/tree/:rev/*', indexTree);
-
-// app.get('/:repo', async function(req, res) {
-// 	/// Show commits of a branch, just like `git log`
-// 	const context = await _get_repo_and_rev(req.params.repo);
-// 	// const tree = await context.entry.getTree();
-// 	const dirs  = context.tree.entries().filter(x => x.isTree());
-// 	const files = context.tree.entries().filter(x => x.isBlob());
-	
-// 	const revWalk = context.repo.createRevWalk();
-// 	revWalk.pushHead();
-// 	const history = await revWalk.getCommits(50);
-	
-// 	res.render('index', {
-// 		context,
-// 		history,
-// 		listdir: { dirs, files },
-// 		layout: 'base',
-// 	});
-// });
+app.get(           '/:repo',                indexTree);
+app.get('/:namespace/:repo',                indexTree);
+app.get(           '/:repo/tree/:rev',      indexTree);
+app.get('/:namespace/:repo/tree/:rev',      indexTree);
+app.get(           '/:repo/tree/:rev/*',    indexTree);
+app.get('/:namespace/:repo/tree/:rev/*',    indexTree);
 
 
 
-app.get(           '/:repo/blob/:rev/*', indexBlob);
-app.get('/:namespace/:repo/blob/:rev/*', indexBlob);
+app.get(           '/:repo/blob/:rev/*',    indexBlob);
+app.get('/:namespace/:repo/blob/:rev/*',    indexBlob);
 
-app.get(           '/:repo/raw/:rev/*', rawBlob);
-app.get('/:namespace/:repo/raw/:rev/*', rawBlob);
+app.get(           '/:repo/raw/:rev/*',     rawBlob);
+app.get('/:namespace/:repo/raw/:rev/*',     rawBlob);
 
-app.get(           '/:repo/blame/:rev/*', blameBlob);
-app.get('/:namespace/:repo/blame/:rev/*', blameBlob);
+app.get(           '/:repo/blame/:rev/*',   blameBlob);
+app.get('/:namespace/:repo/blame/:rev/*',   blameBlob);
 
 
-app.get(           '/:repo/commit/:rev', viewCommit);
-app.get('/:namespace/:repo/commit/:rev', viewCommit);
+app.get(           '/:repo/commit/:rev',    viewCommit);
+app.get('/:namespace/:repo/commit/:rev',    viewCommit);
+
+
 
 
 
