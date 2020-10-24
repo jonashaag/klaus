@@ -13,6 +13,7 @@ import {
 	rawBlob,
 	blameBlob,
 	viewCommit,
+	historyCommits,
 } from './app/routes';
 const __exec = util.promisify(child_process.exec);
 
@@ -124,6 +125,12 @@ app.get('/:namespace/:repo/commit/:rev',    viewCommit);
 
 
 
+app.get(           '/:repo/commits',        historyCommits);
+app.get('/:namespace/:repo/commits',        historyCommits);
+app.get(           '/:repo/commits/:rev',   historyCommits);
+app.get('/:namespace/:repo/commits/:rev',   historyCommits);
+app.get(           '/:repo/commits/:rev/*', historyCommits);
+app.get('/:namespace/:repo/commits/:rev/*', historyCommits);
 
 
 

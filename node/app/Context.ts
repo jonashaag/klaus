@@ -106,13 +106,19 @@ export class Context {
 	/**
 	 * For links in templates (e.g. branch_selector)
 	 */
-	get view(): "tree" | "blob" | string {
+	get view(): "tree" | "blob" | "commits" | string {
 		throw new Error(`Implemented by concrete subclass`);
 	}
 }
 
 
 export class CommitContext extends Context {}
+
+export class HistoryContext extends Context {
+	get view() {
+		return `commits`;
+	}
+}
 
 
 export class TreeContext extends Context {

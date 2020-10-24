@@ -27,11 +27,19 @@
       <span>
         {{#each context.subpaths}}
           {{#if href}}
-            <a
-              href="/{{ ../context.repoName }}/tree/{{ ../context.rev }}/{{ href }}"
-            >
-              {{dir}}
-            </a>
+            {{#eq ../context.view "commits"}}
+              <a
+                href="/{{ ../context.repoName }}/commits/{{ ../context.rev }}/{{ href }}"
+              >
+                {{dir}}
+              </a>
+            {{else}}
+              <a
+                href="/{{ ../context.repoName }}/tree/{{ ../context.rev }}/{{ href }}"
+              >
+                {{dir}}
+              </a>
+            {{/eq}}
           {{else}}
             {{dir}}
           {{/if}}

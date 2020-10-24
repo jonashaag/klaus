@@ -4,10 +4,11 @@ import { c } from '../lib/Log';
 import { Repo } from './Repo';
 import { Utils } from '../lib/Utils';
 import {
+	NotFoundError,
 	TreeContext,
 	BlobContext,
-	NotFoundError,
 	CommitContext,
+	HistoryContext,
 } from './Context';
 import { TemplateInfo } from './TemplateInfo';
 
@@ -201,6 +202,71 @@ export const viewCommit: express.RequestHandler = async function(req, res) {
 		diffStats,
 		outputDiff,
 		no_branch_selector: true,
+		layout: 'base',
+	});
+}
+
+
+export const historyCommits: express.RequestHandler = async function(req, res) {
+	const context = new HistoryContext(req);
+	try {
+		await context.initialize();
+	} catch(err) {
+		if (err instanceof NotFoundError) {
+			return res.status(404).send(`Not Found: ${err}`);
+		}
+	}
+	
+	const revWalk = context.repo.createRevWalk();
+	revWalk.push(context.commit.id());
+	const oids: Git.Oid[] = [];
+	while (true) {
+		try {
+			const oid = await revWalk.next();
+			oids.push(oid);
+		} catch(err) {
+			if (err.errno === Git.Error.CODE.ITEROVER) {
+				break;
+			}
+			throw err;
+		}
+	}
+	const allCommits = await Promise.all(oids.map(x => context.repo.getCommit(x)));
+	/// ^^ this is very fast.
+	/// no pagination (we haven't had the use for now.)
+	let commits: Git.Commit[] = [];
+	if (context.path === undefined) {
+		commits = allCommits;
+	} else {
+		/// CAUTION(this can be pretty long)
+		const startTime = Date.now();
+		for (const commit of allCommits) {
+			const diffList = await commit.getDiff();
+			const patches = (await Promise.all(diffList.map(x => x.patches()))).flat();
+			const touchedFiles = new Set(
+				patches.map(x => (
+					[x.oldFile().path(), x.newFile().path()]
+				)).flat()
+			);
+			if (
+				   touchedFiles.has(context.path)
+				|| [...touchedFiles].some(fpath => fpath.startsWith(context.path+`/`))
+			) {
+				/// Handle both folder and path in one `if`
+				commits.push(commit);
+			}
+		}
+		c.log(
+			`history.commits.filtered`,
+			`[${context.repoName}]`,
+			Date.now() - startTime
+		);
+	}
+	
+	res.render('history_commits', {
+		info: await TemplateInfo.info(context, req.path),
+		context,
+		commits,
 		layout: 'base',
 	});
 }

@@ -65,10 +65,11 @@ export namespace Repo {
 				i++;
 			} catch(err) {
 				if (err.errno === Git.Error.CODE.ITEROVER) {
-					return i;
+					break;
 				}
 				throw err;
 			}
 		}
+		return i;
 	}
 }

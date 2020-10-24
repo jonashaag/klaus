@@ -1,0 +1,27 @@
+<div class="dummy"></div>
+
+<div class="history">
+  <h2>
+    Commit History
+  </h2>
+  <ul>
+  {{#each commits}}
+    <li>
+      <a class="commit" href="/{{ ../context.repoName }}/commit/{{ this }}">
+        <span class="line1">
+          <span>{{ shorten_message (call this "message") }}</span>
+        </span>
+        <span class="line2">
+          <span>
+            {{ call this "author" }}
+          </span>
+          <span title="{{ call this "date" }}">
+            {{ dateUTC (call this "date") }}
+          </span>
+        </span>
+        <span class="clearfloat"></span>
+      </a>
+    </li>
+  {{/each}}
+  </ul>
+</div>
