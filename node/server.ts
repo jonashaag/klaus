@@ -100,8 +100,10 @@ app.post('/fetch_all', async function(req, res) {
 
 app.get([
 	'/:repo',
-	'/:namespace/:repo'
+	'/:namespace/:repo',
 ], indexTree);
+app.get(           '/:repo/tree/:rev',   indexTree);
+app.get('/:namespace/:repo/tree/:rev',   indexTree);
 app.get(           '/:repo/tree/:rev/*', indexTree);
 app.get('/:namespace/:repo/tree/:rev/*', indexTree);
 
