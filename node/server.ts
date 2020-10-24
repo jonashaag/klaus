@@ -41,20 +41,12 @@ app.get(
 
 
 /**
- * Routes(html)
+ * Routes(scaffolding)
  */
 
 app.get('/', async function(req, res) {
-	const repoFolders = await Utils.readdirREnt(
-		Repo.ROOT_REPOS,
-		(x) => x.name === `.git` || x.name.endsWith(`.git`),
-		2
-	);
-	/// Assume top-level or nesting=1 folders in this dir
-	/// are our repos.
-	/// Also assume they are bare repos.
-	/// Update: Also support non-bare repos, but only at top-level.
-	const repos = await Promise.all(repoFolders.map(x => {
+	const folders = await Repo.repoFolders();
+	const repos = await Promise.all(folders.map(x => {
 		return Git.Repository.openBare(x);
 	}));
 	const headCommits = await Promise.all(repos.map(x => x.getHeadCommit()));
@@ -80,10 +72,35 @@ app.get('/', async function(req, res) {
 	});
 });
 
+app.post('/fetch_all', async function(req, res) {
+	const folders = await Repo.repoFolders();
+	res.set('content-type', 'text/plain');
+	for (const folder of folders) {
+		res.write('\n===\n');
+		res.write(folder+'\n');
+		const remotes = (await __exec(`git remote`, { cwd: folder })).stdout;
+		if (remotes.length === 0) {
+			res.write('no remote\n');
+		} else {
+			/// stackoverflow.com/a/26172920/593036
+			const { stdout, stderr } = await __exec(
+				`git fetch origin +refs/heads/*:refs/heads/* --prune`,
+				{ cwd: folder }
+			);
+			res.write(stdout+'\n');
+			res.write(stderr.split('\n').map(x => `(!) ${x}`).join('\n'));
+		}
+	}
+	res.end();
+});
 
-app.get('/:repo',                        indexTree);
+/**
+ * Actual git-viewer routes
+ */
+
+app.get(           '/:repo',             indexTree);
 app.get('/:namespace/:repo',             indexTree);
-app.get('/:repo/tree/:rev/*',            indexTree);
+app.get(           '/:repo/tree/:rev/*', indexTree);
 app.get('/:namespace/:repo/tree/:rev/*', indexTree);
 
 // app.get('/:repo', async function(req, res) {
