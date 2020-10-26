@@ -21,6 +21,7 @@ tsc
 node dist/server.js
 
 # or to auto-reload on changes
+tsc -w
 npm i -g nodemon
 ./supervisor.sh
 ```
