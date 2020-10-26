@@ -242,7 +242,7 @@ class HistoryView(TreeViewMixin, BaseRepoView):
 
         history_length = 30
         if page:
-            skip = (self.context["page"] - 1) * 30 + 10
+            skip = (self.context["page"] - 1) * history_length + 10
             if page > 7:
                 self.context["previous_pages"] = [0, 1, 2, None] + list(range(page))[
                     -3:
