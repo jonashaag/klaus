@@ -1,5 +1,6 @@
 import os
 import io
+import itertools
 import stat
 import subprocess
 
@@ -20,6 +21,20 @@ from klaus.diff import render_diff
 
 
 NOT_SET = "__not_set__"
+
+
+def pairwise(iterable):
+    """
+    Yields the items in `iterable` pairwise:
+
+    >>> list(pairwise(['a', 'b', 'c', 'd']))
+    [('a', 'b'), ('b', 'c'), ('c', 'd')]
+    """
+    prev = None
+    for item in iterable:
+        if prev is not None:
+            yield prev, item
+        prev = item
 
 
 def cached_call(key, validator, producer, _cache={}):
@@ -182,6 +197,49 @@ class FancyRepo(dulwich.repo.Repo):
         return set(tag_shas) | set(branch_shas)
 
     def history(self, commit, path=None, max_commits=None, skip=0):
+        if not isinstance(commit, dulwich.objects.Commit):
+            commit = self.get_commit(commit)
+        commits = self._history(commit)
+        commits = (c1 for c1, c2 in pairwise(commits)
+                   if self._path_changed_between(path, c1, c2))
+        return list(itertools.islice(commits, skip, skip+max_commits))
+
+
+    def _history(self, commit):
+        """ Yields all commits that lead to `commit`. """
+        if commit is None:
+            commit = self.get_default_branch()
+        while commit.parents:
+            yield commit
+            commit = self[commit.parents[0]]
+        yield commit
+
+    def _path_changed_between(self, path, commit1, commit2):
+        """
+        Returns `True` if `path` changed between `commit1` and `commit2`,
+        including the case that the file was added or deleted in `commit2`.
+        """
+        path, filename = os.path.split(path)
+        try:
+            blob1 = self.get_blob_or_tree(commit1, path)
+            if not isinstance(blob1, dulwich.objects.Tree):
+                return True
+            blob1 = blob1[filename]
+        except KeyError:
+            blob1 = None
+        try:
+            blob2 = self.get_blob_or_tree(commit2, path)
+            if not isinstance(blob2, dulwich.objects.Tree):
+                return True
+            blob2 = blob2[filename]
+        except KeyError:
+            blob2 = None
+        if blob1 is None and blob2 is None:
+            # file present in neither tree
+            return False
+        return blob1 != blob2
+
+    def history2(self, commit, path=None, max_commits=None, skip=0):
         """Return a list of all commits that affected `path`, starting at branch
         or commit `commit`. `skip` can be used for pagination, `max_commits`
         to limit the number of commits returned.
