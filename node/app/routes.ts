@@ -238,22 +238,47 @@ export const historyCommits: express.RequestHandler = async function(req, res) {
 	if (context.path === undefined) {
 		commits = allCommits;
 	} else {
-		/// CAUTION(this can be pretty long)
+		/// We used to fetch the entire diff for all the commits
+		/// which could be pretty long.
+		/// (13s for transformers/.circleci for instance)
+		/// see github.com/julien-c/klaus/commit/e3bbf499b1bf66387d69a21604eb0effd006256b
+		/// for the previous implem.
+		///
+		/// We now apply the algorithm from stackoverflow.com/a/21179572/593036
+		/// as discussed with @jonashaag in
+		/// github.com/jonashaag/klaus/pull/259#discussion_r511794955
+		/// Not sure how we handle merge commits, but we can refine if needed.
+		/// This takes 464ms for the same filtering as before \o/.
 		const startTime = Date.now();
-		for (const commit of allCommits) {
-			const diffList = await commit.getDiff();
-			const patches = (await Promise.all(diffList.map(x => x.patches()))).flat();
-			const touchedFiles = new Set(
-				patches.map(x => (
-					[x.oldFile().path(), x.newFile().path()]
-				)).flat()
-			);
-			if (
-				   touchedFiles.has(context.path)
-				|| [...touchedFiles].some(fpath => fpath.startsWith(context.path+`/`))
-			) {
-				/// Handle both folder and path in one `if`
+		for (const [i, commit] of allCommits.entries()) {
+			const previous: Git.Commit | undefined = allCommits[i+1];
+			const commitTree = await commit.getTree();
+			let treeEntry: Git.TreeEntry;
+			try {
+				treeEntry = await commitTree.getEntry(context.path);
+				/// ^^ This takes care of both folder and file path
+			} catch(err) {
+				if (err.errno === Git.Error.CODE.ENOTFOUND) {
+					continue;
+				} else {
+					throw err;
+				}
+			}
+			if (!previous) {
 				commits.push(commit);
+			} else {
+				const previousTree = await previous.getTree();
+				let prevTreeEntry: Git.TreeEntry | undefined = undefined;
+				try {
+					prevTreeEntry = await previousTree.getEntry(context.path);
+				} catch(err) {
+					if (err.errno !== Git.Error.CODE.ENOTFOUND) {
+						throw err;
+					}
+				}
+				if (prevTreeEntry === undefined || prevTreeEntry.sha() !== treeEntry.sha()) {
+					commits.push(commit);
+				}
 			}
 		}
 		c.log(
