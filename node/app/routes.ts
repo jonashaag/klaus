@@ -239,7 +239,6 @@ export const historyCommits: express.RequestHandler = async function(req, res) {
 		commits = allCommits;
 	} else {
 		/// CAUTION(this can be pretty long)
-		const HISTORY_LEN = 20;
 		const startTime = Date.now();
 		for (const commit of allCommits) {
 			const diffList = await commit.getDiff();
@@ -255,9 +254,6 @@ export const historyCommits: express.RequestHandler = async function(req, res) {
 			) {
 				/// Handle both folder and path in one `if`
 				commits.push(commit);
-				if (commits.length >= HISTORY_LEN) {
-					break;
-				}
 			}
 		}
 		c.log(
