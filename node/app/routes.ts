@@ -49,6 +49,9 @@ export const indexTree: express.RequestHandler = async function(req, res) {
 		(<any>x).lastCommit = l;
 		return l;
 	}));
+	/// Perf could be vastly improved if we:
+	/// - iterate over commits just once
+	/// - stop as soon as we get all the commits.
 	const commitLast: Git.Commit | undefined = Utils.filterUndef(commitsLast)
 		.sort((a, b) => b.time() - a.time())[0]
 	;
