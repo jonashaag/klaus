@@ -88,13 +88,17 @@ app.post('/fetch_all', async function(req, res) {
 		if (remotes.length === 0) {
 			res.write('no remote\n');
 		} else {
-			/// stackoverflow.com/a/26172920/593036
-			const { stdout, stderr } = await __exec(
-				`git fetch origin +refs/heads/*:refs/heads/* --prune`,
-				{ cwd: folder }
-			);
-			res.write(stdout+'\n');
-			res.write(stderr.split('\n').map(x => `(!) ${x}`).join('\n'));
+			try {
+				/// stackoverflow.com/a/26172920/593036
+				const { stdout, stderr } = await __exec(
+					`git fetch origin +refs/heads/*:refs/heads/* --prune`,
+					{ cwd: folder }
+				);
+				res.write(stdout+'\n');
+				res.write(stderr.split('\n').map(x => `(!) ${x}`).join('\n'));
+			} catch(err) {
+				res.write(`(!!) ${err}`);
+			}
 		}
 	}
 	res.end();
