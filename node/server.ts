@@ -15,7 +15,12 @@ import {
 	viewCommit,
 	historyCommits,
 } from './app/routes';
+import { config, Environment } from './lib/config';
 const __exec = util.promisify(child_process.exec);
+
+if (config.environment === Environment.development) {
+	require('source-map-support').install();
+}
 
 const app = express();
 const PORT = process.env.PORT || 8888;

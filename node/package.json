@@ -19,6 +19,7 @@
     "handlebars": "^4.7.6",
     "highlight.js": "^10.3.1",
     "luxon": "^1.25.0",
-    "nodegit": "^0.27.0"
+    "nodegit": "^0.27.0",
+    "source-map-support": "^0.5.19"
   }
 }
