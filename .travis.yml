@@ -40,3 +40,12 @@ jobs:
           tags: true
         provider: script
         script: ./build-and-push-docker.sh
+        # added power support arch.
+    - stage: deploy
+      script: skip
+      arch: ppc64le
+      deploy:
+        on:
+          tags: true
+        provider: script
+        script: ./build-and-push-docker.sh
