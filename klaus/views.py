@@ -281,7 +281,7 @@ class IndexView(TreeViewMixin, BaseRepoView):
     def _get_readme(self):
         tree = self.context["repo"][self.context["commit"].tree]
         for name in README_FILENAMES:
-            if name in tree:
+            if name.lower() in [t.lower() for t in tree]:
                 readme_data = self.context["repo"][tree[name][1]].data
                 readme_filename = name
                 return (readme_filename, readme_data)
