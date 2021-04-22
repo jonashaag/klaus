@@ -16,7 +16,14 @@ class Klaus(flask.Flask):
         "undefined": jinja2.StrictUndefined,
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy="none"):
+    def __init__(
+        self,
+        repo_paths,
+        hide_invalid_repos,
+        site_name,
+        use_smarthttp,
+        ctags_policy="none",
+    ):
         """(See `make_app` for parameter descriptions.)"""
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
@@ -24,7 +31,10 @@ class Klaus(flask.Flask):
 
         valid_repos, invalid_repos = self.load_repos(repo_paths)
         self.valid_repos = {repo.namespaced_name: repo for repo in valid_repos}
-        self.invalid_repos = {repo.namespaced_name: repo for repo in invalid_repos}
+        if hide_invalid_repos:
+            self.invalid_repos = {}
+        else:
+            self.invalid_repos = {repo.namespaced_name: repo for repo in invalid_repos}
 
         flask.Flask.__init__(self, __name__)
 
@@ -102,6 +112,7 @@ class Klaus(flask.Flask):
 
 def make_app(
     repo_paths,
+    hide_invalid_repos,
     site_name,
     use_smarthttp=False,
     htdigest_file=None,
@@ -121,6 +132,7 @@ def make_app(
                 ...
                 None: [list of paths of repositories without namespace]
             }
+    :param hide_invalid_repos: Hide invalid repositories
     :param site_name: Name of the Web site (e.g. "John Doe's Git Repositories")
     :param use_smarthttp: Enable Git Smart HTTP mode, which makes it possible to
         pull from the served repositories. If `htdigest_file` is set as well,
@@ -158,6 +170,7 @@ def make_app(
 
     app = Klaus(
         repo_paths,
+        hide_invalid_repos,
         site_name,
         use_smarthttp,
         ctags_policy,

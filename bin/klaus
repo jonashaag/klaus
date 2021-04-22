@@ -63,6 +63,13 @@ def make_parser():
         type=git_repository,
     )
 
+    parser.add_argument(
+        "--hide-invalid-repos",
+        help="hide invalid repositories",
+        default=False,
+        action="store_true",
+    )
+
     grp = parser.add_argument_group("Git Smart HTTP")
     grp.add_argument(
         "--smarthttp", help="enable Git Smart HTTP serving", action="store_true"
@@ -121,6 +128,7 @@ def main():
 
     app = make_app(
         args.repos,
+        args.hide_invalid_repos,
         force_unicode(args.site_name or args.host),
         args.smarthttp,
         args.htdigest,
