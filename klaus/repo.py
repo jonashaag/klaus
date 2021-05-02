@@ -83,7 +83,7 @@ class FancyRepo(dulwich.repo.Repo):
         """Retrieve the gitweb notion of the public clone URL of this repo."""
         f = self.get_named_file("cloneurl")
         if f is not None:
-            return f.read()
+            return force_unicode(f.read())
         c = self.get_config()
         try:
             return force_unicode(c.get(b"gitweb", b"url"))
