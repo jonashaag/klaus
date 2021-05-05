@@ -6,7 +6,7 @@ import subprocess
 from dulwich.objects import S_ISGITLINK
 from dulwich.object_store import tree_lookup_path
 from dulwich.objects import Blob
-from dulwich.errors import NotTreeError
+from dulwich.errors import NotTreeError, NotGitRepository
 import dulwich, dulwich.patch
 
 from klaus.utils import (
@@ -368,3 +368,32 @@ class InvalidRepo:
             return "~{}/{}".format(self.namespace, self.name)
         else:
             return self.name
+
+
+class BaseRepoContainer:
+    """Abstract base class for repository containers."""
+
+    def __init__(self, repo_paths):
+        self._repo_paths = repo_paths
+        self.valid = {}
+        self.invalid = {}
+
+
+class DefaultRepoContainer(BaseRepoContainer):
+    """Default repository container that holds a preset list of repositories"""
+
+    def __init__(self, repo_paths):
+        if not isinstance(repo_paths, dict):
+            # If repos is given as a flat list, put all repos under the "no namespace" namespace
+            repo_paths = {None: repo_paths}
+
+        super().__init__(repo_paths)
+
+        for namespace, paths in repo_paths.items():
+            for path in paths:
+                try:
+                    repo = FancyRepo(path, namespace)
+                    self.valid[repo.namespaced_name] = repo
+                except NotGitRepository:
+                    repo = InvalidRepo(path, namespace)
+                    self.invalid[repo.namespaced_name] = repo
