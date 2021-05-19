@@ -282,9 +282,11 @@ class IndexView(TreeViewMixin, BaseRepoView):
         tree = self.context["repo"][self.context["commit"].tree]
         for name in README_FILENAMES:
             if name.lower() in [t.lower() for t in tree]:
-                readme_data = self.context["repo"][tree[name][1]].data
-                readme_filename = name
-                return (readme_filename, readme_data)
+                obj = self.context["repo"][tree[name][1]]
+                if obj.type_name == b'blob':
+                    readme_data = obj.data
+                    readme_filename = name
+                    return (readme_filename, readme_data)
         else:
             raise KeyError
 
