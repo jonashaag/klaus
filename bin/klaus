@@ -63,6 +63,12 @@ def make_parser():
         type=git_repository,
     )
 
+    parser.add_argument(
+        "--path",
+        help="serve all repositories in the path",
+        default=None,
+    )
+
     grp = parser.add_argument_group("Git Smart HTTP")
     grp.add_argument(
         "--smarthttp", help="enable Git Smart HTTP serving", action="store_true"
@@ -95,6 +101,9 @@ def main():
             file=sys.stderr,
         )
         return 1
+    
+    if args.path:
+        args.repos = get_all_git_repos(args.path[0])
 
     if not args.repos:
         print(
@@ -146,6 +155,16 @@ def _open_browser(args):
         opener = webbrowser.get(args.with_browser).open
     opener("http://%s:%s" % (args.host, args.port))
 
+def get_all_git_repos(path):
+    git_repos = []
+    for item in os.listdir(path):
+        if os.path.isdir(item):
+            try:
+                Repo(item)
+                git_repos.append(item)
+            except NotGitRepository:
+                pass
+    return git_repos
 
 if __name__ == "__main__":
     exit(main())
