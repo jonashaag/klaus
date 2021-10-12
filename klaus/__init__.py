@@ -28,13 +28,11 @@ class Klaus(flask.Flask):
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
         self.ctags_policy = ctags_policy
+        self.hide_invalid_repos = hide_invalid_repos
 
         valid_repos, invalid_repos = self.load_repos(repo_paths)
         self.valid_repos = {repo.namespaced_name: repo for repo in valid_repos}
-        if hide_invalid_repos:
-            self.invalid_repos = {}
-        else:
-            self.invalid_repos = {repo.namespaced_name: repo for repo in invalid_repos}
+        self.invalid_repos = {repo.namespaced_name: repo for repo in invalid_repos}
 
         flask.Flask.__init__(self, __name__)
 

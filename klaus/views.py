@@ -49,7 +49,10 @@ README_FILENAMES = [
 def repo_list():
     """Show a list of all repos. Can be sorted by last update and repo names can be searched."""
     repos = [repo.freeze() for repo in current_app.valid_repos.values()]
-    invalid_repos = current_app.invalid_repos.values()
+    if current_app.hide_invalid_repos:
+        invalid_repos = []
+    else:
+        invalid_repos = current_app.invalid_repos.values()
 
     order_by = request.args.get("order_by") or "last_updated"
     search_query = request.args.get("q") or ""
