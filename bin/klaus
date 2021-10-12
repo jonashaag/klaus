@@ -48,6 +48,12 @@ def make_parser():
         default=None,
     )
     parser.add_argument(
+        "--hide-invalid-repos",
+        help="hide invalid repositories",
+        default=False,
+        action="store_true",
+    )
+    parser.add_argument(
         "--ctags",
         help="enable ctags for which revisions? default: none. "
         "WARNING: Don't use 'ALL' for public servers!",
@@ -61,13 +67,6 @@ def make_parser():
         metavar="DIR",
         nargs="*",
         type=git_repository,
-    )
-
-    parser.add_argument(
-        "--hide-invalid-repos",
-        help="hide invalid repositories",
-        default=False,
-        action="store_true",
     )
 
     grp = parser.add_argument_group("Git Smart HTTP")
@@ -128,10 +127,10 @@ def main():
 
     app = make_app(
         args.repos,
-        args.hide_invalid_repos,
         force_unicode(args.site_name or args.host),
         args.smarthttp,
         args.htdigest,
+        args.hide_invalid_repos,
         ctags_policy=args.ctags,
     )
 

@@ -19,9 +19,9 @@ class Klaus(flask.Flask):
     def __init__(
         self,
         repo_paths,
-        hide_invalid_repos,
         site_name,
         use_smarthttp,
+        hide_invalid_repos,
         ctags_policy="none",
     ):
         """(See `make_app` for parameter descriptions.)"""
@@ -112,13 +112,13 @@ class Klaus(flask.Flask):
 
 def make_app(
     repo_paths,
-    hide_invalid_repos,
     site_name,
     use_smarthttp=False,
     htdigest_file=None,
     require_browser_auth=False,
     disable_push=False,
     unauthenticated_push=False,
+    hide_invalid_repos=False,
     ctags_policy="none",
 ):
     """

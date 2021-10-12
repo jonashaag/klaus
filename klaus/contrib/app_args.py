@@ -8,9 +8,6 @@ def get_args_from_env():
         repos = repos.split()
     args = (repos, os.environ.get("KLAUS_SITE_NAME", "unnamed site"))
     kwargs = dict(
-        hide_invalid_repositories=os.environ.get(
-            "KLAUS_HIDE_INVALID_REPOSITORIES", "0"
-        ),
         htdigest_file=os.environ.get("KLAUS_HTDIGEST_FILE"),
         use_smarthttp=strtobool(os.environ.get("KLAUS_USE_SMARTHTTP", "0")),
         require_browser_auth=strtobool(
@@ -20,6 +17,7 @@ def get_args_from_env():
         unauthenticated_push=strtobool(
             os.environ.get("KLAUS_UNAUTHENTICATED_PUSH", "0")
         ),
+        hide_invalid_repos=os.environ.get("KLAUS_HIDE_INVALID_REPOS", "0"),
         ctags_policy=os.environ.get("KLAUS_CTAGS_POLICY", "none"),
     )
     return args, kwargs
