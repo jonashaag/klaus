@@ -67,9 +67,9 @@
 <ul class="repolist invalid">
   <li><div class=reason>
     {% if invalid_repos|length > 1 %}
-      {{ nb_invalid_repos }} invalid repositories were hidden.
+      {{ invalid_repos|length }} invalid repositories were hidden.
     {% else %}
-      {{ nb_invalid_repos }} invalid repository was hidden.
+      {{ invalid_repos|length }} invalid repository was hidden.
     {% endif %}
   </div></li>
 </ul>
