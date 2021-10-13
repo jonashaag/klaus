@@ -17,7 +17,7 @@ def get_args_from_env():
         unauthenticated_push=strtobool(
             os.environ.get("KLAUS_UNAUTHENTICATED_PUSH", "0")
         ),
-        hide_invalid_repos=os.environ.get("KLAUS_HIDE_INVALID_REPOS", "0"),
         ctags_policy=os.environ.get("KLAUS_CTAGS_POLICY", "none"),
+        hide_invalid_repos=os.environ.get("KLAUS_HIDE_INVALID_REPOS", "0"),
     )
     return args, kwargs

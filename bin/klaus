@@ -48,17 +48,17 @@ def make_parser():
         default=None,
     )
     parser.add_argument(
-        "--hide-invalid-repos",
-        help="hide invalid repositories",
-        default=False,
-        action="store_true",
-    )
-    parser.add_argument(
         "--ctags",
         help="enable ctags for which revisions? default: none. "
         "WARNING: Don't use 'ALL' for public servers!",
         choices=["none", "tags-and-branches", "ALL"],
         default="none",
+    )
+    parser.add_argument(
+        "--hide-invalid-repos",
+        help="hide invalid repositories",
+        default=False,
+        action="store_true",
     )
 
     parser.add_argument(
@@ -130,8 +130,8 @@ def main():
         force_unicode(args.site_name or args.host),
         args.smarthttp,
         args.htdigest,
-        args.hide_invalid_repos,
         ctags_policy=args.ctags,
+        hide_invalid_repos=args.hide_invalid_repos,
     )
 
     if args.browser:

@@ -21,8 +21,8 @@ class Klaus(flask.Flask):
         repo_paths,
         site_name,
         use_smarthttp,
-        hide_invalid_repos,
         ctags_policy="none",
+        hide_invalid_repos=False,
     ):
         """(See `make_app` for parameter descriptions.)"""
         self.site_name = site_name
@@ -116,8 +116,8 @@ def make_app(
     require_browser_auth=False,
     disable_push=False,
     unauthenticated_push=False,
-    hide_invalid_repos=False,
     ctags_policy="none",
+    hide_invalid_repos=False,
 ):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
@@ -130,7 +130,6 @@ def make_app(
                 ...
                 None: [list of paths of repositories without namespace]
             }
-    :param hide_invalid_repos: Hide invalid repositories
     :param site_name: Name of the Web site (e.g. "John Doe's Git Repositories")
     :param use_smarthttp: Enable Git Smart HTTP mode, which makes it possible to
         pull from the served repositories. If `htdigest_file` is set as well,
@@ -148,6 +147,7 @@ def make_app(
         - 'tags-and-branches': use ctags for revisions that are the HEAD of
           a tag or branc
         - 'ALL': use ctags for all revisions, may result in high server load!
+    :param hide_invalid_repos: Hide invalid repositories
     """
     if unauthenticated_push:
         if not use_smarthttp:
@@ -168,10 +168,10 @@ def make_app(
 
     app = Klaus(
         repo_paths,
-        hide_invalid_repos,
         site_name,
         use_smarthttp,
         ctags_policy,
+        hide_invalid_repos,
     )
     app.wsgi_app = utils.ProxyFix(app.wsgi_app)
 
