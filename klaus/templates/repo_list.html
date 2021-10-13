@@ -63,13 +63,15 @@
 </ul>
 {% endif%}
 
-{% if hide_invalid_repos and nb_invalid_repos > 0 %}
+{% if invalid_repos and hide_invalid_repos %}
 <ul class="repolist invalid">
-  {% if nb_invalid_repos > 1 %}
-    <li><div class=reason>{{ nb_invalid_repos }} invalid repositories were hidden.</div></li>
-  {% else %}
-    <li><div class=reason>{{ nb_invalid_repos }} invalid repository was hidden.</div></li>
-  {% endif %}
+  <li><div class=reason>
+    {% if nb_invalid_repos > 1 %}
+      {{ nb_invalid_repos }} invalid repositories were hidden.
+    {% else %}
+      {{ nb_invalid_repos }} invalid repository was hidden.
+    {% endif %}
+  </div></li>
 </ul>
 {% endif%}
 

@@ -81,7 +81,6 @@ def repo_list():
         search_query=search_query,
         base_href=None,
         hide_invalid_repos=current_app.hide_invalid_repos,
-        nb_invalid_repos=len(invalid_repos),
     )
 
 
