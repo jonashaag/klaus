@@ -66,7 +66,7 @@
 {% if invalid_repos and hide_invalid_repos %}
 <ul class="repolist invalid">
   <li><div class=reason>
-    {% if nb_invalid_repos > 1 %}
+    {% if invalid_repos|length > 1 %}
       {{ nb_invalid_repos }} invalid repositories were hidden.
     {% else %}
       {{ nb_invalid_repos }} invalid repository was hidden.
