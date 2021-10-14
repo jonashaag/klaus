@@ -14,17 +14,6 @@ from klaus import make_app, KLAUS_VERSION
 from klaus.utils import force_unicode
 
 
-def git_repository(path):
-    path = os.path.abspath(path)
-    if not os.path.exists(path):
-        raise argparse.ArgumentTypeError("%r: No such directory" % path)
-    try:
-        Repo(path)
-    except NotGitRepository:
-        raise argparse.ArgumentTypeError("%r: Not a Git repository" % path)
-    return path
-
-
 def make_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", help="default: 127.0.0.1", default="127.0.0.1")
@@ -66,7 +55,6 @@ def make_parser():
         help="repositories to serve",
         metavar="DIR",
         nargs="*",
-        type=git_repository,
     )
 
     grp = parser.add_argument_group("Git Smart HTTP")
