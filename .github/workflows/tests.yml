@@ -1,0 +1,31 @@
+name: Tests
+on: push
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.7"] #["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10"]
+        include:
+          - os: ubuntu-latest
+            python-version: "3.5"
+            ctags: true
+#           - os: ubuntu-18.04
+#             python-version: "3.3"
+#           - os: windows-latest
+#             python-version: "3.0"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: apt-get update && apt-get install -y exuberant-ctags
+        if: ${{ matrix.ctags }}
+      - run: pip install -e . && pip install -r test_requirements.txt
+      - run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          ./runtests.sh
