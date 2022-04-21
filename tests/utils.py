@@ -9,8 +9,8 @@ import klaus
 TEST_SITE_NAME = "Some site"
 HTDIGEST_FILE = "tests/credentials.htdigest"
 
-UNAUTH_TEST_SERVER = "http://invalid:password@localhost:6789/"
-AUTH_TEST_SERVER = "http://testuser:testpassword@localhost:6789/"
+UNAUTH_TEST_SERVER = "http://invalid:password@localhost:9876/"
+AUTH_TEST_SERVER = "http://testuser:testpassword@localhost:9876/"
 
 NAMESPACE = "namespace1"
 
@@ -49,7 +49,7 @@ def serve(*args, **kwargs):
 
 @contextlib.contextmanager
 def serve_app(app):
-    server = werkzeug.serving.make_server("localhost", 6789, app)
+    server = werkzeug.serving.make_server("localhost", 9876, app)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = True
     thread.start()
@@ -57,8 +57,8 @@ def serve_app(app):
         yield
     finally:
         server.server_close()
-        if "TRAVIS" in os.environ:
-            # This fixes some "Address already in use" cases on Travis.
+        if os.getenv("CI"):
+            # This fixes some "Address already in use" cases on CI.
             time.sleep(1)
 
 
