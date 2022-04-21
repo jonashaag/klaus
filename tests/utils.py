@@ -9,8 +9,8 @@ import klaus
 TEST_SITE_NAME = "Some site"
 HTDIGEST_FILE = "tests/credentials.htdigest"
 
-UNAUTH_TEST_SERVER = "http://invalid:password@localhost:9876/"
-AUTH_TEST_SERVER = "http://testuser:testpassword@localhost:9876/"
+UNAUTH_TEST_SERVER = "http://invalid:password@localhost:6789/"
+AUTH_TEST_SERVER = "http://testuser:testpassword@localhost:6789/"
 
 NAMESPACE = "namespace1"
 
@@ -49,7 +49,7 @@ def serve(*args, **kwargs):
 
 @contextlib.contextmanager
 def serve_app(app):
-    server = werkzeug.serving.make_server("localhost", 9876, app)
+    server = werkzeug.serving.make_server("localhost", 6789, app)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = True
     thread.start()
