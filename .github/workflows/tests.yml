@@ -8,15 +8,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.7"] #["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10"]
+        python-version: ["2.7", "3.5", "3.10"]
         include:
+          - os: windows-latest
+            python-version: "3.4"
           - os: ubuntu-latest
-            python-version: "3.5"
+            python-version: "3.6"
             ctags: true
-#           - os: ubuntu-18.04
-#             python-version: "3.3"
-#           - os: windows-latest
-#             python-version: "3.0"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
@@ -25,7 +23,9 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y exuberant-ctags
         if: ${{ matrix.ctags }}
       - run: pip install -e . && pip install -r test_requirements.txt
-      - run: |
+      - name: Run tests
+        run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
           ./runtests.sh
+        shell: bash
