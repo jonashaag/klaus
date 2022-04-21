@@ -1,4 +1,9 @@
 import jinja2
+try:
+    import jinja2.ext.autoescape
+    jinja2_autoescape_builtin = False
+except ImportError:
+    jinja2_autoescape_builtin = True
 import flask
 import httpauth
 import dulwich.web
@@ -12,7 +17,7 @@ KLAUS_VERSION = utils.guess_git_revision() or "1.5.2"
 
 class Klaus(flask.Flask):
     jinja_options = {
-        "extensions": ["jinja2.ext.autoescape"],
+        "extensions": [] if jinja2_autoescape_builtin else ["jinja2.ext.autoescape"],
         "undefined": jinja2.StrictUndefined,
     }
 

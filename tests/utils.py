@@ -57,8 +57,8 @@ def serve_app(app):
         yield
     finally:
         server.server_close()
-        if "TRAVIS" in os.environ:
-            # This fixes some "Address already in use" cases on Travis.
+        if os.getenv("CI"):
+            # This fixes some "Address already in use" cases on CI.
             time.sleep(1)
 
 

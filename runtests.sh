@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -eux
 ( cd tests/repos/
   rm -rf build
   for maker in scripts/*; do
@@ -8,10 +8,9 @@
   done
 )
 
+export PYTHONPATH=tests
 if [ $# -eq 0 ]; then
-  args="-v tests/"
+  pytest -v tests
 else
-  args="$@"
+  pytest "$@"
 fi
-
-PYTHONPATH=tests py.test $args

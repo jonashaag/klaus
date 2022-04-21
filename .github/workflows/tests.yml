@@ -1,0 +1,41 @@
+name: Tests
+on: push
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["2.7", "3.10"]
+        ctags: [false]
+        include:
+          - os: ubuntu-latest
+            python-version: "3.5"
+            ctags: true
+          - os: windows-latest
+            python-version: "3.6"
+            ctags: false
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: sudo apt-get update && sudo apt-get install -y exuberant-ctags
+        if: ${{ matrix.ctags }}
+      - name: Run tests
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          if ${{ matrix.ctags }}; then
+            pip install -r test_requirements.txt
+            pip install -e .
+            bash ./runtests.sh -v tests
+          else
+            grep -v ctags test_requirements.txt > /tmp/test_requirements.txt
+            pip install -r /tmp/test_requirements.txt
+            pip install -e .
+            bash ./runtests.sh -v tests -k "not ctags"
+          fi
+        shell: bash -ex {0}
