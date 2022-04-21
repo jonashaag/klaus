@@ -16,6 +16,7 @@ jobs:
             ctags: true
           - os: windows-latest
             python-version: "3.6"
+            ctags: false
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
@@ -23,14 +24,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: sudo apt-get update && sudo apt-get install -y exuberant-ctags
         if: ${{ matrix.ctags }}
-      - run: pip install -e . && pip install -r test_requirements.txt
       - name: Run tests
         run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
           if ${{ matrix.ctags }}; then
-            ./runtests.sh -v tests
+            pip install -r test_requirements.txt
+            pip install -e .
+            bash ./runtests.sh -v tests
           else
-            ./runtests.sh -v tests -k "not ctags"
+            grep -v ctags test_requirements.txt > /tmp/test_requirements.txt
+            pip install -r /tmp/test_requirements.txt
+            pip install -e .
+            bash ./runtests.sh -v tests -k "not ctags"
           fi
         shell: bash -ex {0}
