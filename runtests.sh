@@ -14,4 +14,4 @@ else
   args="$@"
 fi
 
-PYTHONPATH=tests py.test $args
+PYTHONPATH=tests py.test "$args"
