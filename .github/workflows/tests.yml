@@ -27,5 +27,5 @@ jobs:
         run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
-          ./runtests.sh
+          ./runtests.sh -v tests ${{ matrix.ctags && '' || '-k "not ctags"' }}
         shell: bash
