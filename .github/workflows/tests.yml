@@ -9,12 +9,13 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["2.7", "3.10"]
+        ctags: [false]
         include:
-          - os: windows-latest
-            python-version: "3.5"
           - os: ubuntu-latest
-            python-version: "3.6"
+            python-version: "3.5"
             ctags: true
+          - os: windows-latest
+            python-version: "3.6"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
@@ -27,5 +28,5 @@ jobs:
         run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
-          ./runtests.sh -v tests ${{ matrix.ctags && '' || '-k "not ctags"' }}
+          ./runtests.sh -v tests ${{ matrix.ctags == 'true' && '' || '-k "not ctags"' }}
         shell: bash
