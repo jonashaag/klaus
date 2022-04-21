@@ -8,10 +8,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["2.7", "3.5", "3.10"]
+        python-version: ["2.7", "3.10"]
         include:
           - os: windows-latest
-            python-version: "3.4"
+            python-version: "3.5"
           - os: ubuntu-latest
             python-version: "3.6"
             ctags: true
