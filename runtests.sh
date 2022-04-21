@@ -11,7 +11,7 @@
 if [ $# -eq 0 ]; then
   args="-v tests/"
 else
-  args="$@"
+  args=$@
 fi
 
 PYTHONPATH=tests py.test "$args"
