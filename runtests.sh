@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -eux
 ( cd tests/repos/
   rm -rf build
   for maker in scripts/*; do
