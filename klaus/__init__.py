@@ -2,7 +2,7 @@ import jinja2
 try:
     import jinja2.ext.autoescape
     jinja2_autoescape_builtin = False
-except ModuleNotFoundError:
+except ImportError:
     jinja2_autoescape_builtin = True
 import flask
 import httpauth
