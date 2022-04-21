@@ -8,10 +8,9 @@
   done
 )
 
+export PYTHONPATH=tests
 if [ $# -eq 0 ]; then
-  args="-v tests/"
+  pytest -v tests
 else
-  args=$@
+  pytest "$@"
 fi
-
-PYTHONPATH=tests py.test "$args"
