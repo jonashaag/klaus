@@ -16,8 +16,9 @@ class ForceUnicodeTests(unittest.TestCase):
     def test_utf8(self):
         self.assertEqual(u"f\xce", utils.force_unicode(b"f\xc3\x8e"))
 
-    @pytest.skipif(sys.platform.startswith("win"))
     def test_invalid(self):
+        if sys.platform.startswith("win"):
+            return
         with mock.patch.object(utils, "chardet", None):
             self.assertRaises(UnicodeDecodeError, utils.force_unicode, b"f\xce")
 
