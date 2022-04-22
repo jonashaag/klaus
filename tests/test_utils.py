@@ -1,3 +1,4 @@
+import sys
 import unittest
 
 try:
@@ -16,6 +17,8 @@ class ForceUnicodeTests(unittest.TestCase):
         self.assertEqual(u"f\xce", utils.force_unicode(b"f\xc3\x8e"))
 
     def test_invalid(self):
+        if sys.platform.startswith("win"):
+            return
         with mock.patch.object(utils, "chardet", None):
             self.assertRaises(UnicodeDecodeError, utils.force_unicode, b"f\xce")
 
