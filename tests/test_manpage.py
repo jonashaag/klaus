@@ -12,7 +12,7 @@ from klaus.utils import force_unicode
 
 
 def test_covers_all_cli_options():
-    if not shutil.which("man"):
+    if hasattr(shutil, "which") and not shutil.which("man"):
         return
 
     manpage = force_unicode(subprocess.check_output(["man", "./klaus.1"]))
