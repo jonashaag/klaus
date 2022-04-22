@@ -1,6 +1,7 @@
 import sys
 import re
 import subprocess
+import shutil
 import klaus_cli
 
 try:
@@ -11,6 +12,9 @@ from klaus.utils import force_unicode
 
 
 def test_covers_all_cli_options():
+    if not shutil.which("man"):
+        return
+
     manpage = force_unicode(subprocess.check_output(["man", "./klaus.1"]))
 
     def assert_in_manpage(s):
