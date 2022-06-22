@@ -224,9 +224,44 @@ class TreeViewMixin(object):
             root_directory = parent_directory(root_directory)
         return root_directory
 
+class ReadmeMixin(object):
+    """The logic required for finding and displaying README files."""
 
-class HistoryView(TreeViewMixin, BaseRepoView):
-    """Show commits of a branch + path, just like `git log`. With pagination."""
+    def _get_readme(self):
+        commit, path = self.context["commit"], self.context["path"]
+        tree = self.context["repo"].get_blob_or_tree(commit, path)
+
+        for name in README_FILENAMES:
+            if name.lower() in [t.lower() for t in tree]:
+                obj = self.context["repo"][tree[name][1]]
+                if obj.type_name == b'blob':
+                    readme_data = obj.data
+                    readme_filename = name
+                    return (readme_filename, readme_data)
+        else:
+            raise KeyError
+
+    def get_readme_context(self):
+        try:
+            (readme_filename, readme_data) = self._get_readme()
+        except KeyError:
+            return {
+                "is_markup": None,
+                "rendered_code": None,
+            }
+        else:
+            readme_filename = force_unicode(readme_filename)
+            readme_data = force_unicode(readme_data)
+            return {
+                "is_markup": markup.can_render(readme_filename),
+                "rendered_code": highlight_or_render(readme_data, readme_filename),
+            }
+
+
+class HistoryView(TreeViewMixin, ReadmeMixin, BaseRepoView):
+    """Show commits of a branch + path, just like `git log`. With pagination.
+
+    Also, README, if available."""
 
     template_name = "history.html"
 
@@ -270,25 +305,15 @@ class HistoryView(TreeViewMixin, BaseRepoView):
             }
         )
 
+        self.context.update(self.get_readme_context())
 
-class IndexView(TreeViewMixin, BaseRepoView):
+
+class IndexView(TreeViewMixin, ReadmeMixin, BaseRepoView):
     """Show commits of a branch, just like `git log`.
 
     Also, README, if available."""
 
     template_name = "index.html"
-
-    def _get_readme(self):
-        tree = self.context["repo"][self.context["commit"].tree]
-        for name in README_FILENAMES:
-            if name.lower() in [t.lower() for t in tree]:
-                obj = self.context["repo"][tree[name][1]]
-                if obj.type_name == b'blob':
-                    readme_data = obj.data
-                    readme_filename = name
-                    return (readme_filename, readme_data)
-        else:
-            raise KeyError
 
     def make_template_context(self, *args):
         super(IndexView, self).make_template_context(*args)
@@ -322,24 +347,8 @@ class IndexView(TreeViewMixin, BaseRepoView):
                 "more_commits": more_commits,
             }
         )
-        try:
-            (readme_filename, readme_data) = self._get_readme()
-        except KeyError:
-            self.context.update(
-                {
-                    "is_markup": None,
-                    "rendered_code": None,
-                }
-            )
-        else:
-            readme_filename = force_unicode(readme_filename)
-            readme_data = force_unicode(readme_data)
-            self.context.update(
-                {
-                    "is_markup": markup.can_render(readme_filename),
-                    "rendered_code": highlight_or_render(readme_data, readme_filename),
-                }
-            )
+
+        self.context.update(self.get_readme_context())
 
 
 class BaseBlobView(BaseRepoView):
