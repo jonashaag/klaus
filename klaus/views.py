@@ -1,5 +1,5 @@
 from io import BytesIO
-import os
+import os.path
 import sys
 
 from flask import request, render_template, current_app, url_for
@@ -92,10 +92,7 @@ def _get_repo_and_rev(repo, namespace=None, rev=None, path=None):
     if path and rev:
         rev += "/" + path.rstrip("/")
 
-    if namespace:
-        repo_key = "~{}/{}".format(namespace, repo)
-    else:
-        repo_key = repo
+    repo_key = os.path.join(namespace or "", repo)
     try:
         repo = current_app.valid_repos[repo_key]
     except KeyError:
@@ -548,3 +545,7 @@ blob = FileView.as_view("blob", "blob")
 raw = RawView.as_view("raw", "raw")
 download = DownloadView.as_view("download", "download")
 submodule = SubmoduleView.as_view("submodule", "submodule")
+
+
+def smarthttp(*args, **kwargs):
+    raise ValueError("this endpoint shouldn't be reachable")

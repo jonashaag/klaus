@@ -16,21 +16,24 @@ NAMESPACE = "namespace1"
 
 TEST_REPO = os.path.abspath("tests/repos/build/test_repo")
 TEST_REPO_ROOT = os.path.abspath("tests/repos/build")
-TEST_REPO_BASE_URL = "~{}/test_repo/".format(NAMESPACE)
+TEST_REPO_BASE_URL = "{}/test_repo/-/".format(NAMESPACE)
 UNAUTH_TEST_REPO_URL = UNAUTH_TEST_SERVER + TEST_REPO_BASE_URL
 AUTH_TEST_REPO_URL = AUTH_TEST_SERVER + TEST_REPO_BASE_URL
+UNAUTH_TEST_REPO_SMART_URL = UNAUTH_TEST_REPO_URL.replace("/-/", ".git")
+AUTH_TEST_REPO_SMART_URL = AUTH_TEST_REPO_URL.replace("/-/", ".git")
 
 TEST_REPO_NO_NAMESPACE = TEST_REPO
 TEST_REPO_NO_NAMESPACE_ROOT = TEST_REPO_ROOT
-TEST_REPO_NO_NAMESPACE_BASE_URL = "test_repo/"
+TEST_REPO_NO_NAMESPACE_BASE_URL = "test_repo/-/"
 AUTH_TEST_REPO_NO_NAMESPACE_URL = AUTH_TEST_SERVER + TEST_REPO_NO_NAMESPACE_BASE_URL
+AUTH_TEST_REPO_NO_NAMESPACE_SMART_URL = AUTH_TEST_REPO_NO_NAMESPACE_URL.replace("/-/", ".git")
 
 TEST_REPO_NO_NEWLINE = os.path.abspath("tests/repos/build/no-newline-at-end-of-file")
-TEST_REPO_NO_NEWLINE_BASE_URL = "no-newline-at-end-of-file/"
+TEST_REPO_NO_NEWLINE_BASE_URL = "no-newline-at-end-of-file/-/"
 UNAUTH_TEST_REPO_NO_NEWLINE_URL = UNAUTH_TEST_SERVER + TEST_REPO_NO_NEWLINE_BASE_URL
 
 TEST_REPO_DONT_RENDER = os.path.abspath("tests/repos/build/dont-render")
-TEST_REPO_DONT_RENDER_BASE_URL = "dont-render/"
+TEST_REPO_DONT_RENDER_BASE_URL = "dont-render/-/"
 UNAUTH_TEST_REPO_DONT_RENDER_URL = UNAUTH_TEST_SERVER + TEST_REPO_DONT_RENDER_BASE_URL
 
 TEST_INVALID_REPO = os.path.abspath("tests/repos/build/invalid_repo")
