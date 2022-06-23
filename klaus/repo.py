@@ -1,4 +1,4 @@
-import os
+import os.path
 import io
 import stat
 import subprocess
@@ -51,10 +51,7 @@ class FancyRepo(dulwich.repo.Repo):
 
     @property
     def namespaced_name(self):
-        if self.namespace:
-            return "~{}/{}".format(self.namespace, self.name)
-        else:
-            return self.name
+        return os.path.join(self.namespace or "", self.name)
 
     # TODO: factor out stuff into dulwich
     def get_last_updated_at(self):
@@ -377,7 +374,4 @@ class InvalidRepo:
 
     @property
     def namespaced_name(self):
-        if self.namespace:
-            return "~{}/{}".format(self.namespace, self.name)
-        else:
-            return self.name
+        return os.path.join(self.namespace or "", self.name)

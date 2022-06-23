@@ -35,7 +35,7 @@
       @<a href="{{ url_for('index', repo=repo.name, namespace=namespace, rev=rev) }}">{{ rev }}</a>
     </span>
     {% if USE_SMARTHTTP %}
-        <code>git clone {{ url_for('index', repo=repo.name, namespace=namespace, _external=True) }}</code>
+        <code>git clone {{ url_for('smarthttp', repo=repo.name, namespace=namespace, _external=True) }}</code>
     {% endif %}
     {% if repo.cloneurl %}
         <code>git clone {{ repo.cloneurl }}</code>

@@ -62,7 +62,7 @@ def test_render_image():
         response = requests.get(
             UNAUTH_TEST_REPO_DONT_RENDER_URL + "blob/HEAD/image.jpg"
         ).text
-        assert '<img src="/dont-render/raw/HEAD/image.jpg"' in response
+        assert '<img src="/dont-render/-/raw/HEAD/image.jpg"' in response
 
 
 def test_dont_render_large_file():

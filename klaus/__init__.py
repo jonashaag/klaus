@@ -59,27 +59,29 @@ class Klaus(flask.Flask):
         for endpoint, rule in [
             ('repo_list',   '/'),
             ('robots_txt',  '/robots.txt/'),
-            ('blob',        '/<repo>/blob/'),
-            ('blob',        '/<repo>/blob/<rev>/<path:path>'),
-            ('blame',       '/<repo>/blame/'),
-            ('blame',       '/<repo>/blame/<rev>/<path:path>'),
-            ('raw',         '/<repo>/raw/<path:path>/'),
-            ('raw',         '/<repo>/raw/<rev>/<path:path>'),
-            ('submodule',   '/<repo>/submodule/<rev>/'),
-            ('submodule',   '/<repo>/submodule/<rev>/<path:path>'),
-            ('commit',      '/<repo>/commit/<path:rev>/'),
-            ('patch',       '/<repo>/commit/<path:rev>.diff'),
-            ('patch',       '/<repo>/commit/<path:rev>.patch'),
-            ('index',       '/<repo>/'),
-            ('index',       '/<repo>/<path:rev>'),
-            ('history',     '/<repo>/tree/<rev>/'),
-            ('history',     '/<repo>/tree/<rev>/<path:path>'),
-            ('download',    '/<repo>/tarball/<path:rev>/'),
+            ('blob',        '/<repo>/-/blob/'),
+            ('blob',        '/<repo>/-/blob/<rev>/<path:path>'),
+            ('blame',       '/<repo>/-/blame/'),
+            ('blame',       '/<repo>/-/blame/<rev>/<path:path>'),
+            ('raw',         '/<repo>/-/raw/<path:path>/'),
+            ('raw',         '/<repo>/-/raw/<rev>/<path:path>'),
+            ('submodule',   '/<repo>/-/submodule/<rev>/'),
+            ('submodule',   '/<repo>/-/submodule/<rev>/<path:path>'),
+            ('commit',      '/<repo>/-/commit/<path:rev>/'),
+            ('patch',       '/<repo>/-/commit/<path:rev>.diff'),
+            ('patch',       '/<repo>/-/commit/<path:rev>.patch'),
+            ('index',       '/<repo>/-/'),
+            ('index',       '/<repo>/-/<path:rev>'),
+            ('history',     '/<repo>/-/tree/<rev>/'),
+            ('history',     '/<repo>/-/tree/<rev>/<path:path>'),
+            ('download',    '/<repo>/-/tarball/<path:rev>/'),
+            ('smarthttp',   '/<repo>.git'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
             if "<repo>" in rule:
                 self.add_url_rule(
-                    "/~<namespace>" + rule, view_func=getattr(views, endpoint)
+                    rule.replace('<repo>', '<path:namespace>/<repo>'),
+                    view_func=getattr(views, endpoint)
                 )
         # fmt: on
 
@@ -173,7 +175,7 @@ def make_app(
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
             {
-                "/" + namespaced_name: repo
+                "/" + namespaced_name + '.git': repo
                 for namespaced_name, repo in app.valid_repos.items()
             }
         )
@@ -200,7 +202,7 @@ def make_app(
         # failed for /info/refs, but since it's used to upload stuff to the server
         # we must secure it anyway for security reasons.
         PATTERN = (
-            r"^/(~[^/]+/)?[^/]+/(info/refs\?service=git-receive-pack|git-receive-pack)$"
+            r"^/.*\.git/(info/refs\?service=git-receive-pack|git-receive-pack)$"
         )
         if unauthenticated_push:
             # DANGER ZONE: Don't require authentication for push'ing
