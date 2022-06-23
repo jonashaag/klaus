@@ -9,4 +9,5 @@ RUN apk add --no-cache python3-dev py3-pip gcc musl-dev && \
     apk del python3-dev gcc musl-dev
 
 ARG KLAUS_VERSION
-RUN pip3 install klaus${KLAUS_VERSION:+==}${KLAUS_VERSION}
+ARG KLAUS_URL=klaus${KLAUS_VERSION:+==}${KLAUS_VERSION}
+RUN pip3 install ${KLAUS_URL}
