@@ -11,6 +11,17 @@
 {% include 'tree.inc.html' %}
 
 <div>
+{% if rendered_code %}
+{% autoescape false %}
+  {% if is_markup %}
+    <div class=markup>{{ rendered_code }}</div>
+  {% else %}
+    {{ rendered_code }}
+  {% endif %}
+{% endautoescape %}
+<hr>
+{% endif %}
+
 {% include 'history.inc.html' %}
 </div>
 
