@@ -170,7 +170,7 @@ def _can_push(http_get, url):
             _check_http200(
                 http_get, url + "/info/refs?service=git-receive-pack"
             ),
-            _check_http200(http_get, TEST_REPO_BASE_URL + "git-receive-pack"),
+            _check_http200(http_get, url + "/git-receive-pack"),
             subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
         ]
     )

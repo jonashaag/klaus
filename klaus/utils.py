@@ -2,6 +2,7 @@
 import binascii
 import os
 import re
+import sys
 import time
 import datetime
 import mimetypes
@@ -101,6 +102,54 @@ class SubUri(object):
             environ["wsgi.url_scheme"] = environ["HTTP_X_SCHEME"]
 
         return self.app(environ, start_response)
+
+
+class ChainedApps(object):
+    """WSGI middleware to chain two or more Flask apps.
+
+    The request is passed to the next app if a response has a 404 status."""
+
+    def __init__(self, *apps):
+        self.apps = apps
+
+    def __call__(self, environ, start_response):
+        # this method is almost verbatim flask.Flask.wsgi_app(),
+        # except for the for/continue statements.
+        for app in self.apps:
+            ctx = app.request_context(environ)
+            error = None
+            first_response = None
+            try:
+                try:
+                    ctx.push()
+                    response = app.full_dispatch_request()
+                except Exception as e:
+                    error = e
+                    response = app.handle_exception(e)
+                except:  # noqa: B001
+                    error = sys.exc_info()[1]
+                    raise
+
+                if first_response is None:
+                    first_response = response
+
+                if response.status_code == 404:
+                    # pass through 404 codes
+                    continue
+
+                return response(environ, start_response)
+            finally:
+                if "werkzeug.debug.preserve_context" in environ:
+                    environ["werkzeug.debug.preserve_context"](_cv_app.get())
+                    environ["werkzeug.debug.preserve_context"](_cv_request.get())
+
+                if error is not None and app.should_ignore_error(error):
+                    error = None
+
+                ctx.pop(error)
+
+        if first_response:
+            return first_response(environ, start_response)
 
 
 def timesince(when, now=time.time):

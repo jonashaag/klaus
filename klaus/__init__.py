@@ -7,12 +7,66 @@ except ImportError:
 import flask
 import httpauth
 import dulwich.web
+from werkzeug.exceptions import NotFound
 from dulwich.errors import NotGitRepository
 from klaus import views, utils
 from klaus.repo import FancyRepo, InvalidRepo
 
 
 KLAUS_VERSION = utils.guess_git_revision() or "1.5.2"
+
+
+class KlausRedirects(flask.Flask):
+    def __init__(self, repos):
+        flask.Flask.__init__(self, __name__)
+
+        for namespaced_name in repos:
+            self.setup_redirects('/' + namespaced_name)
+            if namespaced_name.count('/') == 1:
+                self.setup_redirects('/' + namespaced_name, '/~' + namespaced_name)
+
+    def query_str(self):
+      query = flask.request.query_string.decode()
+      if len(query) > 0:
+          return '?' + query
+
+      return ''
+
+    def setup_redirects(self, route, pattern=None):
+        if not pattern:
+            pattern = route
+
+        def redirect_root():
+            return flask.redirect(route + '/-/' + self.query_str(), 301)
+
+        def redirect_rest(path):
+            if path.startswith('-/'):
+                raise NotFound()
+            return flask.redirect(route + '/-/' + path + self.query_str(), 301)
+
+        def redirect_git():
+            return flask.redirect(route + '.git/info/refs' + self.query_str(), 301)
+
+        self.add_url_rule(
+            pattern + '/',
+            endpoint=pattern + '_root',
+            view_func=redirect_root,
+        )
+        self.add_url_rule(
+            pattern + '.git',
+            endpoint=pattern + '_git2root',
+            view_func=redirect_root,
+        )
+        self.add_url_rule(
+            pattern + '/<path:path>',
+            endpoint=pattern + '_rest',
+            view_func=redirect_rest,
+        )
+        self.add_url_rule(
+            pattern + '/info/refs',
+            endpoint=pattern + '_git',
+            view_func=redirect_git,
+        )
 
 
 class Klaus(flask.Flask):
@@ -25,6 +79,7 @@ class Klaus(flask.Flask):
         """(See `make_app` for parameter descriptions.)"""
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
+        self.smarthttp = None # dulwich wsgi app
         self.ctags_policy = ctags_policy
 
         valid_repos, invalid_repos = self.load_repos(repo_paths)
@@ -55,6 +110,8 @@ class Klaus(flask.Flask):
         return env
 
     def setup_routes(self):
+        redirects = {}
+
         # fmt: off
         for endpoint, rule in [
             ('repo_list',   '/'),
@@ -84,6 +141,17 @@ class Klaus(flask.Flask):
                     view_func=getattr(views, endpoint)
                 )
         # fmt: on
+        if self.use_smarthttp:
+            self.add_url_rule(
+                '/<repo>.git/<path:path>',
+                view_func=views.smarthttp,
+                methods=['GET', 'POST'],
+            )
+            self.add_url_rule(
+                '/<path:namespace>/<repo>.git/<path:path>',
+                view_func=views.smarthttp,
+                methods=['GET', 'POST'],
+            )
 
     def should_use_ctags(self, git_repo, git_commit):
         if self.ctags_policy == "none":
@@ -169,23 +237,20 @@ def make_app(
         use_smarthttp,
         ctags_policy,
     )
+    app.wsgi_app = utils.ChainedApps(
+        app,
+        KlausRedirects(app.valid_repos),
+    )
     app.wsgi_app = utils.ProxyFix(app.wsgi_app)
 
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
-        dulwich_backend = dulwich.server.DictBackend(
-            {
-                "/" + namespaced_name + '.git': repo
-                for namespaced_name, repo in app.valid_repos.items()
-            }
-        )
-        # Dulwich takes care of all Git related requests/URLs
-        # and passes through everything else to klaus
-        dulwich_wrapped_app = dulwich.web.make_wsgi_chain(
-            backend=dulwich_backend,
-            fallback_app=app.wsgi_app,
-        )
-        dulwich_wrapped_app = utils.ProxyFix(dulwich_wrapped_app)
+        dulwich_repos = {}
+        for namespaced_name, repo in app.valid_repos.items():
+            dulwich_repos["/" + namespaced_name + '.git'] = repo
+
+        dulwich_backend = dulwich.server.DictBackend(dulwich_repos)
+        dulwich_app = dulwich.web.make_wsgi_chain(backend=dulwich_backend)
 
         # `receive-pack` is requested by the "client" on a push
         # (the "server" is asked to *receive* packs), i.e. we need to secure
@@ -206,18 +271,18 @@ def make_app(
         )
         if unauthenticated_push:
             # DANGER ZONE: Don't require authentication for push'ing
-            app.wsgi_app = dulwich_wrapped_app
+            app.smarthttp = dulwich_app
         elif htdigest_file and not disable_push:
             # .htdigest file given. Use it to read the push-er credentials from.
             if require_browser_auth:
                 # No need to secure push'ing if we already require HTTP auth
                 # for all of the Web interface.
-                app.wsgi_app = dulwich_wrapped_app
+                app.smarthttp = dulwich_app
             else:
                 # Web interface isn't already secured. Require authentication for push'ing.
-                app.wsgi_app = httpauth.DigestFileHttpAuthMiddleware(
+                app.smarthttp = httpauth.DigestFileHttpAuthMiddleware(
                     htdigest_file,
-                    wsgi_app=dulwich_wrapped_app,
+                    wsgi_app=dulwich_app,
                     routes=[PATTERN],
                 )
         else:
@@ -225,8 +290,8 @@ def make_app(
             # use HTTP 403 here but since that results in freaky error messages
             # (see above) we keep asking for authentication (401) instead.
             # Git will print a nice error message after a few tries.
-            app.wsgi_app = httpauth.AlwaysFailingAuthMiddleware(
-                wsgi_app=dulwich_wrapped_app,
+            app.smarthttp = httpauth.AlwaysFailingAuthMiddleware(
+                wsgi_app=dulwich_app,
                 routes=[PATTERN],
             )
 
