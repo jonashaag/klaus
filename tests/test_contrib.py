@@ -135,7 +135,7 @@ def _can_push(http_get, url):
                 url + "/info/refs?service=git-receive-pack",
             ),
             _check_http200(
-                http_get, TEST_REPO_NO_NAMESPACE_BASE_URL + "git-receive-pack"
+                http_get, url + "/git-receive-pack"
             ),
             subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO_NO_NAMESPACE)
             == 0,

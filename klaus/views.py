@@ -561,4 +561,7 @@ submodule = SubmoduleView.as_view("submodule", "submodule")
 
 
 def smarthttp(*args, **kwargs):
-    raise ValueError("this endpoint shouldn't be reachable")
+    if not current_app.use_smarthttp or not current_app.smarthttp:
+        raise NotFound()
+
+    return current_app.smarthttp
