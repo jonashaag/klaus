@@ -276,11 +276,14 @@ class FancyRepo(dulwich.repo.Repo):
             summary["nfiles"] += 1
             try:
                 oldblob = self.object_store[oldsha] if oldsha else Blob.from_string(b"")
+            except KeyError:
+                # probably related to submodules; Dulwich will handle that.
+                oldblob = Blob.from_string(b"")
+            try:
                 newblob = self.object_store[newsha] if newsha else Blob.from_string(b"")
             except KeyError:
-                # newsha/oldsha are probably related to submodules.
-                # Dulwich will handle that.
-                pass
+                # probably related to submodules; Dulwich will handle that.
+                newblob = Blob.from_string(b"")
 
             # Check for binary files -- can't show diffs for these
             if guess_is_binary(newblob) or guess_is_binary(oldblob):
