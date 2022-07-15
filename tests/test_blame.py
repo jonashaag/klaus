@@ -4,7 +4,7 @@ from .utils import *
 
 def test_blame():
     with serve():
-        response = requests.get(UNAUTH_TEST_REPO_URL + "blob/HEAD/test.c")
+        response = requests.get(UNAUTH_TEST_REPO_URL + "blame/HEAD/test.c")
         assert response.status_code == 200
 
 
