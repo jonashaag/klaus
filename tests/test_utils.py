@@ -16,9 +16,7 @@ class ForceUnicodeTests(unittest.TestCase):
     def test_utf8(self):
         if sys.version_info[0] < 3:
             return
-        expected = eval(r'"f\xce"')
-        inp = eval(r'b"f\xc3\x8e"')
-        self.assertEqual(expected, utils.force_unicode(input))
+        self.assertEqual(eval(r'"f\xce"'), utils.force_unicode(eval(r'b"f\xc3\x8e"')))
 
     def test_invalid(self):
         if sys.platform.startswith("win") or sys.version_info[0] < 3:
