@@ -98,9 +98,7 @@ class FancyRepo(dulwich.repo.Repo):
         # If description file mtime has changed, we should invalidate the cache.
         description_file = os.path.join(self._controldir, "description")
         try:
-            description_mtime = os.stat(
-                os.path.join(self._controldir, "description")
-            ).st_mtime
+            description_mtime = os.stat(description_file).st_mtime
         except OSError:
             description_mtime = None
 
