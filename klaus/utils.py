@@ -144,7 +144,8 @@ def force_unicode(s):
     try:
         return s.decode("utf-8")
     except UnicodeDecodeError as exc:
-        last_exc = exc
+        pass
+
     try:
         return s.decode(locale.getpreferredencoding())
     except UnicodeDecodeError:
@@ -156,7 +157,7 @@ def force_unicode(s):
         if encoding is not None:
             return s.decode(encoding)
 
-    raise last_exc  # Give up.
+    return s.decode('latin1', 'replace')
 
 
 def extract_author_name(email):
