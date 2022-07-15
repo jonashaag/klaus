@@ -8,6 +8,12 @@ def test_blame():
         assert response.status_code == 200
 
 
+def test_blame_empty():
+    with serve():
+        response = requests.get(UNAUTH_TEST_REPO_URL + "blame/HEAD/empty.txt")
+        assert response.status_code == 200
+
+
 def test_dont_show_blame_link():
     with serve():
         for file in ["binary", "image.jpg", "toolarge"]:

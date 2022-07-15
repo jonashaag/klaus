@@ -215,7 +215,7 @@ class FancyRepo(dulwich.repo.Repo):
         # XXX see comment in `.history()`
         cmd = ["git", "blame", "-ls", "--root", decode_from_git(commit.id), "--", path]
         output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
-        sha1_sums = [line[:40] for line in output.strip().split(b"\n")]
+        sha1_sums = [line[:40] for line in output.strip().split(b"\n") if line]
         return [
             None if self[sha1] is None else decode_from_git(self[sha1].id)
             for sha1 in sha1_sums
