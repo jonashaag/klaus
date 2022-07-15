@@ -80,6 +80,7 @@ def repo_list():
         order_by=order_by,
         search_query=search_query,
         base_href=None,
+        hide_invalid_repos=current_app.hide_invalid_repos,
     )
 
 

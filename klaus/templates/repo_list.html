@@ -21,7 +21,7 @@
   <input type="search" id="search_query" name="q" value="{{ search_query|default }}">
   <button type="submit">Search</button>
 </form>
- 
+
 <ul class=repolist>
   {% for repo in repos %}
     {% set last_updated_at = repo.fast_get_last_updated_at() %}
@@ -50,7 +50,7 @@
   {% endfor %}
 </ul>
 
-{% if invalid_repos %}
+{% if invalid_repos and not hide_invalid_repos %}
 <ul class="repolist invalid">
   {% for repo in invalid_repos %}
     <li>
@@ -60,6 +60,18 @@
         </div>
     </li>
   {% endfor %}
+</ul>
+{% endif%}
+
+{% if invalid_repos and hide_invalid_repos %}
+<ul class="repolist invalid">
+  <li><div class=reason>
+    {% if invalid_repos|length > 1 %}
+      {{ invalid_repos|length }} invalid repositories were hidden.
+    {% else %}
+      {{ invalid_repos|length }} invalid repository was hidden.
+    {% endif %}
+  </div></li>
 </ul>
 {% endif%}
 

@@ -54,6 +54,12 @@ def make_parser():
         choices=["none", "tags-and-branches", "ALL"],
         default="none",
     )
+    parser.add_argument(
+        "--hide-invalid-repos",
+        help="hide invalid repositories",
+        default=False,
+        action="store_true",
+    )
 
     parser.add_argument(
         "repos",
@@ -125,6 +131,7 @@ def main():
         args.smarthttp,
         args.htdigest,
         ctags_policy=args.ctags,
+        hide_invalid_repos=args.hide_invalid_repos,
     )
 
     if args.browser:

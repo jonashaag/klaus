@@ -21,11 +21,19 @@ class Klaus(flask.Flask):
         "undefined": jinja2.StrictUndefined,
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy="none"):
+    def __init__(
+        self,
+        repo_paths,
+        site_name,
+        use_smarthttp,
+        ctags_policy="none",
+        hide_invalid_repos=False,
+    ):
         """(See `make_app` for parameter descriptions.)"""
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
         self.ctags_policy = ctags_policy
+        self.hide_invalid_repos = hide_invalid_repos
 
         valid_repos, invalid_repos = self.load_repos(repo_paths)
         self.valid_repos = {repo.namespaced_name: repo for repo in valid_repos}
@@ -114,6 +122,7 @@ def make_app(
     disable_push=False,
     unauthenticated_push=False,
     ctags_policy="none",
+    hide_invalid_repos=False,
 ):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
@@ -143,6 +152,7 @@ def make_app(
         - 'tags-and-branches': use ctags for revisions that are the HEAD of
           a tag or branc
         - 'ALL': use ctags for all revisions, may result in high server load!
+    :param hide_invalid_repos: Hide invalid repositories
     """
     if unauthenticated_push:
         if not use_smarthttp:
@@ -166,6 +176,7 @@ def make_app(
         site_name,
         use_smarthttp,
         ctags_policy,
+        hide_invalid_repos,
     )
     app.wsgi_app = utils.ProxyFix(app.wsgi_app)
 
