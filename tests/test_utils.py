@@ -20,7 +20,7 @@ class ForceUnicodeTests(unittest.TestCase):
         if sys.platform.startswith("win"):
             return
         with mock.patch.object(utils, "chardet", None):
-            self.assertEqual('fÎ', utils.force_unicode(b"f\xce"))
+            self.assertEqual(u'fÎ', utils.force_unicode(b"f\xce"))
 
 
 class TarballBasenameTests(unittest.TestCase):
