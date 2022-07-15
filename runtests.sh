@@ -14,5 +14,3 @@ if [ $# -eq 0 ]; then
 else
   pytest "$@"
 fi
-
-
