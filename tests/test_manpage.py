@@ -2,7 +2,6 @@ import sys
 import re
 import subprocess
 import shutil
-import klaus_cli
 
 try:
     from unittest import mock
@@ -14,6 +13,8 @@ from klaus.utils import force_unicode
 def test_covers_all_cli_options():
     if hasattr(shutil, "which") and not shutil.which("man"):
         return
+
+    import klaus_cli
 
     manpage = force_unicode(subprocess.check_output(["man", "./klaus.1"]))
 
