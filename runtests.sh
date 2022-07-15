@@ -8,7 +8,7 @@
   done
 )
 
-export PYTHONPATH=tests
+export PYTHONPATH=tests:${PYTHONPATH}
 if [ $# -eq 0 ]; then
   pytest -v tests
 else

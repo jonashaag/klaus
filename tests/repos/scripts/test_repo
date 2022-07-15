@@ -10,8 +10,10 @@ echo "int a;" > test.c
 echo "function test() {}" > test.js
 mkdir -p folder
 echo > folder/test.txt
+touch empty.txt
 git add test.c
 git add test.js
+git add empty.txt
 git add folder
 git commit -m "Add some code"
 

@@ -4,7 +4,13 @@ from .utils import *
 
 def test_blame():
     with serve():
-        response = requests.get(UNAUTH_TEST_REPO_URL + "blob/HEAD/test.c")
+        response = requests.get(UNAUTH_TEST_REPO_URL + "blame/HEAD/test.c")
+        assert response.status_code == 200
+
+
+def test_blame_empty():
+    with serve():
+        response = requests.get(UNAUTH_TEST_REPO_URL + "blame/HEAD/empty.txt")
         assert response.status_code == 200
 
 
