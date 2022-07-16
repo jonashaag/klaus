@@ -7,9 +7,9 @@ except ImportError:
 import flask
 import httpauth
 import dulwich.web
-from dulwich.errors import NotGitRepository
+import collections.abc
 from klaus import views, utils
-from klaus.repo import FancyRepo, InvalidRepo
+from klaus.repo import DefaultRepoContainer
 
 
 KLAUS_VERSION = utils.guess_git_revision() or "1.5.2"
@@ -21,19 +21,39 @@ class Klaus(flask.Flask):
         "undefined": jinja2.StrictUndefined,
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy="none"):
+    def __init__(
+        self,
+        repo_paths,
+        site_name,
+        use_smarthttp,
+        ctags_policy="none",
+        repo_container_factory=None,
+    ):
         """(See `make_app` for parameter descriptions.)"""
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
         self.ctags_policy = ctags_policy
 
-        valid_repos, invalid_repos = self.load_repos(repo_paths)
-        self.valid_repos = {repo.namespaced_name: repo for repo in valid_repos}
-        self.invalid_repos = {repo.namespaced_name: repo for repo in invalid_repos}
+        if repo_container_factory is None:
+            repo_container_factory = DefaultRepoContainer
+
+        self.repo_container = repo_container_factory(repo_paths)
 
         flask.Flask.__init__(self, __name__)
 
         self.setup_routes()
+
+    @property
+    def valid_repos(self):
+        """Repositories that are considered valid by the repository manager"""
+
+        return self.repo_container.valid
+
+    @property
+    def invalid_repos(self):
+        """Repositories that were declined by the repository manager"""
+
+        return self.repo_container.invalid
 
     def create_jinja_environment(self):
         """Called by Flask.__init__"""
@@ -93,16 +113,6 @@ class Klaus(flask.Flask):
         else:
             raise ValueError("Unknown ctags policy %r" % self.ctags_policy)
 
-    def load_repos(self, repo_paths):
-        valid_repos = []
-        invalid_repos = []
-        for namespace, paths in repo_paths.items():
-            for path in paths:
-                try:
-                    valid_repos.append(FancyRepo(path, namespace))
-                except NotGitRepository:
-                    invalid_repos.append(InvalidRepo(path, namespace))
-        return valid_repos, invalid_repos
 
 
 def make_app(
@@ -114,6 +124,7 @@ def make_app(
     disable_push=False,
     unauthenticated_push=False,
     ctags_policy="none",
+    repo_container_factory=None,
 ):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
@@ -157,25 +168,20 @@ def make_app(
         raise ValueError(
             "'htdigest_file' set without 'use_smarthttp' or 'require_browser_auth'"
         )
-    if not isinstance(repo_paths, dict):
-        # If repos is given as a flat list, put all repos under the "no namespace" namespace
-        repo_paths = {None: repo_paths}
 
     app = Klaus(
         repo_paths,
         site_name,
         use_smarthttp,
         ctags_policy,
+        repo_container_factory,
     )
     app.wsgi_app = utils.ProxyFix(app.wsgi_app)
 
     if use_smarthttp:
         # `path -> Repo` mapping for Dulwich's web support
         dulwich_backend = dulwich.server.DictBackend(
-            {
-                "/" + namespaced_name: repo
-                for namespaced_name, repo in app.valid_repos.items()
-            }
+            utils.SlashDictProxy(app.valid_repos)
         )
         # Dulwich takes care of all Git related requests/URLs
         # and passes through everything else to klaus
