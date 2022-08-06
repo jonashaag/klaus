@@ -11,3 +11,5 @@ RUN apk add --no-cache python3-dev py3-pip gcc musl-dev && \
 ARG KLAUS_VERSION
 ARG KLAUS_URL=klaus${KLAUS_VERSION:+==}${KLAUS_VERSION}
 RUN pip3 install ${KLAUS_URL}
+
+EXPOSE 80
