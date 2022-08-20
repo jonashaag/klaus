@@ -1,0 +1,10 @@
+name: klaus-dev
+dependencies:
+  - dulwich >=0.19
+  - flask
+  - httpauth
+  - humanize
+  - pygments
+  - pytest
+  - requests
+  - werkzeug >=0.15
