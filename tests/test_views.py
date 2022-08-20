@@ -36,7 +36,7 @@ def test_repo_list_search_namespace():
 
 def test_download():
     with serve():
-        response = requests.get(UNAUTH_TEST_REPO_URL + "tarball/master", stream=True)
+        response = requests.get(UNAUTH_TEST_REPO_URL + "tarball/master/", stream=True)
         response_body = BytesIO(response.raw.read())
         tarball = tarfile.TarFile.gzopen("test.tar.gz", fileobj=response_body)
         with contextlib.closing(tarball):
