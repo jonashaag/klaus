@@ -3,7 +3,6 @@
 name: Publish Docker image
 
 on:
-  pull_request: null
   release:
     types: [published]
 
