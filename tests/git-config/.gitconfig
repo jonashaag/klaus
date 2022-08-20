@@ -1,3 +1,6 @@
+[init]
+defaultBranch master
+
 [user]
 email = you@example.com
 name = Your Name
