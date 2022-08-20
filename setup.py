@@ -31,7 +31,6 @@ setup(
     author="Jonas Haag",
     author_email="jonas@lophus.org",
     packages=["klaus", "klaus.contrib"],
-    scripts=["bin/klaus"],
     include_package_data=True,
     zip_safe=False,
     url="https://github.com/jonashaag/klaus",
@@ -49,4 +48,7 @@ setup(
         "Programming Language :: Python :: 2.7",
     ],
     install_requires=requires,
+    entry_points={
+        "console_scripts": ["klaus=klaus.cli:main"],
+    },
 )
