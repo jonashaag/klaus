@@ -1,4 +1,8 @@
-from six.moves import filter
+try:
+    # Python < 3
+    from itertools import ifilter as filter
+except ImportError:
+    pass
 
 from pygments import highlight
 from pygments.lexers import (

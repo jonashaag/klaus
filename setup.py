@@ -16,7 +16,6 @@ def install_data_files_hack():
 install_data_files_hack()
 
 requires = [
-    "six",
     "flask",
     "Werkzeug>=0.15.0",
     "pygments",

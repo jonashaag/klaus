@@ -8,7 +8,6 @@ import mimetypes
 import locale
 import warnings
 import subprocess
-import six
 
 try:
     import chardet
@@ -136,7 +135,12 @@ def decode_from_git(b):
 def force_unicode(s):
     """Do all kinds of magic to turn `s` into unicode"""
     # It's already unicode, don't do anything:
-    if isinstance(s, six.text_type):
+    try:
+        # Python < 3
+        text_type = unicode
+    except NameError:
+        text_type = str
+    if isinstance(s, text_type):
         return s
 
     last_exc = None
