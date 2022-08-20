@@ -12,7 +12,7 @@ from klaus import views, utils
 from klaus.repo import FancyRepo, InvalidRepo
 
 
-KLAUS_VERSION = utils.guess_git_revision() or "1.6.0"
+KLAUS_VERSION = utils.guess_git_revision() or "2.0.0"
 
 
 class Klaus(flask.Flask):
