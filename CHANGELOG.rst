@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.6.0 (Aug 20, 2022)
+--------------------
+- #253, #274, #287: Python 2.7 fixes (Jelmer Vernooĳ, Jonas Haag)
+- Search in repo list (Jonas Haag)
+- Repo namespaces (only exposed in `make_app()` for now) (Jonas Haag)
+- #269, #280: README handling fixes (Ariana Giroux, Jelmer Vernooĳ, Sol Bekic)
+- #268, #270, #281, #285, #286, #283: Bug fixes (Jelmer Vernooĳ, Sol Bekic, Wessel Dankers)
+
 1.5.2 (Nov 26, 2019)
 -------------------
 - #247: Fix import (Marc Schwab)
