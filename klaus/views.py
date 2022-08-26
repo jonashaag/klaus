@@ -231,6 +231,9 @@ class ReadmeMixin(object):
         commit, path = self.context["commit"], self.context["path"]
         tree = self.context["repo"].get_blob_or_tree(commit, path)
 
+        if not isinstance(tree, dulwich.objects.Tree):
+            raise KeyError
+
         for name in README_FILENAMES:
             if name.lower() in [t.lower() for t in tree]:
                 obj = self.context["repo"][tree[name][1]]
