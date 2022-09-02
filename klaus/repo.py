@@ -9,6 +9,14 @@ from dulwich.objects import Blob
 from dulwich.errors import NotTreeError
 import dulwich, dulwich.patch
 
+try:
+    from dulwich.refs import SymrefLoop
+except ImportError:  # dulwich < 0.20.46
+    InaccessibleRef = KeyError
+else:
+    InaccessibleRef = (SymrefLoop, KeyError)
+
+
 from klaus.utils import (
     force_unicode,
     parent_directory,
@@ -134,11 +142,15 @@ class FancyRepo(dulwich.repo.Repo):
             try:
                 self.get_commit(candidate)
                 return candidate
-            except KeyError:
+            except InaccessibleRef:
                 pass
-        try:
-            return self.get_branch_names()[0]
-        except IndexError:
+        for name in self.get_branch_names():
+            try:
+                self.get_commit(name)
+                return name
+            except InaccessibleRef:
+                pass
+        else:
             return None
 
     def get_ref_names_ordered_by_last_commit(self, prefix, exclude=None):
@@ -149,7 +161,7 @@ class FancyRepo(dulwich.repo.Repo):
         def get_commit_time(refname):
             try:
                 obj = self[refs[refname]]
-            except KeyError:
+            except InaccessibleRef:
                 # Default to 0, i.e. sorting refs that point at non-existant
                 # objects last.
                 return 0
