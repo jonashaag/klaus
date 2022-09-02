@@ -130,7 +130,7 @@ class FancyRepo(dulwich.repo.Repo):
 
     def get_default_branch(self):
         """Tries to guess the default repo branch name."""
-        for candidate in ["master", "trunk", "default", "gh-pages"]:
+        for candidate in ["master", "main", "trunk", "default", "gh-pages"]:
             try:
                 self.get_commit(candidate)
                 return candidate
