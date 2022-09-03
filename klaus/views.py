@@ -14,6 +14,12 @@ import dulwich.config
 from dulwich.object_store import tree_lookup_path
 
 try:
+    from dulwich.refs import SymrefLoop
+except ImportError:   # dulwich < 0.20.46
+    class SymrefLoop(Exception):
+        """Dummy exception."""
+
+try:
     import ctags
 except ImportError:
     ctags = None
@@ -114,6 +120,10 @@ def _get_repo_and_rev(repo, namespace=None, rev=None, path=None):
             rev = rev[:i]
         except (KeyError, IOError):
             i = rev.rfind("/", 0, i)
+        except SymrefLoop as e:
+            raise NotFound(
+                "symref loop for %s at depth %d"
+                % (e.ref, e.depth))
         else:
             break
     else:
