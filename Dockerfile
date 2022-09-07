@@ -8,6 +8,5 @@ RUN apk add --no-cache python3-dev py3-pip gcc musl-dev && \
     pip3 install python-ctags3 && \
     apk del python3-dev gcc musl-dev
 
-ARG KLAUS_VERSION
-ARG KLAUS_URL=klaus${KLAUS_VERSION:+==}${KLAUS_VERSION}
-RUN pip3 install ${KLAUS_URL}
+COPY . /klaus
+RUN pip3 install /klaus && rm -rf /klaus
