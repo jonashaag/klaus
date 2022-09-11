@@ -1,12 +1,16 @@
 Changelog
 =========
 
-2.0.1 (Sep 11, 2022)
+2.0.2 (Sep 11, 2022)
 --------------------
 - #292: Fix 500 error when accessing history of blob objects (Jelmer Vernooĳ)
 - #293, #294: Handle SymrefLoop (Jelmer Vernooĳ)
 - #294: Add 'main' to the list of default branch names to try (Jelmer Vernooĳ)
 - Update description on PyPI
+
+2.0.1 (Sep 11, 2022)
+--------------------
+(Broken release)
 
 2.0.0 (Aug 20, 2022)
 --------------------

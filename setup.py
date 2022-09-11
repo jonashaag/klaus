@@ -1,10 +1,9 @@
 # encoding: utf-8
 
+import os
 from setuptools import setup
-from pathlib import Path
 
-this_directory = Path(__file__).parent
-long_description = (this_directory / "README.rst").read_text()
+long_description = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
 
 def install_data_files_hack():
     # This is a clever hack to circumvent distutil's data_files
@@ -30,7 +29,7 @@ requires = [
 
 setup(
     name="klaus",
-    version="2.0.1",
+    version="2.0.2",
     author="Jonas Haag",
     author_email="jonas@lophus.org",
     packages=["klaus", "klaus.contrib"],
