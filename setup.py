@@ -1,7 +1,10 @@
 # encoding: utf-8
 
 from setuptools import setup
+from pathlib import Path
 
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.rst").read_text()
 
 def install_data_files_hack():
     # This is a clever hack to circumvent distutil's data_files
@@ -27,7 +30,7 @@ requires = [
 
 setup(
     name="klaus",
-    version="2.0.0",
+    version="2.0.1",
     author="Jonas Haag",
     author_email="jonas@lophus.org",
     packages=["klaus", "klaus.contrib"],
@@ -35,7 +38,7 @@ setup(
     zip_safe=False,
     url="https://github.com/jonashaag/klaus",
     description="The first Git web viewer that Just Works™.",
-    long_description=__doc__,
+    long_description=long_description,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",

@@ -1,9 +1,16 @@
 Changelog
 =========
 
+2.0.1 (Sep 11, 2022)
+--------------------
+- #292: Fix 500 error when accessing history of blob objects (Jelmer Vernooĳ)
+- #293, #294: Handle SymrefLoop (Jelmer Vernooĳ)
+- #294: Add 'main' to the list of default branch names to try (Jelmer Vernooĳ)
+- Update description on PyPI
+
 2.0.0 (Aug 20, 2022)
 --------------------
-- Remove `bin/klaus` and make it a `console_script` entrypoint instead. (Jonas Haag)
+- Remove `bin/klaus` and make it a `console_script` entrypoint instead (Jonas Haag)
 - Search in repo list (Jonas Haag)
 - Repo namespaces (only exposed in `make_app()` for now) (Jonas Haag)
 - #253, #274, #287: Python 2.7 fixes (Jelmer Vernooĳ, Jonas Haag)
