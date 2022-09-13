@@ -26,11 +26,11 @@ class KlausRedirects(flask.Flask):
                 self.setup_redirects('/' + namespaced_name, '/~' + namespaced_name)
 
     def query_str(self):
-      query = flask.request.query_string.decode()
-      if len(query) > 0:
-          return '?' + query
+        query = flask.request.query_string.decode()
+        if len(query) > 0:
+            return '?' + query
 
-      return ''
+        return ''
 
     def setup_redirects(self, route, pattern=None):
         if not pattern:
