@@ -119,43 +119,10 @@ def test_wsgi_autoreload(monkeypatch):
         assert can_push_auth()
 
 
+# TODO: Change this to SMART URLs
 def can_reach_unauth():
-    return _check_http200(_GET_unauth, TEST_REPO_NO_NAMESPACE_BASE_URL)
+    return _check_http200(TEST_REPO_NO_NAMESPACE_BASE_URL, auth=False)
 
 
 def can_push_auth():
-    return _can_push(_GET_auth, AUTH_TEST_REPO_NO_NAMESPACE_SMART_URL)
-
-
-def _can_push(http_get, url):
-    return any(
-        [
-            _check_http200(
-                http_get,
-                url + "/info/refs?service=git-receive-pack",
-            ),
-            _check_http200(
-                http_get, url + "/git-receive-pack"
-            ),
-            subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO_NO_NAMESPACE)
-            == 0,
-        ]
-    )
-
-
-def _GET_unauth(url=""):
-    return requests.get(
-        UNAUTH_TEST_SERVER + url,
-        auth=requests.auth.HTTPDigestAuth("invalid", "password"),
-    )
-
-
-def _GET_auth(url=""):
-    return requests.get(
-        AUTH_TEST_SERVER + url,
-        auth=requests.auth.HTTPDigestAuth("testuser", "testpassword"),
-    )
-
-
-def _check_http200(http_get, url):
-    return http_get(url).status_code == 200
+    return all(_can_push(True, AUTH_TEST_REPO_NO_NAMESPACE_URL))

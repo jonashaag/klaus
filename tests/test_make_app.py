@@ -1,9 +1,6 @@
 import os
 import re
 import sys
-import subprocess
-import tempfile
-import shutil
 import klaus
 
 import pytest
@@ -51,13 +48,19 @@ def options_test(make_app_args, expected_permissions):
         with serve(**make_app_args):
             for check, permitted in expected_permissions.items():
                 if check in globals():
-                    checks = [check]
-                elif check.endswith("auth"):
-                    checks = ["can_%s" % check]
+                    assert 0, check
+                    checks = [globals()[check]]
+                    assert globals()[check] == permitted, check
                 else:
-                    checks = ["can_%s_unauth" % check, "can_%s_auth" % check]
-                for check in checks:
-                    assert globals()[check]() == permitted, check
+                    if check.endswith("auth"):
+                        check, auth = check.rsplit("_")
+                        auth = auth == "auth"
+                        checks = [(check, auth)]
+                    else:
+                        checks = [(check, True), (check, False)]
+                    for check, auth in checks:
+                        res = globals()["_can_%s" % check](auth)
+                        assert all(res) if permitted else not any(res), (check, auth, permitted, res)
 
     return test
 
@@ -121,59 +124,26 @@ test_ctags_all = options_test(
 )
 
 
-# Reach
-def can_reach_unauth():
-    return _check_http200(_GET_unauth, TEST_REPO_BASE_URL)
+def _can_reach(auth):
+    return [
+        _check_http200(TEST_REPO_BASE_URL, auth)
+    ]
 
 
-def can_reach_auth():
-    return _check_http200(_GET_auth, TEST_REPO_BASE_URL)
+def _can_clone(auth, url=TEST_REPO_SMART_BASE_URL):
+    return [
+        "git clone" in _requests_get(url, auth).text,
+        _check_http200(url + "/info/refs?service=git-upload-pack", auth),
+        git_cmd("clone", (AUTH_TEST_SERVER if auth else UNAUTH_TEST_SERVER) + url, tmpcwd=True)[0] == 0,
+    ]
 
 
-# Clone
-def can_clone_unauth():
-    return _can_clone(_GET_unauth, UNAUTH_TEST_REPO_SMART_URL)
-
-
-def can_clone_auth():
-    return _can_clone(_GET_auth, AUTH_TEST_REPO_SMART_URL)
-
-
-def _can_clone(http_get, url):
-    tmp = tempfile.mkdtemp()
-    try:
-        return any(
-            [
-                "git clone" in http_get(TEST_REPO_BASE_URL).text,
-                _check_http200(
-                    http_get, url + "/info/refs?service=git-upload-pack"
-                ),
-                subprocess.call(["git", "clone", url, tmp]) == 0,
-            ]
-        )
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
-
-
-# Push
-def can_push_unauth():
-    return _can_push(_GET_unauth, UNAUTH_TEST_REPO_SMART_URL)
-
-
-def can_push_auth():
-    return _can_push(_GET_auth, AUTH_TEST_REPO_SMART_URL)
-
-
-def _can_push(http_get, url):
-    return any(
-        [
-            _check_http200(
-                http_get, url + "/info/refs?service=git-receive-pack"
-            ),
-            _check_http200(http_get, url + "/git-receive-pack"),
-            subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
-        ]
-    )
+def _can_push(auth, url=TEST_REPO_SMART_BASE_URL):
+    return [
+        _check_http200(url + "/info/refs?service=git-receive-pack", auth),
+        _check_http200(url + "/git-receive-pack", auth),
+        git_cmd("push", (AUTH_TEST_SERVER if auth else UNAUTH_TEST_SERVER) + url, "master", cwd=TEST_REPO)[0] == 0,
+    ]
 
 
 # Ctags
@@ -202,19 +172,18 @@ def _ctags_enabled(ref, filename):
     return href in response.text
 
 
-def _GET_unauth(url=""):
-    return requests.get(
-        UNAUTH_TEST_SERVER + url,
-        auth=requests.auth.HTTPDigestAuth("invalid", "password"),
-    )
+def _check_http200(url, auth):
+    return _requests_get(url, auth).status_code == 200
 
 
-def _GET_auth(url=""):
-    return requests.get(
-        AUTH_TEST_SERVER + url,
-        auth=requests.auth.HTTPDigestAuth("testuser", "testpassword"),
-    )
-
-
-def _check_http200(http_get, url):
-    return http_get(url).status_code == 200
+def _requests_get(url, auth):
+    if auth:
+        return requests.get(
+            AUTH_TEST_SERVER + url,
+            auth=requests.auth.HTTPDigestAuth("testuser", "testpassword"),
+        )
+    else:
+        return requests.get(
+            UNAUTH_TEST_SERVER + url,
+            auth=requests.auth.HTTPDigestAuth("invalid", "password"),
+        )

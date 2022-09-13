@@ -8,9 +8,8 @@
   done
 )
 
-export PYTHONPATH=tests:${PYTHONPATH:-}
 if [ $# -eq 0 ]; then
-  pytest -v tests
+  python -m pytest -v tests
 else
-  pytest "$@"
+  python -m pytest "$@"
 fi
