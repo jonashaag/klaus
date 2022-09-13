@@ -17,8 +17,9 @@ KLAUS_VERSION = utils.guess_git_revision() or "2.0.2"
 
 
 class KlausRedirects(flask.Flask):
-    def __init__(self, repos):
+    def __init__(self, repos, use_smarthttp=False):
         flask.Flask.__init__(self, __name__)
+        self.use_smarthttp = use_smarthttp
 
         for namespaced_name in repos:
             self.setup_redirects('/' + namespaced_name)
@@ -52,21 +53,23 @@ class KlausRedirects(flask.Flask):
             endpoint=pattern + '_root',
             view_func=redirect_root,
         )
-        self.add_url_rule(
-            pattern + '.git',
-            endpoint=pattern + '_git2root',
-            view_func=redirect_root,
-        )
+        if self.use_smarthttp:
+            self.add_url_rule(
+                pattern + '.git',
+                endpoint=pattern + '_git2root',
+                view_func=redirect_root,
+            )
         self.add_url_rule(
             pattern + '/<path:path>',
             endpoint=pattern + '_rest',
             view_func=redirect_rest,
         )
-        self.add_url_rule(
-            pattern + '/info/refs',
-            endpoint=pattern + '_git',
-            view_func=redirect_git,
-        )
+        if self.use_smarthttp:
+            self.add_url_rule(
+                pattern + '/info/refs',
+                endpoint=pattern + '_git',
+                view_func=redirect_git,
+            )
 
 
 class Klaus(flask.Flask):
@@ -239,7 +242,7 @@ def make_app(
     )
     app.wsgi_app = utils.ChainedApps(
         app,
-        KlausRedirects(app.valid_repos),
+        KlausRedirects(app.valid_repos, use_smarthttp),
     )
     app.wsgi_app = utils.ProxyFix(app.wsgi_app)
 
