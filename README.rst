@@ -33,6 +33,7 @@ The easiest way to get started. We maintain a Docker image that has syntax highl
    docker run -v /path/to/your/repos:/repos \
               -p 7777:80 \
               -it jonashaag/klaus:latest \
+              -u $(id -u):$(id -g) \
               klaus --host 0.0.0.0 --port 80 /repos/repo1 /repos/repo2 ...
 
 (Replace ``/path/to/your/repos`` with the folder that contains your Git repositories on the Docker host. You can also pass in multiple ``-v`` arguments if your repos are in multiple folders on the host.)
