@@ -10,3 +10,6 @@ RUN apk add --no-cache python3-dev py3-pip gcc musl-dev && \
 
 COPY . /klaus
 RUN pip3 install /klaus && rm -rf /klaus
+
+# https://github.com/jonashaag/klaus/issues/300
+RUN git config --global --add safe.directory '*'
