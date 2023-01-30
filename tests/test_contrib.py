@@ -124,7 +124,7 @@ def can_reach_unauth():
 
 
 def can_push_auth():
-    return _can_push(_GET_auth, AUTH_TEST_REPO_NO_NAMESPACE_URL)
+    return _can_push(_GET_auth, AUTH_TEST_REPO_NO_NAMESPACE_SMART_URL)
 
 
 def _can_push(http_get, url):
@@ -132,10 +132,10 @@ def _can_push(http_get, url):
         [
             _check_http200(
                 http_get,
-                TEST_REPO_NO_NAMESPACE_BASE_URL + "info/refs?service=git-receive-pack",
+                url + "/info/refs?service=git-receive-pack",
             ),
             _check_http200(
-                http_get, TEST_REPO_NO_NAMESPACE_BASE_URL + "git-receive-pack"
+                http_get, url + "/git-receive-pack"
             ),
             subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO_NO_NAMESPACE)
             == 0,

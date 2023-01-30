@@ -132,11 +132,11 @@ def can_reach_auth():
 
 # Clone
 def can_clone_unauth():
-    return _can_clone(_GET_unauth, UNAUTH_TEST_REPO_URL)
+    return _can_clone(_GET_unauth, UNAUTH_TEST_REPO_SMART_URL)
 
 
 def can_clone_auth():
-    return _can_clone(_GET_auth, AUTH_TEST_REPO_URL)
+    return _can_clone(_GET_auth, AUTH_TEST_REPO_SMART_URL)
 
 
 def _can_clone(http_get, url):
@@ -146,7 +146,7 @@ def _can_clone(http_get, url):
             [
                 "git clone" in http_get(TEST_REPO_BASE_URL).text,
                 _check_http200(
-                    http_get, TEST_REPO_BASE_URL + "info/refs?service=git-upload-pack"
+                    http_get, url + "/info/refs?service=git-upload-pack"
                 ),
                 subprocess.call(["git", "clone", url, tmp]) == 0,
             ]
@@ -157,20 +157,20 @@ def _can_clone(http_get, url):
 
 # Push
 def can_push_unauth():
-    return _can_push(_GET_unauth, UNAUTH_TEST_REPO_URL)
+    return _can_push(_GET_unauth, UNAUTH_TEST_REPO_SMART_URL)
 
 
 def can_push_auth():
-    return _can_push(_GET_auth, AUTH_TEST_REPO_URL)
+    return _can_push(_GET_auth, AUTH_TEST_REPO_SMART_URL)
 
 
 def _can_push(http_get, url):
     return any(
         [
             _check_http200(
-                http_get, TEST_REPO_BASE_URL + "info/refs?service=git-receive-pack"
+                http_get, url + "/info/refs?service=git-receive-pack"
             ),
-            _check_http200(http_get, TEST_REPO_BASE_URL + "git-receive-pack"),
+            _check_http200(http_get, url + "/git-receive-pack"),
             subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
         ]
     )
