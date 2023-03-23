@@ -139,10 +139,8 @@ class FancyRepo(dulwich.repo.Repo):
     def get_default_branch(self):
         """Retrieves the default branch name from HEAD"""
         try:
-            self.head()
-            for branch in self.get_branch_names():
-                if self.get_commit(branch) == self.get_commit(self.head().decode()):
-                    return branch
+            heads = [ head.split(b'/')[-1] for head in self.refs.follow(b'HEAD')[0] if head.startswith(b'refs/head') ]
+            return(heads[0].decode())
         except InaccessibleRef:
             return None
 
