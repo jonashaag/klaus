@@ -58,10 +58,21 @@ class FancyRepo(dulwich.repo.Repo):
 
     # TODO: factor out stuff into dulwich
     def get_last_updated_at(self):
-        """Get datetime of last commit to this repository."""
-        # Cache result to speed up repo_list.html template.
-        # If self.get_refs() has changed, we should invalidate the cache.
-        all_refs = self.get_refs()
+        """Get datetime of last commit to this repository.
+
+        Caches the result to speed up the repo_list page.
+        Cache is invalidated if one of the ref targets changes,
+        eg. a new commit has been made and 'refs/heads/master' was changed.
+        """
+        if len(self.refs.keys()) > 10000:
+            # If we have too many refs, look at the branches only. (And HEAD, see below.)
+            base = b"refs/heads"
+        else:
+            base = None
+        all_refs = self.refs.as_dict(base)
+        # Always add HEAD.
+        all_refs[b"HEAD"] = self.refs[b"HEAD"]
+
         return cached_call(
             key=(id(self), "get_last_updated_at"),
             validator=all_refs,
