@@ -64,42 +64,35 @@ class FancyRepo(dulwich.repo.Repo):
         Cache is invalidated if one of the ref targets changes,
         eg. a new commit has been made and 'refs/heads/master' was changed.
         """
+        def _get_commit_time_cached(ref_id):
+            return cached_call(
+                key=(ref_id, "_get_commit_time"),
+                validator=None,
+                producer=lambda: _get_commit_time(ref_id),
+            )
+
+        def _get_commit_time(ref_id):
+            try:
+                return self[ref_id].commit_time
+            except (KeyError, AttributeError):
+                # Missing or non-commit object
+                return None
+
         max_refs = 1000
         if len(self.refs.keys()) > max_refs:
             # If we have too many refs, look at the branches only. (And HEAD, see below.)
             base = b"refs/heads"
         else:
             base = None
-        all_refs = self.refs.as_dict(base)
+        all_ids = list(self.refs.as_dict(base).values())
         # If we still have too many refs, keep only some.
-        if len(all_refs) > max_refs:
-            all_refs = dict(list(all_refs.items())[:max_refs])
+        if len(all_ids) > max_refs:
+            all_ids = sorted(all_ids)[:max_refs]
         # Always add HEAD.
-        all_refs[b"HEAD"] = self.refs[b"HEAD"]
+        all_ids.append(self.refs[b"HEAD"])
 
-        return cached_call(
-            key=(id(self), "get_last_updated_at"),
-            validator=all_refs,
-            producer=lambda: self._get_last_updated_at(all_refs.values()),
-        )
-
-    def _get_last_updated_at(self, all_refs):
-        resolveable_refs = []
-        for ref_hash in all_refs:
-            try:
-                resolveable_refs.append(self[ref_hash])
-            except KeyError:
-                # Whoops. The ref points at a non-existant object
-                pass
-        resolveable_refs.sort(
-            key=lambda obj: getattr(obj, "commit_time", float("-inf")), reverse=True
-        )
-        for ref in resolveable_refs:
-            # Find the latest ref that has a commit_time; tags do not
-            # have a commit time
-            if hasattr(ref, "commit_time"):
-                return ref.commit_time
-        return None
+        commit_times = filter(None, map(_get_commit_time_cached, all_ids))
+        return max(commit_times, default=None)
 
     @property
     def cloneurl(self):
