@@ -64,19 +64,23 @@ class FancyRepo(dulwich.repo.Repo):
         Cache is invalidated if one of the ref targets changes,
         eg. a new commit has been made and 'refs/heads/master' was changed.
         """
-        if len(self.refs.keys()) > 10000:
+        max_refs = 1000
+        if len(self.refs.keys()) > max_refs:
             # If we have too many refs, look at the branches only. (And HEAD, see below.)
             base = b"refs/heads"
         else:
             base = None
         all_refs = self.refs.as_dict(base)
+        # If we still have too many refs, keep only some.
+        if len(all_refs) > max_refs:
+            all_refs = dict(list(all_refs.items())[:max_refs])
         # Always add HEAD.
         all_refs[b"HEAD"] = self.refs[b"HEAD"]
 
         return cached_call(
             key=(id(self), "get_last_updated_at"),
             validator=all_refs,
-            producer=lambda: self._get_last_updated_at(all_refs),
+            producer=lambda: self._get_last_updated_at(all_refs.values()),
         )
 
     def _get_last_updated_at(self, all_refs):
