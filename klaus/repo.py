@@ -149,20 +149,11 @@ class FancyRepo(dulwich.repo.Repo):
         raise KeyError(rev)
 
     def get_default_branch(self):
-        """Tries to guess the default repo branch name."""
-        for candidate in ["master", "main", "trunk", "default", "gh-pages"]:
-            try:
-                self.get_commit(candidate)
-                return candidate
-            except InaccessibleRef:
-                pass
-        for name in self.get_branch_names():
-            try:
-                self.get_commit(name)
-                return name
-            except InaccessibleRef:
-                pass
-        else:
+        """Retrieves the default branch name from HEAD"""
+        try:
+            heads = [ head.split(b'/')[-1] for head in self.refs.follow(b'HEAD')[0] if head.startswith(b'refs/head') ]
+            return(heads[0].decode())
+        except InaccessibleRef:
             return None
 
     def get_ref_names_ordered_by_last_commit(self, prefix, exclude=None):
