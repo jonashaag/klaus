@@ -92,7 +92,11 @@ class FancyRepo(dulwich.repo.Repo):
         all_ids.append(self.refs[b"HEAD"])
 
         commit_times = filter(None, map(_get_commit_time_cached, all_ids))
-        return max(commit_times, default=None)
+        try:
+            return max(commit_times)
+        except ValueError:
+            # Python 2 does not support max(..., default=)
+            return None
 
     @property
     def cloneurl(self):
