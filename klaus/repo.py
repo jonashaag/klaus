@@ -108,7 +108,10 @@ class FancyRepo(object):
         if len(all_ids) > max_refs:
             all_ids = sorted(all_ids)[:max_refs]
         # Always add HEAD.
-        all_ids.append(self.dulwich_repo.refs[b"HEAD"])
+        try:
+            all_ids.append(self.dulwich_repo.refs[b"HEAD"])
+        except KeyError:
+            pass
 
         commit_times = filter(None, map(_get_commit_time_cached, all_ids))
         try:
@@ -179,14 +182,7 @@ class FancyRepo(object):
                 return candidate
             except InaccessibleRef:
                 pass
-        for name in self.get_branch_names():
-            try:
-                self.get_commit(name)
-                return name
-            except InaccessibleRef:
-                pass
-        else:
-            return None
+        return None
 
     @synchronized
     def get_ref_names_ordered_by_last_commit(self, prefix, exclude=None):
