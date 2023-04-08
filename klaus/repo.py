@@ -108,7 +108,7 @@ class FancyRepo(object):
         if len(all_ids) > max_refs:
             all_ids = sorted(all_ids)[:max_refs]
         # Always add HEAD.
-        all_ids.append(self.refs[b"HEAD"])
+        all_ids.append(self.dulwich_repo.refs[b"HEAD"])
 
         commit_times = filter(None, map(_get_commit_time_cached, all_ids))
         try:
