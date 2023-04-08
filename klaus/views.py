@@ -110,7 +110,11 @@ def _get_repo_and_rev(repo, namespace=None, rev=None, path=None):
     if rev is None:
         rev = repo.get_default_branch()
         if rev is None:
-            raise NotFound("Empty repository")
+            rev = "HEAD"
+            try:
+                repo.get_commit("HEAD")
+            except KeyError:
+                raise NotFound("No commits yet")
 
     i = len(rev)
     while i > 0:
