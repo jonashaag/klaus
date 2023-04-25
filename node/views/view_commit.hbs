@@ -1,0 +1,47 @@
+<div class="full-commit">
+  <div class="commit">
+    <span class="line1">
+      <span>{{ call context.commit "message" }}</span>
+    </span>
+    <span class="line2 separated-by-dots">
+      <span>
+        {{ call context.commit "author" }} authored
+        <span class="hastooltip" title="{{ call context.commit "date" }}">
+          {{ call context.commit "date" }}
+        </span>
+      </span>
+    </span>
+    <span class="clearfloat"></span>
+  </div>
+  
+  <div
+    style="float: right;"
+  >
+    <a
+      href="/{{ context.repoName }}/tree/{{ context.commit }}"
+    >
+      Browse files
+    </a>
+  </div>
+  <div
+    class="parents"
+  >
+    {{ call context.commit "parentcount" }} Parent(s):
+    {{#each (call context.commit "parents") }}
+      <a
+        href="/{{ ../context.repoName }}/commit/{{ this }}"
+      >
+        {{ shorten_sha1 this }}
+      </a>
+    {{/each}}
+  </div>
+  
+  <div>
+    {{#each diffStats}}
+      <p>{{this}}</p>
+    {{/each}}
+  </div>
+  
+  <pre>{{{ outputDiff }}}</pre>
+</div>
+

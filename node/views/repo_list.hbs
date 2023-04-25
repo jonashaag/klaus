@@ -1,0 +1,32 @@
+<form
+  target="_blank"
+  method="POST"
+  action="/fetch_all"
+>
+  <button type="submit">Sync all repos from origin</button>
+</form>
+
+<h2>
+  Repositories
+  <span>
+    {{#eq order_by 'name'}}
+      (<a href="?">order by last updated</a>)
+    {{else}}
+      (<a href="?by-name=yep">order by name</a>)
+    {{/eq}}
+  </span>
+</h2>
+<ul class="repolist">
+  {{#each items as |item|}}
+    <li>
+      <a
+        href="/{{ repo_name item.repo }}"
+      >
+        <div class="name">{{ repo_name item.repo }}</div>
+        <div class="last-updated">
+          last updated {{ dateUTC (call item.commit "date") }}
+        </div>
+      </a>
+    </li>
+  {{/each}}
+</ul>

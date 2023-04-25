@@ -1,0 +1,77 @@
+<div class="dummy"></div>
+
+<div class="tree">
+  <h2>
+    Tree @
+    <a
+      href="/{{ context.repoName }}/commit/{{ context.rev }}"
+    >
+      {{ shorten_sha1 context.rev }}
+    </a>
+  </h2>
+  <div class="link-history clearfloat">
+    <a
+      href="/{{ context.repoName }}/commits/{{ context.rev }}/{{ context.path }}"
+      style="float: right; font-weight: bold;"
+    >
+      {{#if context.data.historyLink}}
+        {{context.data.historyLink}}
+      {{else}}
+        History
+      {{/if}}
+    </a>
+    <br>
+  </div>
+  
+  {{> last_commit commitLast=commitLast}}
+  
+  <ul>
+    {{#each dirs}}
+      <li>
+        <a
+          href="/{{ ../context.repoName }}/tree/{{ ../context.rev }}/{{ path }}"
+          class="dir"
+        >
+          {{ name }}
+        </a>
+        {{#if lastCommit}}
+          <a
+            href="/{{ ../context.repoName }}/commit/{{ call lastCommit "id" }}"
+            style="display: inline; padding-left: 60px;"
+          >
+            {{ shorten_message (call lastCommit "message") }}
+          </a>
+          <a
+            href="/{{ ../context.repoName }}/commit/{{ call lastCommit "id" }}"
+            style="display: inline; float: right;"
+          >
+            {{ fromNow (call lastCommit "date") }}
+          </a>
+        {{/if}}
+      </li>
+    {{/each}}
+    {{#each files}}
+      <li>
+        <a
+          href="/{{ ../context.repoName }}/blob/{{ ../context.rev }}/{{ path }}"
+        >
+          {{ name }}
+        </a>
+        {{#if lastCommit}}
+          <a
+            href="/{{ ../context.repoName }}/commit/{{ call lastCommit "id" }}"
+            style="display: inline; padding-left: 60px;"
+          >
+            {{ shorten_message (call lastCommit "message") }}
+          </a>
+          <a
+            href="/{{ ../context.repoName }}/commit/{{ call lastCommit "id" }}"
+            style="display: inline; float: right;"
+          >
+            {{ fromNow (call lastCommit "date") }}
+          </a>
+        {{/if}}
+      </li>
+    {{/each}}
+  </ul>
+</div>

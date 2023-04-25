@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/static/klaus.css">
+<link rel=icon type="image/png" href="/static/favicon.png">
+{{#if meta.base_href}}
+  <base href="{{ meta.base_href }}">
+{{/if}}
+<title>{{meta.title}} - {{ SITE_NAME }}</title>
+
+<script src="/static/klaus.js"></script>
+
+<header>
+  <a href="/">
+    {{ SITE_NAME }}
+  </a>
+</header>
+
+<div id="content">
+  {{{ body }}}
+</div>
+
+<footer>
+  powered by <a href="https://github.com/jonashaag/klaus">klaus</a> {{ KLAUS_VERSION }},
+  a simple Git viewer by Jonas Haag
+</footer>

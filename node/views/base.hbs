@@ -1,0 +1,74 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/static/klaus.css">
+<link
+  rel="stylesheet"
+  href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.3.1/build/styles/github.min.css"
+>
+<link rel=icon type="image/png" href="/static/favicon.png">
+{{#if meta.base_href}}
+  <base href="{{ meta.base_href }}">
+{{/if}}
+<title>{{ context.repoName }} ({{ context.rev }}) - {{ SITE_NAME }}</title>
+
+<script src="/static/klaus.js"></script>
+
+<header>
+  <a href="/">
+    {{ SITE_NAME }}
+  </a>
+  
+  <span class="breadcrumbs">
+    <span>
+      <a href="/{{ context.repoName }}">{{ context.repoName }}</a>
+    </span>
+    {{#if context.subpaths}}
+      <span>
+        {{#each context.subpaths}}
+          {{#if href}}
+            {{#eq ../context.view "commits"}}
+              <a
+                href="/{{ ../context.repoName }}/commits/{{ ../context.rev }}/{{ href }}"
+              >
+                {{dir}}
+              </a>
+            {{else}}
+              <a
+                href="/{{ ../context.repoName }}/tree/{{ ../context.rev }}/{{ href }}"
+              >
+                {{dir}}
+              </a>
+            {{/eq}}
+          {{else}}
+            {{dir}}
+          {{/if}}
+          <span>/</span>
+        {{/each}}
+      </span>
+    {{/if}}
+  </span>
+  
+  {{#if info.remoteLink}}
+    <a
+      target="_blank"
+      href="{{ info.remoteLink }}"
+      style="
+        position: absolute; top: 2px; right: 100px;
+        color: grey;"
+    >Check on GH</a>
+  {{/if}}
+  
+  {{#unless no_branch_selector}}
+    {{> branch_selector}}
+  {{/unless}}
+</header>
+
+<div id="content">
+  {{{ body }}}
+</div>
+
+<footer>
+  powered by <a href="https://github.com/jonashaag/klaus">klaus</a> {{ KLAUS_VERSION }},
+  a simple Git viewer by Jonas Haag
+</footer>
