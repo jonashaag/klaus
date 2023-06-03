@@ -69,12 +69,11 @@ def repo_list():
         ]
 
     if order_by == "name":
-        sort_key = lambda repo: repo.namespaced_name
+        def sort_key(repo):
+            return repo.namespaced_name
     else:
-        sort_key = lambda repo: (
-            -(repo.fast_get_last_updated_at() or -1),
-            repo.namespaced_name,
-        )
+        def sort_key(repo):
+            return -(repo.fast_get_last_updated_at() or -1), repo.namespaced_name
 
     repos = sorted(repos, key=sort_key)
     invalid_repos = sorted(invalid_repos, key=lambda repo: repo.namespaced_name)
