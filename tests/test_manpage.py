@@ -2,10 +2,7 @@ import re
 import subprocess
 import shutil
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 from klaus.utils import force_unicode
 
 

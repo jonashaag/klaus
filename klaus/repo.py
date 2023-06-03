@@ -14,9 +14,9 @@ import dulwich, dulwich.patch
 try:
     from dulwich.refs import SymrefLoop
 except ImportError:  # dulwich < 0.20.46
-    InaccessibleRef = KeyError
+    InaccessibleRef = KeyError  # type: ignore
 else:
-    InaccessibleRef = (SymrefLoop, KeyError)
+    InaccessibleRef = (SymrefLoop, KeyError)  # type: ignore
 
 
 from klaus.utils import (

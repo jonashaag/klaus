@@ -12,7 +12,7 @@ import subprocess
 try:
     import chardet
 except ImportError:
-    chardet = None
+    chardet = None  # type: ignore
 
 from werkzeug.middleware.proxy_fix import ProxyFix as WerkzeugProxyFix
 from humanize import naturaltime
@@ -132,15 +132,10 @@ def decode_from_git(b):
     return b.decode("utf8")
 
 
-def force_unicode(s):
+def force_unicode(s: str | bytes) -> str:
     """Do all kinds of magic to turn `s` into unicode"""
     # It's already unicode, don't do anything:
-    try:
-        # Python < 3
-        text_type = unicode
-    except NameError:
-        text_type = str
-    if isinstance(s, text_type):
+    if isinstance(s, str):
         return s
 
     # Try some default encodings:
