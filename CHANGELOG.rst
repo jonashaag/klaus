@@ -1,6 +1,16 @@
 Changelog
 =========
 
+2.0.3 (Jun 3, 2023)
+-------------------
+This is the last release to support Python 2.
+
+- #312: Repo page: if no default branch is found, use HEAD (Jonas Haag)
+- #311: Fix repo access race condition (Jonas Haag)
+- #310: Fix slow repo_list with many refs (Jonas Haag)
+- #306, #313: Fix encoding issues (Jelmer Vernooĳ)
+- #304: Docker image: Fix ownership issue with Git 2.36+ (Jonas Haag)
+
 2.0.2 (Sep 11, 2022)
 --------------------
 - #292: Fix 500 error when accessing history of blob objects (Jelmer Vernooĳ)
