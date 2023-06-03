@@ -159,7 +159,10 @@ def force_unicode(s):
         # Try chardet, if available
         encoding = chardet.detect(s)["encoding"]
         if encoding is not None:
-            return s.decode(encoding, 'replace')
+            try:
+                return s.decode(encoding, 'replace')
+            except LookupError:
+                pass
 
     return s.decode('latin1', 'replace')
 
