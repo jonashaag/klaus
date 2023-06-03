@@ -15,8 +15,8 @@ jobs:
         python-version: ["2.7", "3.10"]
         ctags: [false]
         include:
-          - os: ubuntu-20.04
-            python-version: "3.5"
+          - os: ubuntu-latest
+            python-version: "3.11"
             ctags: true
           - os: windows-latest
             python-version: "3.6"
