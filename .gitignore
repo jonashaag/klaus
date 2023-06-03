@@ -8,3 +8,4 @@ tests/repos/build
 build/
 dist/
 .DS_Store
+.mypy_cache

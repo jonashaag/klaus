@@ -143,11 +143,10 @@ def force_unicode(s):
     if isinstance(s, text_type):
         return s
 
-    last_exc = None
     # Try some default encodings:
     try:
         return s.decode("utf-8")
-    except UnicodeDecodeError as exc:
+    except UnicodeDecodeError:
         pass
 
     try:

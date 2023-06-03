@@ -36,7 +36,7 @@ def main():
         if url.startswith("http"):
             continue
         if "-v" in sys.argv:
-            print "Requesting %r..." % url
+            print("Requesting %r..." % url)
         start = time.time()
         http_conn.request("GET", url)
         response = http_conn.getresponse()
@@ -45,13 +45,13 @@ def main():
         if status[0] == "3":
             urls.add(response.getheader("Location"))
         elif status[0] == "2":
-            if not "/raw/" in url:
+            if "/raw/" not in url:
                 html = response.read()
                 html = re.sub("<pre>.*?</pre>", "", html)
                 urls.update(AHREF_RE.findall(html))
         else:
             if "--failfast" in sys.argv:
-                print url, status
+                print(url, status)
                 exit(1)
             errors[status].add(url)
 
@@ -59,9 +59,9 @@ def main():
 def print_stats():
     import pprint
 
-    print (len(seen))
+    print(len(seen))
     pprint.pprint(dict(errors))
-    print ({url: sum(times) / len(times) for url, times in durations.iteritems()})
+    print({url: sum(times) / len(times) for url, times in durations.iteritems()})
 
 
 atexit.register(print_stats)

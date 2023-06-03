@@ -1,4 +1,3 @@
-import sys
 import re
 import subprocess
 import shutil
@@ -19,7 +18,8 @@ def test_covers_all_cli_options():
     manpage = force_unicode(subprocess.check_output(["man", "./klaus.1"]))
 
     def assert_in_manpage(s):
-        clean = lambda x: re.sub("(.\\x08)|\\s", "", x)
+        def clean(x):
+            return re.sub("(.\\x08)|\\s", "", x)
         assert clean(s) in clean(manpage), "%r not found in manpage" % s
 
     mock_parser = mock.Mock()

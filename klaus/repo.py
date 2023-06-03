@@ -300,7 +300,8 @@ class FancyRepo(object):
             else:
                 files.append(item)
 
-        keyfunc = lambda tpl: tpl[0].lower()
+        def keyfunc(tpl):
+            return tpl[0].lower()
         submodules.sort(key=keyfunc)
         files.sort(key=keyfunc)
         dirs.sort(key=keyfunc)
