@@ -49,6 +49,7 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
     ],
+    python_requires=">=3.7",
     install_requires=requires,
     entry_points={
         "console_scripts": ["klaus=klaus.cli:main"],
