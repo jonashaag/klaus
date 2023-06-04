@@ -2,7 +2,7 @@ from io import BytesIO
 import os
 import sys
 
-from flask import request, render_template, current_app, url_for
+from flask import request, render_template, current_app, url_for, redirect
 from flask.views import View
 
 from werkzeug.wrappers import Response
@@ -487,6 +487,12 @@ class FileView(BaseFileView):
     """Shows a file rendered using ``pygmentize``."""
 
     template_name = "view_blob.html"
+
+
+    def dispatch_request(self, repo, rev=None, path=''):
+        if 'raw' in request.args:
+            return redirect(url_for('raw', repo=repo, rev=rev, path=path))
+        return super(FileView, self).dispatch_request(repo, rev=rev, path=path)
 
     def make_template_context(self, *args):
         super(FileView, self).make_template_context(*args)
