@@ -8,6 +8,7 @@ import mimetypes
 import locale
 import warnings
 import subprocess
+from typing import Union
 
 try:
     import chardet
@@ -132,7 +133,7 @@ def decode_from_git(b):
     return b.decode("utf8")
 
 
-def force_unicode(s: str | bytes) -> str:
+def force_unicode(s: Union[str, bytes]) -> str:
     """Do all kinds of magic to turn `s` into unicode"""
     # It's already unicode, don't do anything:
     if isinstance(s, str):
