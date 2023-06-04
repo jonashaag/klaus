@@ -16,7 +16,7 @@ jobs:
         ctags: [true]
         include:
           - os: windows-latest
-            python-version: "3.6"
+            python-version: "3.7"
             ctags: false
     steps:
       - uses: actions/checkout@v3
