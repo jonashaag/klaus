@@ -16,7 +16,7 @@ from dulwich.object_store import tree_lookup_path
 try:
     from dulwich.refs import SymrefLoop
 except ImportError:   # dulwich < 0.20.46
-    class SymrefLoop(Exception):
+    class SymrefLoop(Exception):  # type: ignore
         """Dummy exception."""
 
 try:
