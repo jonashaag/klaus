@@ -1,5 +1,5 @@
 import os
-from typing import List, Tuple, Callable, Optional
+from typing import Callable, List, Optional, Tuple
 
 LANGUAGES: List[Tuple[List[str], Callable[[str], str]]] = []
 
@@ -22,7 +22,7 @@ def render(filename, content=None) -> str:
             content = f.read()
 
     renderer = get_renderer(filename)
-    assert renderer is not None, "No renderer for {}".format(filename)
+    assert renderer is not None, f"No renderer for {filename}"
     return renderer(content)
 
 

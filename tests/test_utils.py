@@ -1,6 +1,5 @@
 import sys
 import unittest
-
 from unittest import mock
 
 from klaus import utils
@@ -8,7 +7,7 @@ from klaus import utils
 
 class ForceUnicodeTests(unittest.TestCase):
     def test_ascii(self):
-        self.assertEqual(u"foo", utils.force_unicode(b"foo"))
+        self.assertEqual("foo", utils.force_unicode(b"foo"))
 
     def test_utf8(self):
         if sys.version_info[0] < 3:
@@ -34,5 +33,5 @@ class TarballBasenameTests(unittest.TestCase):
             ),
             ("vanilla", "klaus-vanilla"),
         ]
-        for (rev, basename) in examples:
+        for rev, basename in examples:
             self.assertEqual(utils.tarball_basename("klaus", rev), basename)

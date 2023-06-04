@@ -1,12 +1,13 @@
 import re
+import shutil
 import subprocess
 import tempfile
-import shutil
-import klaus
 
 import pytest
 import requests
 import requests.auth
+
+import klaus
 
 from .utils import *
 
@@ -194,9 +195,9 @@ def ctags_all():
 
 
 def _ctags_enabled(ref, filename):
-    response = requests.get(UNAUTH_TEST_REPO_URL + "blob/%s/%s" % (ref, filename))
+    response = requests.get(UNAUTH_TEST_REPO_URL + f"blob/{ref}/{filename}")
     assert response.status_code == 200, response.text
-    href = '<a href="/%sblob/%s/%s#L-1">' % (TEST_REPO_BASE_URL, ref, filename)
+    href = f'<a href="/{TEST_REPO_BASE_URL}blob/{ref}/{filename}#L-1">'
     return href in response.text
 
 

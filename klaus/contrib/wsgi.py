@@ -1,4 +1,5 @@
 from klaus import make_app
+
 from .app_args import get_args_from_env
 
 args, kwargs = get_args_from_env()

@@ -1,15 +1,13 @@
 import os
-import subprocess
 import shutil
+import subprocess
 import tempfile
 
 
 def check_have_compatible_ctags():
     """Check that the 'ctags' binary is a compatible ctags (Universal or Exuberant, not etags etc)"""
     try:
-        out = subprocess.check_output(
-            ["ctags", "--version"], stderr=subprocess.PIPE
-        )
+        out = subprocess.check_output(["ctags", "--version"], stderr=subprocess.PIPE)
         return b"Universal" in out or b"Exuberant" in out
     except subprocess.CalledProcessError:
         return False

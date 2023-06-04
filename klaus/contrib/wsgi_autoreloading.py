@@ -1,7 +1,6 @@
-from __future__ import print_function
 import glob
-import time
 import threading
+import time
 
 from klaus import make_app
 

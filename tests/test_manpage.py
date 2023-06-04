@@ -1,8 +1,8 @@
 import re
-import subprocess
 import shutil
-
+import subprocess
 from unittest import mock
+
 from klaus.utils import force_unicode
 
 
@@ -17,6 +17,7 @@ def test_covers_all_cli_options():
     def assert_in_manpage(s):
         def clean(x):
             return re.sub("(.\\x08)|\\s", "", x)
+
         assert clean(s) in clean(manpage), "%r not found in manpage" % s
 
     mock_parser = mock.Mock()

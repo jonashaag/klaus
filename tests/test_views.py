@@ -1,7 +1,9 @@
-from io import BytesIO
-import requests
-import tarfile
 import contextlib
+import tarfile
+from io import BytesIO
+
+import requests
+
 from .utils import *
 
 

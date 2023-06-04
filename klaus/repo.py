@@ -5,12 +5,11 @@ import stat
 import subprocess
 import threading
 
-from dulwich.objects import S_ISGITLINK
-from dulwich.object_store import tree_lookup_path
-from dulwich.objects import Blob
-from dulwich.errors import NotTreeError
 import dulwich
 import dulwich.patch
+from dulwich.errors import NotTreeError
+from dulwich.object_store import tree_lookup_path
+from dulwich.objects import S_ISGITLINK, Blob
 
 try:
     from dulwich.refs import SymrefLoop
@@ -20,15 +19,14 @@ else:
     InaccessibleRef = (SymrefLoop, KeyError)  # type: ignore
 
 
+from klaus.diff import render_diff
 from klaus.utils import (
+    decode_from_git,
+    encode_for_git,
     force_unicode,
     parent_directory,
     repo_human_name,
-    encode_for_git,
-    decode_from_git,
 )
-from klaus.diff import render_diff
-
 
 NOT_SET = "__not_set__"
 
@@ -46,10 +44,11 @@ def synchronized(func, lock=threading.RLock()):
     def synchronized_func(*args, **kwargs):
         with lock:
             return func(*args, **kwargs)
+
     return synchronized_func
 
 
-class FancyRepo(object):
+class FancyRepo:
     """A wrapper around Dulwich's Repo that adds some helper methods."""
 
     def __init__(self, path, namespace):
@@ -67,7 +66,7 @@ class FancyRepo(object):
     @property
     def namespaced_name(self):
         if self.namespace:
-            return "~{}/{}".format(self.namespace, self.name)
+            return f"~{self.namespace}/{self.name}"
         else:
             return self.name
 
@@ -84,6 +83,7 @@ class FancyRepo(object):
         Cache is invalidated if one of the ref targets changes,
         eg. a new commit has been made and 'refs/heads/master' was changed.
         """
+
         def _get_commit_time_cached(ref_id):
             return cached_call(
                 key=(ref_id, "_get_commit_time"),
@@ -303,6 +303,7 @@ class FancyRepo(object):
 
         def keyfunc(tpl):
             return tpl[0].lower()
+
         submodules.sort(key=keyfunc)
         files.sort(key=keyfunc)
         dirs.sort(key=keyfunc)
@@ -325,16 +326,26 @@ class FancyRepo(object):
         summary = {"nfiles": 0, "nadditions": 0, "ndeletions": 0}
         file_changes = []  # the changes in detail
 
-        dulwich_changes = self.dulwich_repo.object_store.tree_changes(parent_tree, commit.tree)
+        dulwich_changes = self.dulwich_repo.object_store.tree_changes(
+            parent_tree, commit.tree
+        )
         for (oldpath, newpath), (oldmode, newmode), (oldsha, newsha) in dulwich_changes:
             summary["nfiles"] += 1
             try:
-                oldblob = self.dulwich_repo.object_store[oldsha] if oldsha else Blob.from_string(b"")
+                oldblob = (
+                    self.dulwich_repo.object_store[oldsha]
+                    if oldsha
+                    else Blob.from_string(b"")
+                )
             except KeyError:
                 # probably related to submodules; Dulwich will handle that.
                 oldblob = Blob.from_string(b"")
             try:
-                newblob = self.dulwich_repo.object_store[newsha] if newsha else Blob.from_string(b"")
+                newblob = (
+                    self.dulwich_repo.object_store[newsha]
+                    if newsha
+                    else Blob.from_string(b"")
+                )
             except KeyError:
                 # probably related to submodules; Dulwich will handle that.
                 newblob = Blob.from_string(b"")
@@ -384,7 +395,7 @@ class FancyRepo(object):
         return FrozenFancyRepo(self)
 
 
-class FrozenFancyRepo(object):
+class FrozenFancyRepo:
     """A special version of FancyRepo that assumes the underlying Git
     repository does not change.  Used for performance optimizations.
     """
@@ -396,7 +407,7 @@ class FrozenFancyRepo(object):
     def __setattr__(self, name, value):
         if not name.startswith("_FrozenFancyRepo__"):
             raise TypeError("Can't set %s attribute on FrozenFancyRepo" % name)
-        super(FrozenFancyRepo, self).__setattr__(name, value)
+        super().__setattr__(name, value)
 
     def __getattr__(self, name):
         return getattr(self.__repo, name)
@@ -421,6 +432,6 @@ class InvalidRepo:
     @property
     def namespaced_name(self):
         if self.namespace:
-            return "~{}/{}".format(self.namespace, self.name)
+            return f"~{self.namespace}/{self.name}"
         else:
             return self.name

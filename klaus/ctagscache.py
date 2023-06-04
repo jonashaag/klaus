@@ -26,15 +26,16 @@ uncompressed form.
     this could be optimized in the future.
 (**) "most likely": currently implemented as "most recently used"
 """
+import atexit
+import gzip
 import os
 import shutil
 import tempfile
 import threading
-import gzip
-import atexit
-from dulwich.lru_cache import LRUSizeCache
-from klaus.ctagsutils import create_tagsfile, delete_tagsfile
 
+from dulwich.lru_cache import LRUSizeCache
+
+from klaus.ctagsutils import create_tagsfile, delete_tagsfile
 
 # Good compression while taking only 10% more time than level 1
 COMPRESSION_LEVEL = 4
@@ -67,7 +68,7 @@ def uncompress_tagsfile(compressed_tagsfile_path):
 MiB = 1024 * 1024
 
 
-class CTagsCache(object):
+class CTagsCache:
     """A ctags cache. Both uncompressed and compressed entries are kept in
     temporary files created by `tempfile.mkstemp` which are deleted from disk
     when the Python interpreter is shut down.

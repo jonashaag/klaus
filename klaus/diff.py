@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     lodgeit.lib.diff
     ~~~~~~~~~~~~~~~~
@@ -10,6 +9,7 @@
 """
 
 from difflib import SequenceMatcher
+
 from klaus.utils import escape_html as e
 
 
@@ -29,7 +29,17 @@ def highlight_line(old_line, new_line):
         def do(line, tag):
             last = end + len(line)
             return b"".join(
-                [line[:start], b"<", tag, b">", line[start:last], b"</", tag, b">", line[last:]]
+                [
+                    line[:start],
+                    b"<",
+                    tag,
+                    b">",
+                    line[start:last],
+                    b"</",
+                    tag,
+                    b">",
+                    line[last:],
+                ]
             )
 
         old_line = do(old_line, b"del")

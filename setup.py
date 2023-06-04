@@ -1,9 +1,9 @@
-# encoding: utf-8
-
 import os
+
 from setuptools import setup
 
 long_description = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
+
 
 def install_data_files_hack():
     # This is a clever hack to circumvent distutil's data_files
@@ -23,7 +23,7 @@ requires = [
     "pygments",
     "httpauth",
     "humanize",
-    'dulwich>=0.19.3',
+    "dulwich>=0.19.3",
 ]
 
 setup(

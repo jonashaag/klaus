@@ -1,15 +1,12 @@
-# coding: utf-8
-from __future__ import print_function
-
-import sys
-import os
 import argparse
+import os
+import sys
 import webbrowser
 
 from dulwich.errors import NotGitRepository
 from dulwich.repo import Repo
 
-from klaus import make_app, KLAUS_VERSION
+from klaus import KLAUS_VERSION, make_app
 from klaus.utils import force_unicode
 
 
@@ -143,7 +140,7 @@ def _open_browser(args):
         opener = webbrowser.open
     else:
         opener = webbrowser.get(args.with_browser).open
-    opener("http://%s:%s" % (args.host, args.port))
+    opener(f"http://{args.host}:{args.port}")
 
 
 if __name__ == "__main__":

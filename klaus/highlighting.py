@@ -1,15 +1,14 @@
 from pygments import highlight
+from pygments.formatters import HtmlFormatter
 from pygments.lexers import (
+    ClassNotFound,
+    TextLexer,
     get_lexer_by_name,
     get_lexer_for_filename,
     guess_lexer,
-    ClassNotFound,
-    TextLexer,
 )
-from pygments.formatters import HtmlFormatter
 
 from klaus import markup
-
 
 CTAGS_SUPPORTED_LANGUAGES = (
     "Asm Awk Basic C C# C++ Cobol DosBatch Eiffel Erlang Fortran HTML Java "
@@ -30,7 +29,7 @@ class KlausDefaultFormatter(HtmlFormatter):
             lineanchors="L",
             linespans="L",
             anchorlinenos=True,
-            **kwargs
+            **kwargs,
         )
         self.language = language
         if ctags:
@@ -87,7 +86,7 @@ class KlausPythonFormatter(KlausDefaultFormatter):
         # so that non-import matches are always preferred over import matches.
         return filter(
             lambda match: match["kind"] != b"i",
-            super(KlausPythonFormatter, self).get_best_ctags_matches(matches),
+            super().get_best_ctags_matches(matches),
         )
 
 

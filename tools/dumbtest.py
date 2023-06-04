@@ -1,10 +1,11 @@
 """ Very dumb testing tool: Ensures all sites respond with HTTP 2xx/3xx """
-import sys
-import re
-import time
-import httplib
-from collections import defaultdict
 import atexit
+import re
+import sys
+import time
+from collections import defaultdict
+
+import httplib
 
 
 def view_from_url(url):

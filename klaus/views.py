@@ -1,23 +1,23 @@
-from io import BytesIO
 import os
 import sys
+from io import BytesIO
 
-from flask import request, render_template, current_app, url_for
-from flask.views import View
-
-from werkzeug.wrappers import Response
-from werkzeug.exceptions import NotFound
-
-import dulwich.objects
 import dulwich.archive
 import dulwich.config
+import dulwich.objects
 from dulwich.object_store import tree_lookup_path
+from flask import current_app, render_template, request, url_for
+from flask.views import View
+from werkzeug.exceptions import NotFound
+from werkzeug.wrappers import Response
 
 try:
     from dulwich.refs import SymrefLoop
-except ImportError:   # dulwich < 0.20.46
+except ImportError:  # dulwich < 0.20.46
+
     class SymrefLoop(Exception):  # type: ignore
         """Dummy exception."""
+
 
 try:
     import ctags
@@ -31,16 +31,15 @@ else:
 from klaus import markup
 from klaus.highlighting import highlight_or_render
 from klaus.utils import (
-    parent_directory,
-    subpaths,
+    encode_for_git,
     force_unicode,
     guess_is_binary,
     guess_is_image,
+    parent_directory,
     replace_dupes,
     sanitize_branch_name,
-    encode_for_git,
+    subpaths,
 )
-
 
 README_FILENAMES = [
     b"README",
@@ -69,9 +68,12 @@ def repo_list():
         ]
 
     if order_by == "name":
+
         def sort_key(repo):
             return repo.namespaced_name
+
     else:
+
         def sort_key(repo):
             return -(repo.fast_get_last_updated_at() or -1), repo.namespaced_name
 
@@ -98,7 +100,7 @@ def _get_repo_and_rev(repo, namespace=None, rev=None, path=None):
         rev += "/" + path.rstrip("/")
 
     if namespace:
-        repo_key = "~{}/{}".format(namespace, repo)
+        repo_key = f"~{namespace}/{repo}"
     else:
         repo_key = repo
     try:
@@ -121,12 +123,10 @@ def _get_repo_and_rev(repo, namespace=None, rev=None, path=None):
             commit = repo.get_commit(rev[:i])
             path = rev[i:].strip("/")
             rev = rev[:i]
-        except (KeyError, IOError):
+        except (OSError, KeyError):
             i = rev.rfind("/", 0, i)
         except SymrefLoop as e:
-            raise NotFound(
-                "symref loop for %s at depth %d"
-                % (e.ref, e.depth))
+            raise NotFound("symref loop for %s at depth %d" % (e.ref, e.depth))
         else:
             break
     else:
@@ -218,11 +218,11 @@ class PatchView(BaseRepoView):
         )
 
 
-class TreeViewMixin(object):
+class TreeViewMixin:
     """The logic required for displaying the current directory in the sidebar."""
 
     def make_template_context(self, *args):
-        super(TreeViewMixin, self).make_template_context(*args)
+        super().make_template_context(*args)
         self.context["root_tree"] = self.listdir()
 
     def listdir(self):
@@ -237,7 +237,8 @@ class TreeViewMixin(object):
             root_directory = parent_directory(root_directory)
         return root_directory
 
-class ReadmeMixin(object):
+
+class ReadmeMixin:
     """The logic required for finding and displaying README files."""
 
     def _get_readme(self):
@@ -250,7 +251,7 @@ class ReadmeMixin(object):
         for name in README_FILENAMES:
             if name.lower() in [t.lower() for t in tree]:
                 obj = self.context["repo"][tree[name][1]]
-                if obj.type_name == b'blob':
+                if obj.type_name == b"blob":
                     readme_data = obj.data
                     readme_filename = name
                     return (readme_filename, readme_data)
@@ -282,7 +283,7 @@ class HistoryView(TreeViewMixin, ReadmeMixin, BaseRepoView):
     template_name = "history.html"
 
     def make_template_context(self, *args):
-        super(HistoryView, self).make_template_context(*args)
+        super().make_template_context(*args)
 
         try:
             page = int(request.args.get("page"))
@@ -332,7 +333,7 @@ class IndexView(TreeViewMixin, ReadmeMixin, BaseRepoView):
     template_name = "index.html"
 
     def make_template_context(self, *args):
-        super(IndexView, self).make_template_context(*args)
+        super().make_template_context(*args)
 
         self.context["base_href"] = url_for(
             "blob",
@@ -369,7 +370,7 @@ class IndexView(TreeViewMixin, ReadmeMixin, BaseRepoView):
 
 class BaseBlobView(BaseRepoView):
     def make_template_context(self, *args):
-        super(BaseBlobView, self).make_template_context(*args)
+        super().make_template_context(*args)
         if not isinstance(self.context["blob_or_tree"], dulwich.objects.Blob):
             raise NotFound("Not a blob")
         self.context["filename"] = os.path.basename(self.context["path"])
@@ -450,11 +451,11 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
             force_unicode(self.context["blob_or_tree"].data),
             self.context["filename"],
             render_markup,
-            **ctags_args
+            **ctags_args,
         )
 
     def make_template_context(self, *args):
-        super(BaseFileView, self).make_template_context(*args)
+        super().make_template_context(*args)
         self.context.update(
             {
                 "can_render": True,
@@ -489,7 +490,7 @@ class FileView(BaseFileView):
     template_name = "view_blob.html"
 
     def make_template_context(self, *args):
-        super(FileView, self).make_template_context(*args)
+        super().make_template_context(*args)
         if self.context["can_render"]:
             render_markup = "markup" not in request.args
             self.context.update(
@@ -505,7 +506,7 @@ class BlameView(BaseFileView):
     template_name = "blame_blob.html"
 
     def make_template_context(self, *args):
-        super(BlameView, self).make_template_context(*args)
+        super().make_template_context(*args)
         if self.context["can_render"]:
             line_commits = self.context["repo"].blame(
                 self.context["commit"], self.context["path"]
@@ -535,7 +536,7 @@ class DownloadView(BaseRepoView):
     """Download a repo as a tar.gz file."""
 
     def get_response(self):
-        basename = "%s@%s" % (
+        basename = "{}@{}".format(
             self.context["repo"].name,
             sanitize_branch_name(self.context["rev"]),
         )

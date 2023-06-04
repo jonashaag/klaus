@@ -1,13 +1,12 @@
-# encoding: utf-8
 import binascii
+import datetime
+import locale
+import mimetypes
 import os
 import re
-import time
-import datetime
-import mimetypes
-import locale
-import warnings
 import subprocess
+import time
+import warnings
 from typing import Union
 
 try:
@@ -15,8 +14,8 @@ try:
 except ImportError:
     chardet = None  # type: ignore
 
-from werkzeug.middleware.proxy_fix import ProxyFix as WerkzeugProxyFix
 from humanize import naturaltime
+from werkzeug.middleware.proxy_fix import ProxyFix as WerkzeugProxyFix
 
 
 class ProxyFix(WerkzeugProxyFix):
@@ -60,10 +59,10 @@ class ProxyFix(WerkzeugProxyFix):
                 )
                 script_name = script_name.rstrip("/")
             environ["SCRIPT_NAME"] = script_name
-        return super(ProxyFix, self).__call__(environ, start_response)
+        return super().__call__(environ, start_response)
 
 
-class SubUri(object):
+class SubUri:
     """WSGI middleware to tweak the WSGI environ so that it's possible to serve
     the wrapped app (klaus) under a sub-URL and/or to use a different HTTP
     scheme (http:// vs. https://) for proxy communication.
@@ -155,11 +154,11 @@ def force_unicode(s: Union[str, bytes]) -> str:
         encoding = chardet.detect(s)["encoding"]
         if encoding is not None:
             try:
-                return s.decode(encoding, 'replace')
+                return s.decode(encoding, "replace")
             except LookupError:
                 pass
 
-    return s.decode('latin1', 'replace')
+    return s.decode("latin1", "replace")
 
 
 def extract_author_name(email):
@@ -275,12 +274,12 @@ def tarball_basename(repo_name, rev):
     elif len(rev) >= 2 and rev[0] == "v" and not rev[1].isalpha():
         # If the rev is a tag name prefixed by a 'v', skip the 'v'.
         # So, v-1.0 -> 1.0, v1.0 -> 1.0, but vanilla -> vanilla.
-        return "%s-%s" % (repo_name, rev[1:])
+        return f"{repo_name}-{rev[1:]}"
     elif len(rev) == 40 and is_hex_prefix(rev):
         # If the rev is a commit hash, simply use that.
-        return "%s@%s" % (repo_name, rev)
+        return f"{repo_name}@{rev}"
     else:
-        return "%s-%s" % (repo_name, rev)
+        return f"{repo_name}-{rev}"
 
 
 def repo_human_name(path):

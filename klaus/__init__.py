@@ -1,16 +1,18 @@
 import jinja2
+
 try:
     import jinja2.ext.autoescape
+
     jinja2_autoescape_builtin = False
 except ImportError:
     jinja2_autoescape_builtin = True
+import dulwich.web
 import flask
 import httpauth
-import dulwich.web
 from dulwich.errors import NotGitRepository
-from klaus import views, utils
-from klaus.repo import FancyRepo, InvalidRepo
 
+from klaus import utils, views
+from klaus.repo import FancyRepo, InvalidRepo
 
 KLAUS_VERSION = utils.guess_git_revision() or "2.0.3"
 
@@ -37,7 +39,7 @@ class Klaus(flask.Flask):
 
     def create_jinja_environment(self):
         """Called by Flask.__init__"""
-        env = super(Klaus, self).create_jinja_environment()
+        env = super().create_jinja_environment()
         for func in [
             "force_unicode",
             "timesince",
