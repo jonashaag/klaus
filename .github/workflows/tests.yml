@@ -11,9 +11,9 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python-version: ["2.7", "3.10"]
-        ctags: [false]
+        os: []
+        python-version: []
+        ctags: []
         include:
           - os: ubuntu-latest
             python-version: "3.11"

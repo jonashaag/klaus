@@ -3,7 +3,7 @@ Changelog
 
 2.0.3 (Jun 3, 2023)
 -------------------
-This is the last release to support Python 2.
+This is the last release to support Python < 3.7.
 
 - #312: Repo page: if no default branch is found, use HEAD (Jonas Haag)
 - #311: Fix repo access race condition (Jonas Haag)
