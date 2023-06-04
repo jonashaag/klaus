@@ -4,12 +4,13 @@ import shutil
 import tempfile
 
 
-def check_have_exuberant_ctags():
-    """Check that the 'ctags' binary is *Exuberant* ctags (not etags etc)"""
+def check_have_compatible_ctags():
+    """Check that the 'ctags' binary is a compatible ctags (Universal or Exuberant, not etags etc)"""
     try:
-        return b"Exuberant" in subprocess.check_output(
+        out = subprocess.check_output(
             ["ctags", "--version"], stderr=subprocess.PIPE
         )
+        return b"Universal" in out or b"Exuberant" in out
     except subprocess.CalledProcessError:
         return False
 
@@ -23,8 +24,8 @@ def create_tagsfile(git_repo_path, git_rev):
     :return: path to the generated tagsfile
     """
     assert (
-        check_have_exuberant_ctags()
-    ), "'ctags' binary is missing or not *Exuberant* ctags"
+        check_have_compatible_ctags()
+    ), "'ctags' binary is missing or not *Universal* (or *Exuberant*) ctags"
 
     _, target_tagsfile = tempfile.mkstemp()
     checkout_tmpdir = tempfile.mkdtemp()
