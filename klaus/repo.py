@@ -9,7 +9,8 @@ from dulwich.objects import S_ISGITLINK
 from dulwich.object_store import tree_lookup_path
 from dulwich.objects import Blob
 from dulwich.errors import NotTreeError
-import dulwich, dulwich.patch
+import dulwich
+import dulwich.patch
 
 try:
     from dulwich.refs import SymrefLoop

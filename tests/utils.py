@@ -60,9 +60,3 @@ def serve_app(app):
         if os.getenv("CI"):
             # This fixes some "Address already in use" cases on CI.
             time.sleep(1)
-
-
-def serve_require_auth(*args, **kwargs):
-    kwargs["htdigest_file"] = open(HTDIGEST_FILE)
-    kwargs["require_browser_auth"] = True
-    return testserver(*args, **kwargs)

@@ -21,7 +21,7 @@
   <input type="search" id="search_query" name="q" value="{{ search_query|default }}">
   <button type="submit">Search</button>
 </form>
- 
+
 <ul class=repolist>
   {% for repo in repos %}
     {% set last_updated_at = repo.fast_get_last_updated_at() %}

@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# This should prevent this script to load the local git user config: 
+# This should prevent this script to load the local git user config:
 # (HOME overwrite)
 HOME=../../../git-config
 

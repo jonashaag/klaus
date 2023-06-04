@@ -18,7 +18,7 @@ CTAGS_SUPPORTED_LANGUAGES = (
     # Not supported by Pygments: Asp Ant BETA Flex SLang Vera YACC
 ).split()
 PYGMENTS_CTAGS_LANGUAGE_MAP = dict(
-    (get_lexer_by_name(l).name, l) for l in CTAGS_SUPPORTED_LANGUAGES  # type: ignore
+    (get_lexer_by_name(lexer).name, lexer) for lexer in CTAGS_SUPPORTED_LANGUAGES  # type: ignore
 )
 
 

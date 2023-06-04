@@ -114,7 +114,7 @@ def main():
             )
             return 1
         try:
-            import ctags
+            import ctags  # noqa
         except ImportError:
             raise ImportError("Please install 'python-ctags3' to enable ctags support.")
 

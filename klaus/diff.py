@@ -26,10 +26,10 @@ def highlight_line(old_line, new_line):
     end += 1
     if start or end:
 
-        def do(l, tag):
-            last = end + len(l)
+        def do(line, tag):
+            last = end + len(line)
             return b"".join(
-                [l[:start], b"<", tag, b">", l[start:last], b"</", tag, b">", l[last:]]
+                [line[:start], b"<", tag, b">", line[start:last], b"</", tag, b">", line[last:]]
             )
 
         old_line = do(old_line, b"del")
@@ -42,12 +42,6 @@ def render_diff(a, b, n=3):
     actions = []
     chunks = []
     for group in SequenceMatcher(None, a, b).get_grouped_opcodes(n):
-        old_line, old_end, new_line, new_end = (
-            group[0][1],
-            group[-1][2],
-            group[0][3],
-            group[-1][4],
-        )
         lines = []
 
         def add_line(old_lineno, new_lineno, action, line):

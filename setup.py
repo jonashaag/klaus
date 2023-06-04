@@ -23,8 +23,7 @@ requires = [
     "pygments",
     "httpauth",
     "humanize",
-    'dulwich>=0.19.3;python_version>="3.5"',
-    'dulwich>=0.19.3,<0.20;python_version<"3.5"',
+    'dulwich>=0.19.3',
 ]
 
 setup(

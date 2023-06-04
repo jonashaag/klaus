@@ -2,7 +2,6 @@ import os
 import subprocess
 import shutil
 import tempfile
-import subprocess
 
 
 def check_have_exuberant_ctags():
