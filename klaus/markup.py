@@ -1,10 +1,10 @@
 import os
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Optional
 
 LANGUAGES: List[Tuple[List[str], Callable[[str], str]]] = []
 
 
-def get_renderer(filename: str) -> Callable[[str], str] | None:
+def get_renderer(filename: str) -> Optional[Callable[[str], str]]:
     _, ext = os.path.splitext(filename)
     for extensions, renderer in LANGUAGES:
         if ext in extensions:
