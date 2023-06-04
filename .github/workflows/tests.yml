@@ -11,13 +11,10 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        os: []
-        python-version: []
-        ctags: []
+        os: [ubuntu-latest]
+        python-version: ["3.11"]
+        ctags: [true]
         include:
-          - os: ubuntu-latest
-            python-version: "3.11"
-            ctags: true
           - os: windows-latest
             python-version: "3.6"
             ctags: false
