@@ -60,6 +60,14 @@ class FancyRepo:
         return self.dulwich_repo.path
 
     @property
+    def object_store(self):
+        return self.dulwich_repo.object_store
+
+    @synchronized
+    def __getitem__(self, key):
+        return self.dulwich_repo[key]
+
+    @property
     def name(self):
         return repo_human_name(self.path)
 
@@ -69,10 +77,6 @@ class FancyRepo:
             return f"~{self.namespace}/{self.name}"
         else:
             return self.name
-
-    @synchronized
-    def __getitem__(self, key):
-        return self.dulwich_repo[key]
 
     # TODO: factor out stuff into dulwich
     @synchronized
