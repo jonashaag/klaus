@@ -141,7 +141,7 @@ def can_clone_auth():
 def _can_clone(http_get, url):
     tmp = tempfile.mkdtemp()
     try:
-        return any(
+        return all(
             [
                 "git clone" in http_get(TEST_REPO_BASE_URL).text,
                 _check_http200(
@@ -164,12 +164,14 @@ def can_push_auth():
 
 
 def _can_push(http_get, url):
-    return any(
+    return all(
         [
-            _check_http200(
-                http_get, TEST_REPO_BASE_URL + "info/refs?service=git-receive-pack"
-            ),
-            _check_http200(http_get, TEST_REPO_BASE_URL + "git-receive-pack"),
+            any([
+                _check_http200(
+                    http_get, TEST_REPO_BASE_URL + "info/refs?service=git-receive-pack"
+                ),
+                _check_http200(http_get, TEST_REPO_BASE_URL + "git-receive-pack"),
+            ]),
             subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
         ]
     )
