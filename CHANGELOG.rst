@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.0 (May 23, 2024)
+--------------------
+Require Python >= 3.7.
+
+- #326: Fix Smart HTTP (Jonas Haag)
+
 2.0.3 (Jun 3, 2023)
 -------------------
 This is the last release to support Python < 3.7.
