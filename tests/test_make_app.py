@@ -166,12 +166,15 @@ def can_push_auth():
 def _can_push(http_get, url):
     return all(
         [
-            any([
-                _check_http200(
-                    http_get, TEST_REPO_BASE_URL + "info/refs?service=git-receive-pack"
-                ),
-                _check_http200(http_get, TEST_REPO_BASE_URL + "git-receive-pack"),
-            ]),
+            any(
+                [
+                    _check_http200(
+                        http_get,
+                        TEST_REPO_BASE_URL + "info/refs?service=git-receive-pack",
+                    ),
+                    _check_http200(http_get, TEST_REPO_BASE_URL + "git-receive-pack"),
+                ]
+            ),
             subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO) == 0,
         ]
     )

@@ -21,14 +21,14 @@ requires = [
     "flask",
     "Werkzeug>=0.15.0",
     "pygments",
-    "httpauth",
+    "httpauth>=0.4",
     "humanize",
     "dulwich>=0.19.3",
 ]
 
 setup(
     name="klaus",
-    version="2.0.3",
+    version="3.0.0",
     author="Jonas Haag",
     author_email="jonas@lophus.org",
     packages=["klaus", "klaus.contrib"],
