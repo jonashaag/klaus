@@ -60,7 +60,6 @@ class Klaus(flask.Flask):
         # fmt: off
         for endpoint, rule in [
             ('repo_list',   '/'),
-            ('robots_txt',  '/robots.txt/'),
             ('blob',        '/<repo>/blob/'),
             ('blob',        '/<repo>/blob/<rev>/<path:path>'),
             ('blame',       '/<repo>/blame/'),
@@ -77,6 +76,8 @@ class Klaus(flask.Flask):
             ('history',     '/<repo>/tree/<rev>/'),
             ('history',     '/<repo>/tree/<rev>/<path:path>'),
             ('download',    '/<repo>/tarball/<path:rev>/'),
+            ('robots_txt',  '/robots.txt'),
+            ('metrics',     '/metrics'),
         ]:
             self.add_url_rule(rule, view_func=getattr(views, endpoint))
             if "<repo>" in rule:
