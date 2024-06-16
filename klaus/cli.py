@@ -102,9 +102,9 @@ def main():
         args.site_name = "%s:%d" % (args.host, args.port)
 
     if args.ctags != "none":
-        from klaus.ctagsutils import check_have_exuberant_ctags
+        from klaus.ctagsutils import check_have_compatible_ctags
 
-        if not check_have_exuberant_ctags():
+        if not check_have_compatible_ctags():
             print(
                 "ERROR: Exuberant ctags not installed (or 'ctags' binary isn't *Exuberant* ctags)",
                 file=sys.stderr,
