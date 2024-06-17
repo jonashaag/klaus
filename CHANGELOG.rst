@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.1 (Jun 17, 2024)
+--------------------
+- #330: Fix startup with ctags (Louis Sautier)
+
 3.0.0 (May 23, 2024)
 --------------------
 Require Python >= 3.7.

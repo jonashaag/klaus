@@ -28,7 +28,7 @@ requires = [
 
 setup(
     name="klaus",
-    version="3.0.0",
+    version="3.0.1",
     author="Jonas Haag",
     author_email="jonas@lophus.org",
     packages=["klaus", "klaus.contrib"],

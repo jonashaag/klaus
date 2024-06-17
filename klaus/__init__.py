@@ -14,7 +14,7 @@ from dulwich.errors import NotGitRepository
 from klaus import utils, views
 from klaus.repo import FancyRepo, InvalidRepo
 
-KLAUS_VERSION = utils.guess_git_revision() or "3.0.0"
+KLAUS_VERSION = utils.guess_git_revision() or "3.0.1"
 
 
 class Klaus(flask.Flask):
