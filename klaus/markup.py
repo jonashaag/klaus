@@ -56,5 +56,20 @@ def _load_restructured_text() -> None:
     LANGUAGES.append(([".rst", ".rest"], render_rest))
 
 
-for loader in [_load_markdown, _load_restructured_text]:
+def _load_notebook():
+    try:
+        import nbformat
+        import nbconvert
+    except ImportError:
+        return
+
+    def render_notebook(content):
+        nb = nbformat.reads(content, nbformat.NO_CONVERT)
+        (output, resources) = nbconvert.HTMLExporter(template_file='full').from_notebook_node(nb)
+        return output
+
+    LANGUAGES.append((['.ipynb'], render_notebook))
+
+
+for loader in [_load_markdown, _load_restructured_text, _load_notebook]:
     loader()

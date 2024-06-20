@@ -280,3 +280,23 @@ a.commit { color: black !important; }
   border: 1px solid #e0e0e0;
 }
 .diff .sep:hover > td { background-color: #f9f9f9; }
+
+@media (min-width: 768px) {
+  #notebook-container {
+    max-width: 728px;
+  }
+}
+@media (min-width: 992px) {
+  #notebook-container {
+    max-width: 900px;
+  }
+}
+@media (min-width: 1200px) {
+  #notebook-container {
+    max-width: 1100px;
+  }
+}
+
+#notebook-container {
+  width: 100%;
+}
