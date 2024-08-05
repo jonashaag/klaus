@@ -1,4 +1,5 @@
 """ Very dumb testing tool: Ensures all sites respond with HTTP 2xx/3xx """
+
 import atexit
 import re
 import sys
