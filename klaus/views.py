@@ -20,6 +20,14 @@ except ImportError:  # dulwich < 0.20.46
 
 
 try:
+    from prometheus_client import (
+        generate_latest as generate_latest_metrics,
+        CONTENT_TYPE_LATEST as METRICS_CONTENT_TYPE,
+        )
+except ImportError:
+    generate_latest_metrics = None
+
+try:
     import ctags
 except ImportError:
     ctags = None
@@ -88,6 +96,12 @@ def repo_list():
         search_query=search_query,
         base_href=None,
     )
+
+
+def metrics():
+    if generate_latest_metrics is None:
+        return Response("prometheus-client not installed", 404)
+    return Response(generate_latest_metrics(), mimetype=METRICS_CONTENT_TYPE)
 
 
 def robots_txt():
