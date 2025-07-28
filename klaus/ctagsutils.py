@@ -5,7 +5,11 @@ import tempfile
 
 
 def check_have_compatible_ctags():
-    """Check that the 'ctags' binary is a compatible ctags (Universal or Exuberant, not etags etc)"""
+    """Check that the 'ctags' binary is a compatible ctags (Universal or Exuberant, not etags etc).
+    
+    Returns:
+        bool: True if compatible ctags is available, False otherwise.
+    """
     try:
         out = subprocess.check_output(["ctags", "--version"], stderr=subprocess.PIPE)
         return b"Universal" in out or b"Exuberant" in out
@@ -19,7 +23,12 @@ def create_tagsfile(git_repo_path, git_rev):
     This creates a temporary clone of the repository, checks out the revision,
     runs 'ctags -R' and deletes the temporary clone.
 
-    :return: path to the generated tagsfile
+    Args:
+        git_repo_path (str): Path to the Git repository.
+        git_rev (str): Git revision to checkout and create tags for.
+
+    Returns:
+        str: Path to the generated tagsfile.
     """
     assert (
         check_have_compatible_ctags()
@@ -41,5 +50,9 @@ def create_tagsfile(git_repo_path, git_rev):
 
 
 def delete_tagsfile(tagsfile_path):
-    """Delete a tagsfile."""
+    """Delete a tagsfile.
+    
+    Args:
+        tagsfile_path (str): Path to the tagsfile to delete.
+    """
     os.remove(tagsfile_path)
