@@ -2,8 +2,10 @@ import os
 
 from setuptools import setup
 
+# Read the long description from the README file
 long_description = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
 
+# Define the required dependencies for the package
 requires = [
     "flask",
     "Werkzeug>=0.15.0",
@@ -13,6 +15,7 @@ requires = [
     "dulwich>=0.19.3",
 ]
 
+# Configure the package setup with metadata and dependencies
 setup(
     name="klaus",
     version="3.0.1",
@@ -22,7 +25,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     url="https://github.com/jonashaag/klaus",
-    description="The first Git web viewer that Just Works™.",
+    description="The first Git web viewer that Just Worksâ„¢.",
     long_description=long_description,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
