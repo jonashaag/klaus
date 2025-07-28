@@ -25,7 +25,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     url="https://github.com/jonashaag/klaus",
-    description="The first Git web viewer that Just Works™",
+    description="The first Git web viewer that Just Works™.",
     long_description=long_description,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
