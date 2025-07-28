@@ -10,10 +10,10 @@ import httplib
 
 def view_from_url(url):
     """Extract the domain/host portion from a URL.
-    
+
     Args:
         url (str): The URL to extract the view from
-        
+
     Returns:
         str: The domain/host portion of the URL, or the original URL if extraction fails
     """
@@ -32,7 +32,7 @@ durations = defaultdict(list)
 
 def main():
     """Main function that crawls URLs starting from root and checks HTTP status codes.
-    
+
     Performs a breadth-first crawl of URLs, following redirects and extracting new URLs
     from HTML responses. Tracks response times and errors for each URL visited.
     """
@@ -72,7 +72,7 @@ def main():
 
 def print_stats():
     """Print statistics about the crawling session.
-    
+
     Outputs the total number of URLs seen, any errors encountered,
     and average response times for each view.
     """

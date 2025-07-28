@@ -3,16 +3,16 @@ import os
 
 def strtobool(val):
     """Convert a string representation of truth to 0 or 1.
-    
+
     Args:
         val (str): String value to convert to boolean integer.
-        
+
     Returns:
         int: 1 for truthy values, 0 for falsy values.
-        
+
     Raises:
         ValueError: If the input string is not a recognized truth value.
-        
+
     Note:
         Truthy values: 'y', 'yes', 't', 'true', 'on', '1' (case insensitive)
         Falsy values: 'n', 'no', 'f', 'false', 'off', '0' (case insensitive)
@@ -28,12 +28,12 @@ def strtobool(val):
 
 def get_args_from_env():
     """Extract Klaus application arguments and configuration from environment variables.
-    
+
     Returns:
         tuple: A tuple containing (args, kwargs) where:
             - args (tuple): Positional arguments (repos list, site name)
             - kwargs (dict): Keyword arguments with configuration options
-            
+
     Environment Variables:
         KLAUS_REPOS: Space-separated list of repository paths
         KLAUS_SITE_NAME: Name of the site (default: "unnamed site")

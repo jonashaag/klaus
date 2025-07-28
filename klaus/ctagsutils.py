@@ -6,7 +6,7 @@ import tempfile
 
 def check_have_compatible_ctags():
     """Check that the 'ctags' binary is a compatible ctags (Universal or Exuberant, not etags etc).
-    
+
     Returns:
         bool: True if compatible ctags is available, False otherwise.
     """
@@ -51,7 +51,7 @@ def create_tagsfile(git_repo_path, git_rev):
 
 def delete_tagsfile(tagsfile_path):
     """Delete a tagsfile.
-    
+
     Args:
         tagsfile_path (str): Path to the tagsfile to delete.
     """
