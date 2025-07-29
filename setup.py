@@ -2,10 +2,8 @@ import os
 
 from setuptools import setup
 
-# Read the long description from the README file
 long_description = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
 
-# Define the required dependencies for the package
 requires = [
     "flask",
     "Werkzeug>=0.15.0",
@@ -15,7 +13,6 @@ requires = [
     "dulwich>=0.19.3",
 ]
 
-# Configure the package setup with metadata and dependencies
 setup(
     name="klaus",
     version="3.0.1",

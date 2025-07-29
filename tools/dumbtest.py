@@ -8,15 +8,7 @@ from collections import defaultdict
 import httplib
 
 
-def view_from_url(url):
-    """Extract the domain/host portion from a URL.
-
-    Args:
-        url (str): The URL to extract the view from
-
-    Returns:
-        str: The domain/host portion of the URL, or the original URL if extraction fails
-    """
+def view_from_url(url: str) -> str:
     try:
         return url.split("/")[2]
     except IndexError:
