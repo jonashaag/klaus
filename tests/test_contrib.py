@@ -4,6 +4,8 @@ from importlib import reload  # Python 3.4+
 import pytest
 import requests
 from dulwich import porcelain
+from dulwich.client import HTTPUnauthorized
+from dulwich.errors import NotGitRepository
 
 from klaus.contrib import app_args
 
@@ -142,7 +144,7 @@ def _dulwich_push(url, repo_path):
     try:
         porcelain.push(repo_path, url, "master")
         return True
-    except porcelain.Error:
+    except (porcelain.Error, NotGitRepository, HTTPUnauthorized):
         return False
 
 

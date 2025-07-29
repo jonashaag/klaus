@@ -22,6 +22,10 @@ from klaus.utils import (
 )
 
 InaccessibleRef = (SymrefLoop, KeyError)  # type: ignore
+# Switch between subprocess and dulwich implementations
+# Set to True to use pure-Python dulwich, False to use git subprocess
+FULL_DULWICH = False
+
 NOT_SET = "__not_set__"
 
 
@@ -229,39 +233,82 @@ class FancyRepo:
 
         Similar to `git log [branch/commit] [--skip skip] [-n max_commits]`.
         """
-        # XXX The pure-Python/dulwich code is very slow compared to `git log`
-        #     at the time of this writing (mid-2012).
-        #     For instance, `git log .tx` in the Django root directory takes
-        #     about 0.15s on my machine whereas the history() method needs 5s.
-        #     Therefore we use `git log` here until dulwich gets faster.
-        #     For the pure-Python implementation, see the 'purepy-hist' branch.
+        if FULL_DULWICH:
+            # Pure-Python dulwich implementation
+            walker = self.dulwich_repo.get_walker(
+                include=[commit.id], paths=[encode_for_git(path)] if path else None
+            )
 
-        cmd = ["git", "log", "--format=%H"]
-        if skip:
-            cmd.append("--skip=%d" % skip)
-        if max_commits:
-            cmd.append("--max-count=%d" % max_commits)
-        cmd.append(decode_from_git(commit.id))
-        if path:
-            cmd.extend(["--", path])
+            # Skip the first 'skip' commits
+            for _ in range(skip):
+                try:
+                    next(walker)
+                except StopIteration:
+                    return []
 
-        output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
-        sha1_sums = output.strip().split(b"\n")
-        return [self[sha1] for sha1 in sha1_sums]
+            # Collect up to max_commits
+            commits = []
+            for entry in walker:
+                commits.append(self[entry.commit.id])
+                if max_commits and len(commits) >= max_commits:
+                    break
+
+            return commits
+        else:
+            # XXX The pure-Python/dulwich code is very slow compared to `git log`
+            #     at the time of this writing (mid-2012).
+            #     For instance, `git log .tx` in the Django root directory takes
+            #     about 0.15s on my machine whereas the history() method needs 5s.
+            #     Therefore we use `git log` here until dulwich gets faster.
+            #     For the pure-Python implementation, see the 'purepy-hist' branch.
+
+            cmd = ["git", "log", "--format=%H"]
+            if skip:
+                cmd.append("--skip=%d" % skip)
+            if max_commits:
+                cmd.append("--max-count=%d" % max_commits)
+            cmd.append(decode_from_git(commit.id))
+            if path:
+                cmd.extend(["--", path])
+
+            output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
+            sha1_sums = output.strip().split(b"\n")
+            return [self[sha1] for sha1 in sha1_sums]
 
     @synchronized
     def blame(self, commit, path):
         """Return a 'git blame' list for the file at `path`: For each line in
         the file, the list contains the commit that last changed that line.
         """
-        # XXX see comment in `.history()`
-        cmd = ["git", "blame", "-ls", "--root", decode_from_git(commit.id), "--", path]
-        output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
-        sha1_sums = [line[:40] for line in output.strip().split(b"\n") if line]
-        return [
-            None if self[sha1] is None else decode_from_git(self[sha1].id)
-            for sha1 in sha1_sums
-        ]
+        if FULL_DULWICH:
+            from dulwich import porcelain
+
+            encoded_path = encode_for_git(path)
+            blame_entries = porcelain.blame(
+                self.dulwich_repo, encoded_path, committish=commit.id
+            )
+
+            return [
+                decode_from_git(line_commit.id)
+                for ((line_commit, _tree_entry), _line) in blame_entries
+            ]
+        else:
+            # XXX see comment in `.history()`
+            cmd = [
+                "git",
+                "blame",
+                "-ls",
+                "--root",
+                decode_from_git(commit.id),
+                "--",
+                path,
+            ]
+            output = subprocess.check_output(cmd, cwd=os.path.abspath(self.path))
+            sha1_sums = [line[:40] for line in output.strip().split(b"\n") if line]
+            return [
+                None if self[sha1] is None else decode_from_git(self[sha1].id)
+                for sha1 in sha1_sums
+            ]
 
     @synchronized
     def get_blob_or_tree(self, commit, path):
