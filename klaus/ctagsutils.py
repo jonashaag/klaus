@@ -3,6 +3,9 @@ import shutil
 import subprocess
 import tempfile
 
+from dulwich import porcelain
+from dulwich.repo import Repo
+
 
 def check_have_compatible_ctags():
     """Check that the 'ctags' binary is a compatible ctags (Universal or Exuberant, not etags etc)"""
@@ -21,17 +24,20 @@ def create_tagsfile(git_repo_path, git_rev):
 
     :return: path to the generated tagsfile
     """
-    assert (
-        check_have_compatible_ctags()
-    ), "'ctags' binary is missing or not *Universal* (or *Exuberant*) ctags"
+    assert check_have_compatible_ctags(), (
+        "'ctags' binary is missing or not *Universal* (or *Exuberant*) ctags"
+    )
 
     _, target_tagsfile = tempfile.mkstemp()
     checkout_tmpdir = tempfile.mkdtemp()
     try:
-        subprocess.check_call(
-            ["git", "clone", "-q", "--shared", git_repo_path, checkout_tmpdir]
-        )
-        subprocess.check_call(["git", "checkout", "-q", git_rev], cwd=checkout_tmpdir)
+        # Clone the repository using dulwich
+        porcelain.clone(git_repo_path, checkout_tmpdir, checkout=False)
+
+        # Checkout the specific revision
+        repo = Repo(checkout_tmpdir)
+        repo.reset_index(repo[git_rev.encode()].tree)
+
         subprocess.check_call(
             ["ctags", "--fields=+l", "-Rno", target_tagsfile], cwd=checkout_tmpdir
         )
