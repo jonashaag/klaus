@@ -1,9 +1,9 @@
 import os
-import subprocess
 from importlib import reload  # Python 3.4+
 
 import pytest
 import requests
+from dulwich import porcelain
 
 from klaus.contrib import app_args
 
@@ -132,10 +132,18 @@ def _can_push(http_get, url):
             _check_http200(
                 http_get, TEST_REPO_NO_NAMESPACE_BASE_URL + "git-receive-pack"
             ),
-            subprocess.call(["git", "push", url, "master"], cwd=TEST_REPO_NO_NAMESPACE)
-            == 0,
+            _dulwich_push(url, TEST_REPO_NO_NAMESPACE),
         ]
     )
+
+
+def _dulwich_push(url, repo_path):
+    """Push master branch to a remote URL using dulwich."""
+    try:
+        porcelain.push(repo_path, url, "master")
+        return True
+    except porcelain.Error:
+        return False
 
 
 def _GET_unauth(url=""):
