@@ -18,6 +18,8 @@ def create_tagsfile(git_repo_path: str, git_rev: str) -> str:
 
     This creates a temporary clone of the repository, checks out the revision,
     runs 'ctags -R' and deletes the temporary clone.
+
+    :return: path to the generated tagsfile
     """
     assert (
         check_have_compatible_ctags()
@@ -39,4 +41,5 @@ def create_tagsfile(git_repo_path: str, git_rev: str) -> str:
 
 
 def delete_tagsfile(tagsfile_path: str) -> None:
+    """Delete a tagsfile."""
     os.remove(tagsfile_path)
