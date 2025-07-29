@@ -1,9 +1,6 @@
 import os
 
-try:
-    from importlib import reload  # Python 3.4+
-except ImportError:
-    pass
+from importlib import reload  # Python 3.4+
 
 import subprocess
 

@@ -6,17 +6,11 @@ import dulwich.archive
 import dulwich.config
 import dulwich.objects
 from dulwich.object_store import tree_lookup_path
+from dulwich.refs import SymrefLoop
 from flask import current_app, render_template, request, url_for
 from flask.views import View
 from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
-
-try:
-    from dulwich.refs import SymrefLoop
-except ImportError:  # dulwich < 0.20.46
-
-    class SymrefLoop(Exception):  # type: ignore
-        """Dummy exception."""
 
 
 try:
