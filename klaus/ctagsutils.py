@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 
 
-def check_have_compatible_ctags()-> bool:
+def check_have_compatible_ctags() -> bool:
     """Check that the 'ctags' binary is a compatible ctags (Universal or Exuberant, not etags etc)."""
     try:
         out = subprocess.check_output(["ctags", "--version"], stderr=subprocess.PIPE)
