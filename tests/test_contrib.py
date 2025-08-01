@@ -1,8 +1,6 @@
 import os
-
-from importlib import reload  # Python 3.4+
-
 import subprocess
+from importlib import reload  # Python 3.4+
 
 import pytest
 import requests

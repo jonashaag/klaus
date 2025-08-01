@@ -12,7 +12,6 @@ from flask.views import View
 from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
 
-
 try:
     import ctags
 except ImportError:
