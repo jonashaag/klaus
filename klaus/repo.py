@@ -10,14 +10,7 @@ import dulwich.patch
 from dulwich.errors import NotTreeError
 from dulwich.object_store import tree_lookup_path
 from dulwich.objects import S_ISGITLINK, Blob
-
-try:
-    from dulwich.refs import SymrefLoop
-except ImportError:  # dulwich < 0.20.46
-    InaccessibleRef = KeyError  # type: ignore
-else:
-    InaccessibleRef = (SymrefLoop, KeyError)  # type: ignore
-
+from dulwich.refs import SymrefLoop
 
 from klaus.diff import render_diff
 from klaus.utils import (
@@ -28,6 +21,7 @@ from klaus.utils import (
     repo_human_name,
 )
 
+InaccessibleRef = (SymrefLoop, KeyError)  # type: ignore
 NOT_SET = "__not_set__"
 
 
