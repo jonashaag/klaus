@@ -18,7 +18,7 @@ klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
 * Pull + push support (Git Smart HTTP)
 * Code navigation using Exuberant ctags
 
-:Mailing list: http://groups.google.com/group/klaus-users
+:Demo: https://github.com/jonashaag/klaus/wiki/Sites-using-klaus
 :On PyPI: http://pypi.python.org/pypi/klaus/
 :Wiki: https://github.com/jonashaag/klaus/wiki
 :License: ISC (BSD)
