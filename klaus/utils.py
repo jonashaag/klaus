@@ -1,4 +1,5 @@
 import binascii
+import collections.abc
 import datetime
 import locale
 import mimetypes
@@ -100,6 +101,31 @@ class SubUri:
             environ["wsgi.url_scheme"] = environ["HTTP_X_SCHEME"]
 
         return self.app(environ, start_response)
+
+
+class SlashDictProxy(collections.abc.Mapping):
+    """
+    Proxy for dicts that makes keys start with a '/' character.
+
+    The slash is added and removed from keys as necessary when items are
+    stored and retrieved.
+
+    Needed for dulwich.server.DictBackend.
+    """
+
+    def __init__(self, base):
+        self._base = base
+
+    def __getitem__(self, path):
+        if not path or path[0] != "/":
+            raise KeyError(path)
+        return self._base[path[1:]]
+
+    def __iter__(self):
+        return ("/" + name for name in self._base)
+
+    def __len__(self):
+        return len(self._base)
 
 
 def timesince(when, now=time.time):
