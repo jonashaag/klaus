@@ -1,7 +1,8 @@
 import os
 
 
-def strtobool(val):
+def strtobool(val: str) -> int:
+    """Convert a string representation of truth to 0 or 1."""
     val = val.lower()
     if val in ("y", "yes", "t", "true", "on", "1"):
         return 1
@@ -11,7 +12,8 @@ def strtobool(val):
         raise ValueError(f"invalid truth value {val!r}")
 
 
-def get_args_from_env():
+def get_args_from_env() -> tuple[tuple[str, ...], dict[str, str]]:
+    """Extract Klaus application arguments and configuration from environment variables."""
     repos = os.environ.get("KLAUS_REPOS", [])
     if repos:
         repos = repos.split()
