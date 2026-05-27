@@ -1,7 +1,8 @@
 import os
-from typing import Callable, List, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional
 
-LANGUAGES: List[Tuple[List[str], Callable[[str], str]]] = []
+LANGUAGES: list[tuple[list[str], Callable[[str], str]]] = []
 
 
 def get_renderer(filename: str) -> Optional[Callable[[str], str]]:

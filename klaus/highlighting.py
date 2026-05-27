@@ -346,9 +346,9 @@ def highlight_or_render(
             lexer = TextLexer()
 
     if scip_document is not None:
-        assert scip_index is not None and scip_baseurl is not None, (
-            "scip_index and scip_baseurl are required with scip_document"
-        )
+        assert (
+            scip_index is not None and scip_baseurl is not None
+        ), "scip_index and scip_baseurl are required with scip_document"
         return _render_scip_lines(code, scip_document, scip_index, scip_baseurl, lexer)
 
     return highlight(code, lexer, KlausHtmlFormatter())
