@@ -11,6 +11,7 @@
 <title>{% block title %}{% endblock %} - {{ SITE_NAME }}</title>
 
 <script src={{ url_for('static', filename='klaus.js') }}></script>
+<script src={{ url_for('static', filename='scip.js') }} defer></script>
 
 <header>
   <a href={{ url_for('repo_list') }}>

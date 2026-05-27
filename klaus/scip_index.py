@@ -13,14 +13,13 @@ import os
 import threading
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
 
 from klaus import scip_pb2  # type: ignore[attr-defined]
 
 _DEFINITION_ROLE: int = scip_pb2.SymbolRole.Definition  # type: ignore[attr-defined]
 
 _CACHE_LOCK = threading.Lock()
-_CACHE: "OrderedDict[Tuple[str, str], Optional[Index]]" = OrderedDict()
+_CACHE: "OrderedDict[tuple[str, str], Index | None]" = OrderedDict()
 _CACHE_MAX_ENTRIES = 16
 
 
@@ -34,7 +33,7 @@ class Range:
     end_char: int
 
     @classmethod
-    def from_proto(cls, raw: List[int]) -> "Range":
+    def from_proto(cls, raw: list[int]) -> "Range":
         if len(raw) == 4:
             return cls(raw[0], raw[1], raw[2], raw[3])
         if len(raw) == 3:
@@ -58,17 +57,25 @@ class Definition:
     line: int  # 0-based
 
 
+@dataclass(frozen=True)
+class Reference:
+    """Location of one non-definition occurrence of a symbol."""
+
+    relative_path: str
+    line: int  # 0-based
+
+
 class Document:
     """Wrapper around a SCIP ``Document`` with sorted occurrences."""
 
-    def __init__(self, relative_path: str, occurrences: List[Occurrence]):
+    def __init__(self, relative_path: str, occurrences: list[Occurrence]):
         self.relative_path = relative_path
         self.occurrences = sorted(
             occurrences,
             key=lambda o: (o.range.start_line, o.range.start_char),
         )
 
-    def occurrences_on_line(self, line: int) -> List[Occurrence]:
+    def occurrences_on_line(self, line: int) -> list[Occurrence]:
         # Linear scan is fine for typical line counts; occurrences are sorted.
         return [o for o in self.occurrences if o.range.start_line == line]
 
@@ -77,8 +84,10 @@ class Index:
     """Parsed SCIP index providing document and symbol lookup."""
 
     def __init__(self, proto: "scip_pb2.Index"):  # type: ignore[name-defined]
-        self._documents: Dict[str, Document] = {}
-        self._definitions: Dict[str, Definition] = {}
+        self._documents: dict[str, Document] = {}
+        self._definitions: dict[str, Definition] = {}
+        self._references: dict[str, list[Reference]] = {}
+        self._display_names: dict[str, str] = {}
 
         for doc in proto.documents:
             occurrences = [
@@ -94,24 +103,41 @@ class Index:
                 doc.relative_path, occurrences
             )
             for occ in occurrences:
-                if (
-                    occ.is_definition
-                    and occ.symbol
-                    and occ.symbol not in self._definitions
-                ):
-                    self._definitions[occ.symbol] = Definition(
-                        relative_path=doc.relative_path,
-                        line=occ.range.start_line,
+                if not occ.symbol:
+                    continue
+                if occ.is_definition:
+                    if occ.symbol not in self._definitions:
+                        self._definitions[occ.symbol] = Definition(
+                            relative_path=doc.relative_path,
+                            line=occ.range.start_line,
+                        )
+                else:
+                    self._references.setdefault(occ.symbol, []).append(
+                        Reference(
+                            relative_path=doc.relative_path,
+                            line=occ.range.start_line,
+                        )
+                    )
+            for sym_info in doc.symbols:
+                if sym_info.symbol and sym_info.display_name:
+                    self._display_names.setdefault(
+                        sym_info.symbol, sym_info.display_name
                     )
 
-    def get_document(self, relative_path: str) -> Optional[Document]:
+    def get_document(self, relative_path: str) -> Document | None:
         return self._documents.get(relative_path)
 
-    def get_definition(self, symbol: str) -> Optional[Definition]:
+    def get_definition(self, symbol: str) -> Definition | None:
         return self._definitions.get(symbol)
 
+    def get_references(self, symbol: str) -> list[Reference]:
+        return self._references.get(symbol, [])
 
-def _scip_path_for(repo_path: str, sha: str) -> Optional[str]:
+    def get_display_name(self, symbol: str) -> str | None:
+        return self._display_names.get(symbol)
+
+
+def _scip_path_for(repo_path: str, sha: str) -> str | None:
     scip_dir = os.path.join(repo_path, ".scip")
     if not os.path.isdir(scip_dir):
         return None
@@ -124,7 +150,7 @@ def _scip_path_for(repo_path: str, sha: str) -> Optional[str]:
     return None
 
 
-def load_index(repo_path: str, sha: str) -> Optional[Index]:
+def load_index(repo_path: str, sha: str) -> Index | None:
     """Return the SCIP index for ``sha`` in ``repo_path``, or ``None``.
 
     Returns ``None`` (cached) when no SCIP dump is available, so callers
@@ -137,7 +163,7 @@ def load_index(repo_path: str, sha: str) -> Optional[Index]:
             return _CACHE[key]
 
     path = _scip_path_for(repo_path, sha)
-    index: Optional[Index]
+    index: Index | None
     if path is None:
         index = None
     else:

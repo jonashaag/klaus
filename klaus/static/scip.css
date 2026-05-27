@@ -37,3 +37,52 @@
 .code .scip-tag                           { color: #000080; }
 .code .scip-tag-attribute                 { color: #008080; }
 .code .scip-tag-delimiter                 { color: inherit; }
+
+/* Cross-reference styling */
+.code .scip-occurrence            { cursor: help; }
+.code a.scip-reference            { color: inherit; text-decoration: none; }
+.code a.scip-reference:hover      { text-decoration: underline; text-decoration-style: dotted; }
+.code .scip-definition            { text-decoration: underline; text-decoration-color: #999; text-decoration-style: dotted; }
+.code .scip-definition:target     { background-color: #fefed0; }
+
+/* Hover popover */
+.scip-popover {
+  position: absolute;
+  z-index: 100;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  padding: 8px 10px;
+  font-size: 90%;
+  font-family: sans-serif;
+  max-width: 480px;
+  min-width: 200px;
+}
+.scip-popover-name {
+  font-family: monospace;
+  font-weight: bold;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+.scip-popover-label {
+  color: #666;
+  font-size: 90%;
+  margin-right: 2px;
+}
+.scip-popover-def { margin-bottom: 6px; font-family: monospace; }
+.scip-popover-refs-header {
+  color: #666;
+  font-size: 90%;
+  border-top: 1px solid #eee;
+  padding-top: 4px;
+}
+.scip-popover-refs {
+  margin: 4px 0 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: monospace;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.scip-popover-refs li { padding: 1px 0; }
+.scip-popover-more { color: #999; font-style: italic; }

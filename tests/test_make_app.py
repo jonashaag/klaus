@@ -203,6 +203,15 @@ def _write_test_scip_dump():
     js_def.symbol = "scip-test js/test()."
     js_def.symbol_roles = scip_pb2.Definition
     js_def.syntax_kind = scip_pb2.IdentifierFunctionDefinition
+    # A reference from test.js to the `a` symbol defined in test.c, so we can
+    # assert cross-reference attrs on a non-definition occurrence.
+    js_ref = js_doc.occurrences.add()
+    js_ref.range.extend([0, 14, 0, 18])
+    js_ref.symbol = "scip-test c/a."
+
+    a_info = js_doc.symbols.add()
+    a_info.symbol = "scip-test c/a."
+    a_info.display_name = "a"
 
     scip_dir = os.path.join(TEST_REPO, ".scip")
     os.makedirs(scip_dir, exist_ok=True)
@@ -225,6 +234,33 @@ def test_scip_renders_syntax_classes():
             assert response.status_code == 200, response.text
             assert "scip-identifier-builtin-type" in response.text
             assert "scip-identifier-constant" in response.text
+    finally:
+        _remove_test_scip_dump()
+
+
+def test_scip_emits_cross_reference_attrs():
+    """Definitions get a stable id; references get data-sym/data-refs and
+    link to the definition's anchor."""
+    _write_test_scip_dump()
+    try:
+        with serve():
+            r_def = requests.get(UNAUTH_TEST_REPO_URL + "blob/master/test.c")
+            assert r_def.status_code == 200, r_def.text
+            # `a` is defined in test.c; its definition span should have an
+            # id="sym-..." and class scip-definition.
+            assert "scip-definition" in r_def.text
+            assert 'data-sym="sym-' in r_def.text
+
+            r_ref = requests.get(UNAUTH_TEST_REPO_URL + "blob/master/test.js")
+            assert r_ref.status_code == 200, r_ref.text
+            # test.js has a reference to `a` (defined in test.c) at col 14-18.
+            assert "scip-reference" in r_ref.text
+            # The reference link should point at the definition's sym-... anchor.
+            assert "test.c#sym-" in r_ref.text
+            # data-refs should be a JSON array.
+            assert "data-refs=" in r_ref.text
+            # data-display should carry the human-friendly symbol name.
+            assert 'data-display="a"' in r_ref.text
     finally:
         _remove_test_scip_dump()
 

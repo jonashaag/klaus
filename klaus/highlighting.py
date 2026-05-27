@@ -5,6 +5,8 @@ and cross-reference links come from SCIP.  Otherwise we fall back to Pygments
 (without ctags, since cross-references in the Pygments path are gone).
 """
 
+import hashlib
+import json
 from collections.abc import Iterator
 from html import escape
 from typing import Any
@@ -165,32 +167,86 @@ def _splice_occurrences(
     return out
 
 
+def _symbol_id(symbol: str) -> str:
+    """Stable short hash usable as an HTML ``id`` for a SCIP symbol."""
+    return "sym-" + hashlib.sha1(symbol.encode("utf-8")).hexdigest()[:12]
+
+
 def _render_segment(
     text: str,
     pygments_class: str,
     occ: Occurrence | None,
     index: Index,
     scip_baseurl: str,
+    anchored_definitions: set[str],
 ) -> str:
-    """Render one slice of a line as HTML."""
+    """Render one slice of a line as HTML.
+
+    ``anchored_definitions`` tracks symbol IDs that already received an
+    ``id=...`` attribute in this document, so duplicate definitions (e.g.
+    forward declarations) don't produce duplicate HTML IDs.  The set is
+    updated in place.
+    """
     classes: list[str] = []
     if pygments_class:
         classes.append(pygments_class)
+    has_symbol = occ is not None and bool(occ.symbol)
+    if has_symbol:
+        classes.append("scip-occurrence")
     if occ is not None:
         scip_class = _SCIP_SYNTAX_CLASSES.get(occ.syntax_kind)
         if scip_class:
             classes.append(f"scip-{scip_class}")
         if occ.is_definition:
             classes.append("scip-definition")
+        elif has_symbol:
+            classes.append("scip-reference")
 
     body = escape(text)
-    if occ is not None and occ.symbol and not occ.is_definition:
+    attrs: list[str] = []
+    href: str | None = None
+    if has_symbol:
+        assert occ is not None
+        sym_id = _symbol_id(occ.symbol)
+        attrs.append(f'data-sym="{sym_id}"')
+        display = index.get_display_name(occ.symbol)
+        if display:
+            attrs.append(f'data-display="{escape(display, quote=True)}"')
         defn = index.get_definition(occ.symbol)
         if defn is not None:
-            href = f"{scip_baseurl}{defn.relative_path}#L-{defn.line + 1}"
-            body = f'<a href="{escape(href)}">{body}</a>'
-    if classes:
-        body = f'<span class="{" ".join(classes)}">{body}</span>'
+            def_href = f"{scip_baseurl}{defn.relative_path}#{sym_id}"
+            attrs.append(f'data-defhref="{escape(def_href, quote=True)}"')
+            attrs.append(
+                f'data-defloc="{escape(defn.relative_path, quote=True)}:{defn.line + 1}"'
+            )
+            if not occ.is_definition:
+                href = def_href
+        refs = index.get_references(occ.symbol)
+        if refs:
+            refs_json = json.dumps(
+                [
+                    [
+                        r.relative_path,
+                        r.line + 1,
+                        f"{scip_baseurl}{r.relative_path}#L-{r.line + 1}",
+                    ]
+                    for r in refs
+                ],
+                separators=(",", ":"),
+            )
+            attrs.append(f"data-refs='{escape(refs_json, quote=True)}'")
+        if occ.is_definition and sym_id not in anchored_definitions:
+            anchored_definitions.add(sym_id)
+            attrs.append(f'id="{sym_id}"')
+
+    if href:
+        attrs_str = (" " + " ".join(attrs)) if attrs else ""
+        cls = " ".join(classes)
+        return f'<a class="{cls}" href="{escape(href)}"{attrs_str}>{body}</a>'
+    if classes or attrs:
+        attrs_str = (" " + " ".join(attrs)) if attrs else ""
+        cls = " ".join(classes)
+        return f'<span class="{cls}"{attrs_str}>{body}</span>'
     return body
 
 
@@ -213,6 +269,8 @@ def _render_scip_lines(
     while len(pygments_segments) < len(raw_lines):
         pygments_segments.append([])
 
+    anchored_definitions: set[str] = set()
+
     linenos_parts: list[str] = []
     code_parts: list[str] = []
     for i, line_text in enumerate(raw_lines, start=1):
@@ -230,7 +288,9 @@ def _render_scip_lines(
         ]
         spliced = _splice_occurrences(segments, occurrences)
         rendered = "".join(
-            _render_segment(line_text[s:e], css, occ, index, scip_baseurl)
+            _render_segment(
+                line_text[s:e], css, occ, index, scip_baseurl, anchored_definitions
+            )
             for s, e, css, occ in spliced
         )
         code_parts.append(
