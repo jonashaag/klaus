@@ -11,6 +11,7 @@ requires = [
     "httpauth>=0.4",
     "humanize",
     "dulwich>=0.19.3",
+    "protobuf>=3.20",
 ]
 
 setup(

@@ -13,32 +13,19 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: ["3.11"]
-        ctags: [true]
         include:
           - os: windows-latest
             python-version: "3.7"
-            ctags: false
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - run: sudo apt-get update && sudo apt-get install -y universal-ctags
-        if: matrix.ctags && matrix.os == 'ubuntu-latest'
-      - run: brew install universal-ctags
-        if: matrix.ctags && matrix.os == 'macos-latest'
       - name: Run tests
         run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
-          if ${{ matrix.ctags }}; then
-            pip install -r test_requirements.txt
-            pip install -e .
-            bash ./runtests.sh -v tests
-          else
-            grep -v ctags test_requirements.txt > /tmp/test_requirements.txt
-            pip install -r /tmp/test_requirements.txt
-            pip install -e .
-            bash ./runtests.sh -v tests -k "not ctags"
-          fi
+          pip install -r test_requirements.txt
+          pip install -e .
+          bash ./runtests.sh -v tests
         shell: bash -ex {0}

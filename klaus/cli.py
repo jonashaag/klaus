@@ -44,14 +44,6 @@ def make_parser():
         default=None,
     )
     parser.add_argument(
-        "--ctags",
-        help="enable ctags for which revisions? default: none. "
-        "WARNING: Don't use 'ALL' for public servers!",
-        choices=["none", "tags-and-branches", "ALL"],
-        default="none",
-    )
-
-    parser.add_argument(
         "repos",
         help="repositories to serve",
         metavar="DIR",
@@ -101,26 +93,11 @@ def main():
     if not args.site_name:
         args.site_name = "%s:%d" % (args.host, args.port)
 
-    if args.ctags != "none":
-        from klaus.ctagsutils import check_have_compatible_ctags
-
-        if not check_have_compatible_ctags():
-            print(
-                "ERROR: Exuberant ctags not installed (or 'ctags' binary isn't *Exuberant* ctags)",
-                file=sys.stderr,
-            )
-            return 1
-        try:
-            pass
-        except ImportError:
-            raise ImportError("Please install 'python-ctags3' to enable ctags support.")
-
     app = make_app(
         args.repos,
         force_unicode(args.site_name or args.host),
         args.smarthttp,
         args.htdigest,
-        ctags_policy=args.ctags,
     )
 
     if args.browser:

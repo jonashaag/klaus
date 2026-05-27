@@ -1,6 +1,14 @@
 Changelog
 =========
 
+UNRELEASED
+----------
+- Replace ctags-based code navigation with SCIP. klaus now reads a SCIP
+  index from ``<repo>/.scip/<sha>.scip`` (or ``HEAD.scip``) and uses it for
+  syntax classes and cross-reference links. Files not covered by SCIP fall
+  back to Pygments syntax highlighting. The ``--ctags`` CLI flag and
+  ``KLAUS_CTAGS_POLICY`` env var are gone.
+
 3.0.1 (Jun 17, 2024)
 --------------------
 - #330: Fix startup with ctags (Louis Sautier)

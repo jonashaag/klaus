@@ -29,7 +29,6 @@ def test_minimum_env(monkeypatch):
             require_browser_auth=False,
             disable_push=False,
             unauthenticated_push=False,
-            ctags_policy="none",
         ),
     )
 
@@ -46,7 +45,6 @@ def test_complete_env(monkeypatch):
             "KLAUS_REQUIRE_BROWSER_AUTH": "1",
             "KLAUS_DISABLE_PUSH": "false",
             "KLAUS_UNAUTHENTICATED_PUSH": "0",
-            "KLAUS_CTAGS_POLICY": "ALL",
         },
         ([TEST_REPO_NO_NAMESPACE], TEST_SITE_NAME),
         dict(
@@ -55,7 +53,6 @@ def test_complete_env(monkeypatch):
             require_browser_auth=True,
             disable_push=False,
             unauthenticated_push=False,
-            ctags_policy="ALL",
         ),
     )
 

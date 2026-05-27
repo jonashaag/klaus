@@ -1,4 +1,4 @@
-import re
+import os
 import shutil
 import subprocess
 import tempfile
@@ -8,6 +8,7 @@ import requests
 import requests.auth
 
 import klaus
+from klaus import scip_index, scip_pb2
 
 from .utils import *
 
@@ -108,17 +109,6 @@ test_smart_auth_disable_push = options_test(
     },
 )
 
-test_ctags_disabled = options_test(
-    {}, {"ctags_tags_and_branches": False, "ctags_all": False}
-)
-test_ctags_tags_and_branches = options_test(
-    {"ctags_policy": "tags-and-branches"},
-    {"ctags_tags_and_branches": True, "ctags_all": False},
-)
-test_ctags_all = options_test(
-    {"ctags_policy": "ALL"}, {"ctags_tags_and_branches": True, "ctags_all": True}
-)
-
 
 # Reach
 def can_reach_unauth():
@@ -180,30 +170,71 @@ def _can_push(http_get, url):
     )
 
 
-# Ctags
-def ctags_tags_and_branches():
-    return all(
-        _ctags_enabled(ref, f)
-        for ref in ["master", "tag1"]
-        for f in ["test.c", "test.js"]
-    )
+# SCIP
+def _write_test_scip_dump():
+    """Build a small SCIP dump for the test repo covering test.c and test.js."""
+    index = scip_pb2.Index()
+    index.metadata.version = scip_pb2.UnspecifiedProtocolVersion
+    index.metadata.text_document_encoding = scip_pb2.UTF8
+    index.metadata.project_root = "file://" + TEST_REPO
+
+    c_doc = index.documents.add()
+    c_doc.relative_path = "test.c"
+    c_doc.language = "C"
+    c_int = c_doc.occurrences.add()
+    c_int.range.extend([0, 0, 0, 3])
+    c_int.syntax_kind = scip_pb2.IdentifierBuiltinType
+    c_a = c_doc.occurrences.add()
+    c_a.range.extend([0, 4, 0, 5])
+    c_a.symbol = "scip-test c/a."
+    c_a.symbol_roles = scip_pb2.Definition
+    c_a.syntax_kind = scip_pb2.IdentifierConstant
+
+    js_doc = index.documents.add()
+    js_doc.relative_path = "test.js"
+    js_doc.language = "JavaScript"
+    js_kw = js_doc.occurrences.add()
+    js_kw.range.extend([0, 0, 0, 8])
+    js_kw.syntax_kind = scip_pb2.IdentifierKeyword
+    js_def = js_doc.occurrences.add()
+    js_def.range.extend([0, 9, 0, 13])
+    js_def.symbol = "scip-test js/test()."
+    js_def.symbol_roles = scip_pb2.Definition
+    js_def.syntax_kind = scip_pb2.IdentifierFunctionDefinition
+
+    scip_dir = os.path.join(TEST_REPO, ".scip")
+    os.makedirs(scip_dir, exist_ok=True)
+    with open(os.path.join(scip_dir, "HEAD.scip"), "wb") as f:
+        f.write(index.SerializeToString())
+    scip_index.clear_cache()
 
 
-def ctags_all():
-    all_refs = re.findall(
-        'href=".+/commit/([a-z0-9]{40})/">', requests.get(UNAUTH_TEST_REPO_URL).text
-    )
-    assert len(all_refs) == 3
-    return all(
-        _ctags_enabled(ref, f) for ref in all_refs for f in ["test.c", "test.js"]
-    )
+def _remove_test_scip_dump():
+    scip_dir = os.path.join(TEST_REPO, ".scip")
+    shutil.rmtree(scip_dir, ignore_errors=True)
+    scip_index.clear_cache()
 
 
-def _ctags_enabled(ref, filename):
-    response = requests.get(UNAUTH_TEST_REPO_URL + f"blob/{ref}/{filename}")
-    assert response.status_code == 200, response.text
-    href = f'<a href="/{TEST_REPO_BASE_URL}blob/{ref}/{filename}#L-1">'
-    return href in response.text
+def test_scip_renders_syntax_classes():
+    _write_test_scip_dump()
+    try:
+        with serve():
+            response = requests.get(UNAUTH_TEST_REPO_URL + "blob/master/test.c")
+            assert response.status_code == 200, response.text
+            assert "scip-identifier-builtin-type" in response.text
+            assert "scip-identifier-constant" in response.text
+    finally:
+        _remove_test_scip_dump()
+
+
+def test_scip_falls_back_to_pygments_when_no_dump():
+    scip_index.clear_cache()
+    with serve():
+        response = requests.get(UNAUTH_TEST_REPO_URL + "blob/master/test.c")
+        assert response.status_code == 200, response.text
+        # Pygments emits a <table class="highlighttable"> with linenos but no scip- classes.
+        assert "scip-" not in response.text
+        assert 'class="highlighttable"' in response.text
 
 
 def _GET_unauth(url=""):

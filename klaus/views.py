@@ -1,5 +1,4 @@
 import os
-import sys
 from io import BytesIO
 
 import dulwich.archive
@@ -12,16 +11,7 @@ from flask.views import View
 from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
 
-try:
-    import ctags
-except ImportError:
-    ctags = None
-else:
-    from klaus import ctagscache
-
-    CTAGS_CACHE = ctagscache.CTagsCache()
-
-from klaus import markup
+from klaus import markup, scip_index
 from klaus.highlighting import highlight_or_render
 from klaus.utils import (
     encode_for_git,
@@ -416,35 +406,30 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
     """Base for FileView and BlameView."""
 
     def render_code(self, render_markup):
-        should_use_ctags = current_app.should_use_ctags(
-            self.context["repo"], self.context["commit"]
-        )
-        if should_use_ctags:
-            if ctags is None:
-                raise ImportError("Ctags enabled but python-ctags not installed")
-            ctags_base_url = url_for(
-                self.view_name,
-                repo=self.context["repo"].namespaced_name,
-                rev=self.context["rev"],
-                path="",
-            )
-            ctags_tagsfile = CTAGS_CACHE.get_tagsfile(
-                self.context["repo"].path, self.context["commit"].id
-            )
-            ctags_args = {
-                "ctags": ctags.CTags(
-                    ctags_tagsfile.encode(sys.getfilesystemencoding())
-                ),
-                "ctags_baseurl": ctags_base_url,
-            }
-        else:
-            ctags_args = {}
+        repo = self.context["repo"]
+        commit = self.context["commit"]
+
+        scip_args = {}
+        index = scip_index.load_index(repo.path, commit.id.decode("ascii"))
+        if index is not None:
+            document = index.get_document(self.context["path"])
+            if document is not None:
+                scip_args = {
+                    "scip_document": document,
+                    "scip_index": index,
+                    "scip_baseurl": url_for(
+                        self.view_name,
+                        repo=repo.namespaced_name,
+                        rev=self.context["rev"],
+                        path="",
+                    ),
+                }
 
         return highlight_or_render(
             force_unicode(self.context["blob_or_tree"].data),
             self.context["filename"],
             render_markup,
-            **ctags_args,
+            **scip_args,
         )
 
     def make_template_context(self, *args):

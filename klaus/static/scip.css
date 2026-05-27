@@ -1,0 +1,39 @@
+/* Syntax classes emitted by the SCIP-based code renderer. Mirrors the
+ * Trac-ish look of pygments.css so the two paths blend visually. */
+
+.code .scip-comment                       { color: #999988; font-style: italic; }
+.code .scip-punctuation-delimiter         { color: inherit; }
+.code .scip-punctuation-bracket           { color: inherit; }
+.code .scip-keyword                       { font-weight: bold; }
+.code .scip-identifier-operator           { font-weight: bold; }
+.code .scip-identifier                    { color: inherit; }
+.code .scip-identifier-builtin            { color: #999999; }
+.code .scip-identifier-null               { font-weight: bold; }
+.code .scip-identifier-constant           { color: #008080; }
+.code .scip-identifier-mutable-global     { color: #008080; }
+.code .scip-identifier-parameter          { color: inherit; }
+.code .scip-identifier-local              { color: inherit; }
+.code .scip-identifier-shadowed           { color: inherit; }
+.code .scip-identifier-namespace          { color: #555555; }
+.code .scip-identifier-function           { color: #990000; font-weight: bold; }
+.code .scip-identifier-function-definition{ color: #990000; font-weight: bold; }
+.code .scip-identifier-macro              { color: #990000; font-weight: bold; }
+.code .scip-identifier-macro-definition   { color: #990000; font-weight: bold; }
+.code .scip-identifier-type               { color: #445588; font-weight: bold; }
+.code .scip-identifier-builtin-type       { color: #445588; font-weight: bold; }
+.code .scip-identifier-attribute          { color: #008080; }
+.code .scip-regex-escape                  { color: #808000; }
+.code .scip-regex-repeated                { color: #808000; }
+.code .scip-regex-wildcard                { color: #808000; }
+.code .scip-regex-delimiter               { color: #808000; }
+.code .scip-regex-join                    { color: #808000; }
+.code .scip-string-literal                { color: #bb8844; }
+.code .scip-string-literal-escape         { color: #bb8844; font-weight: bold; }
+.code .scip-string-literal-special        { color: #bb8844; font-weight: bold; }
+.code .scip-string-literal-key            { color: #bb8844; }
+.code .scip-character-literal             { color: #bb8844; }
+.code .scip-numeric-literal               { color: #009999; }
+.code .scip-boolean-literal               { font-weight: bold; }
+.code .scip-tag                           { color: #000080; }
+.code .scip-tag-attribute                 { color: #008080; }
+.code .scip-tag-delimiter                 { color: inherit; }

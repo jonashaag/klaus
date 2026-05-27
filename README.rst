@@ -16,7 +16,7 @@ klaus: a simple, easy-to-set-up Git web viewer that Just Works™.
 * Syntax highlighting
 * Markdown + RestructuredText rendering support
 * Pull + push support (Git Smart HTTP)
-* Code navigation using Exuberant ctags
+* Code navigation using SCIP indexes (drop ``index.scip`` files into ``<repo>/.scip/``)
 
 :Demo: https://github.com/jonashaag/klaus/wiki/Sites-using-klaus
 :On PyPI: http://pypi.python.org/pypi/klaus/

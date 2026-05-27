@@ -1,12 +1,18 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-protobuf>=0.1.13"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools-protobuf]
+protobufs = ["klaus/scip.proto"]
 
 [tool.mypy]
 ignore_missing_imports = true
 
 [tool.ruff]
 target-version = "py37"
+line-length = 88
+extend-exclude = ["klaus/scip_pb2.py"]
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
 ignore = ["F405", "F403", "E501"]
-line-length = 88

@@ -23,11 +23,10 @@ class Klaus(flask.Flask):
         "undefined": jinja2.StrictUndefined,
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp, ctags_policy="none"):
+    def __init__(self, repo_paths, site_name, use_smarthttp):
         """(See `make_app` for parameter descriptions.)"""
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
-        self.ctags_policy = ctags_policy
 
         valid_repos, invalid_repos = self.load_repos(repo_paths)
         self.valid_repos = {repo.namespaced_name: repo for repo in valid_repos}
@@ -85,16 +84,6 @@ class Klaus(flask.Flask):
                 )
         # fmt: on
 
-    def should_use_ctags(self, git_repo, git_commit):
-        if self.ctags_policy == "none":
-            return False
-        elif self.ctags_policy == "ALL":
-            return True
-        elif self.ctags_policy == "tags-and-branches":
-            return git_commit.id in git_repo.get_tag_and_branch_shas()
-        else:
-            raise ValueError("Unknown ctags policy %r" % self.ctags_policy)
-
     def load_repos(self, repo_paths):
         valid_repos = []
         invalid_repos = []
@@ -115,7 +104,6 @@ def make_app(
     require_browser_auth=False,
     disable_push=False,
     unauthenticated_push=False,
-    ctags_policy="none",
 ):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
@@ -140,11 +128,11 @@ def make_app(
         are set, but push should not be supported.
     :param htdigest_file: A *file-like* object that contains the HTTP auth credentials.
     :param unauthenticated_push: Allow push'ing without authentication. DANGER ZONE!
-    :param ctags_policy: The ctags policy to use, may be one of:
-        - 'none': never use ctags
-        - 'tags-and-branches': use ctags for revisions that are the HEAD of
-          a tag or branc
-        - 'ALL': use ctags for all revisions, may result in high server load!
+
+    Code intelligence (cross-references and syntax classes) is enabled
+    automatically when a SCIP index is present at ``<repo>/.scip/<sha>.scip``
+    (with ``HEAD.scip`` as a fallback).  When no index is present, files are
+    rendered with Pygments syntax highlighting.
     """
     if unauthenticated_push:
         if not use_smarthttp:
@@ -167,7 +155,6 @@ def make_app(
         repo_paths,
         site_name,
         use_smarthttp,
-        ctags_policy,
     )
     app.wsgi_app = utils.ProxyFix(app.wsgi_app)
 

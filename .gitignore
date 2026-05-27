@@ -9,3 +9,5 @@ build/
 dist/
 .DS_Store
 .mypy_cache
+klaus/scip_pb2.py
+klaus/scip_pb2.pyi
