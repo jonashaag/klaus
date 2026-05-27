@@ -5,11 +5,13 @@ and cross-reference links come from SCIP.  Otherwise we fall back to Pygments
 (without ctags, since cross-references in the Pygments path are gone).
 """
 
+from collections.abc import Iterator
 from html import escape
-from typing import Any, Iterator, Optional, Tuple
+from typing import Any
 
-from pygments import highlight
+from pygments import highlight, lex
 from pygments.formatters import HtmlFormatter
+from pygments.formatters.html import _get_ttype_class
 from pygments.lexers import (
     ClassNotFound,
     TextLexer,
@@ -75,35 +77,166 @@ class KlausHtmlFormatter(HtmlFormatter):
             **kwargs,
         )
 
-    def _format_lines(self, tokensource: Any) -> Iterator[Tuple[int, str]]:
+    def _format_lines(self, tokensource: Any) -> Iterator[tuple[int, str]]:
         for tag, line in super()._format_lines(tokensource):  # type: ignore[misc]
             if tag == 1:
                 line = f"<span class=line>{line}</span>"
             yield tag, line
 
 
-def _render_scip_lines(
-    source: str, document: Document, index: Index, scip_baseurl: str
+def _tokenize_per_line(source: str, lexer: Any) -> list[list[tuple[int, int, str]]]:
+    """Tokenize ``source`` with Pygments and produce, for each line, a list of
+    ``(start_col, end_col, css_class)`` segments covering the full line.
+
+    Segments are non-overlapping and end-exclusive; they together cover the
+    whole line including whitespace (whitespace segments may have an empty
+    css_class).
+    """
+    lines: list[list[tuple[int, int, str]]] = [[]]
+    col = 0
+    for ttype, text in lex(source, lexer):
+        if not text:
+            continue
+        css_class = _get_ttype_class(ttype) or ""
+        # A token's text may contain newlines; split so each segment stays on
+        # one line.
+        parts = text.split("\n")
+        for i, part in enumerate(parts):
+            if part:
+                lines[-1].append((col, col + len(part), css_class))
+                col += len(part)
+            if i < len(parts) - 1:
+                lines.append([])
+                col = 0
+    # If the source ended with a newline, splitlines drops the trailing empty
+    # line; mirror that for consistency with the caller's view.
+    if lines and not lines[-1] and source and not source.endswith("\n"):
+        lines.pop()
+    elif source.endswith("\n") and lines and not lines[-1]:
+        lines.pop()
+    return lines
+
+
+def _splice_occurrences(
+    segments: list[tuple[int, int, str]],
+    occurrences: list[Occurrence],
+) -> list[tuple[int, int, str, Occurrence | None]]:
+    """Layer SCIP occurrences over Pygments-derived segments.
+
+    The result is a list of ``(start, end, css_class, occurrence)`` tuples
+    where ``occurrence`` is set when the segment lies inside a SCIP
+    occurrence's range.  Pygments segments are split at occurrence boundaries
+    as needed so each output segment is fully inside or outside an occurrence.
+    """
+    if not occurrences:
+        return [(s, e, c, None) for s, e, c in segments]
+
+    # Sort occurrences by start position; assume they don't overlap (SCIP
+    # normally doesn't emit overlapping ranges on a line).
+    occurrences = sorted(occurrences, key=lambda o: o.range.start_char)
+    out: list[tuple[int, int, str, Occurrence | None]] = []
+    occ_idx = 0
+    for seg_start, seg_end, css in segments:
+        cursor = seg_start
+        while cursor < seg_end:
+            # Skip occurrences entirely before the cursor.
+            while (
+                occ_idx < len(occurrences)
+                and occurrences[occ_idx].range.end_char <= cursor
+            ):
+                occ_idx += 1
+            if occ_idx >= len(occurrences):
+                out.append((cursor, seg_end, css, None))
+                cursor = seg_end
+                break
+            occ = occurrences[occ_idx]
+            occ_start = occ.range.start_char
+            occ_end = occ.range.end_char
+            if occ_start >= seg_end:
+                out.append((cursor, seg_end, css, None))
+                cursor = seg_end
+                break
+            if cursor < occ_start:
+                out.append((cursor, occ_start, css, None))
+                cursor = occ_start
+            slice_end = min(seg_end, occ_end)
+            out.append((cursor, slice_end, css, occ))
+            cursor = slice_end
+    return out
+
+
+def _render_segment(
+    text: str,
+    pygments_class: str,
+    occ: Occurrence | None,
+    index: Index,
+    scip_baseurl: str,
 ) -> str:
-    """Render ``source`` as HTML using occurrences from ``document``.
+    """Render one slice of a line as HTML."""
+    classes: list[str] = []
+    if pygments_class:
+        classes.append(pygments_class)
+    if occ is not None:
+        scip_class = _SCIP_SYNTAX_CLASSES.get(occ.syntax_kind)
+        if scip_class:
+            classes.append(f"scip-{scip_class}")
+        if occ.is_definition:
+            classes.append("scip-definition")
+
+    body = escape(text)
+    if occ is not None and occ.symbol and not occ.is_definition:
+        defn = index.get_definition(occ.symbol)
+        if defn is not None:
+            href = f"{scip_baseurl}{defn.relative_path}#L-{defn.line + 1}"
+            body = f'<a href="{escape(href)}">{body}</a>'
+    if classes:
+        body = f'<span class="{" ".join(classes)}">{body}</span>'
+    return body
+
+
+def _render_scip_lines(
+    source: str,
+    document: Document,
+    index: Index,
+    scip_baseurl: str,
+    lexer: Any,
+) -> str:
+    """Render ``source`` as HTML using Pygments tokens overlaid with SCIP
+    occurrences.
 
     Produces the same outer structure as Pygments' ``linenos='table'`` mode so
-    klaus's CSS and JS keep working: ``<div class=highlight><table
-    class=highlighttable>...`` with linenos column and code column.
+    klaus's CSS and JS keep working.
     """
-    lines = source.splitlines(keepends=False)
-    linenos_parts = []
-    code_parts = []
-    for i, line_text in enumerate(lines, start=1):
+    raw_lines = source.splitlines(keepends=False)
+    pygments_segments = _tokenize_per_line(source, lexer)
+    # Make sure we have one segment list per source line.
+    while len(pygments_segments) < len(raw_lines):
+        pygments_segments.append([])
+
+    linenos_parts: list[str] = []
+    code_parts: list[str] = []
+    for i, line_text in enumerate(raw_lines, start=1):
         anchor = f"L-{i}"
         linenos_parts.append(f'<span class="normal"><a href="#{anchor}">{i}</a></span>')
-        rendered_line = _render_scip_line(
-            line_text, i - 1, document, index, scip_baseurl
+        segments = pygments_segments[i - 1]
+        if not segments and line_text:
+            # Fallback: lexer produced nothing for this line; treat the whole
+            # line as plain text.
+            segments = [(0, len(line_text), "")]
+        occurrences = [
+            o
+            for o in document.occurrences_on_line(i - 1)
+            if o.range.end_line == i - 1  # skip multi-line ranges
+        ]
+        spliced = _splice_occurrences(segments, occurrences)
+        rendered = "".join(
+            _render_segment(line_text[s:e], css, occ, index, scip_baseurl)
+            for s, e, css, occ in spliced
         )
         code_parts.append(
             f'<span id="{anchor}">'
             f'<a id="{anchor}" name="{anchor}"></a>'
-            f"<span class=line>{rendered_line}\n</span>"
+            f"<span class=line>{rendered}\n</span>"
             f"</span>"
         )
 
@@ -118,66 +251,13 @@ def _render_scip_lines(
     )
 
 
-def _render_scip_line(
-    line_text: str,
-    line_index: int,
-    document: Document,
-    index: Index,
-    scip_baseurl: str,
-) -> str:
-    """Render a single source line, splicing in spans for each occurrence."""
-    occurrences = [
-        o
-        for o in document.occurrences_on_line(line_index)
-        if o.range.end_line == line_index  # skip occurrences spanning lines
-    ]
-    if not occurrences:
-        return escape(line_text)
-
-    out = []
-    cursor = 0
-    for occ in occurrences:
-        start = occ.range.start_char
-        end = occ.range.end_char
-        if start < cursor or end > len(line_text) or start >= end:
-            continue
-        if start > cursor:
-            out.append(escape(line_text[cursor:start]))
-        out.append(_render_occurrence(line_text[start:end], occ, index, scip_baseurl))
-        cursor = end
-    if cursor < len(line_text):
-        out.append(escape(line_text[cursor:]))
-    return "".join(out)
-
-
-def _render_occurrence(
-    text: str, occ: Occurrence, index: Index, scip_baseurl: str
-) -> str:
-    classes = []
-    css_class = _SCIP_SYNTAX_CLASSES.get(occ.syntax_kind)
-    if css_class:
-        classes.append(f"scip-{css_class}")
-    if occ.is_definition:
-        classes.append("scip-definition")
-
-    body = escape(text)
-    if occ.symbol and not occ.is_definition:
-        defn = index.get_definition(occ.symbol)
-        if defn is not None:
-            href = f"{scip_baseurl}{defn.relative_path}#L-{defn.line + 1}"
-            body = f'<a href="{escape(href)}">{body}</a>'
-    if classes:
-        body = f'<span class="{" ".join(classes)}">{body}</span>'
-    return body
-
-
 def highlight_or_render(
     code: str,
     filename: str,
     render_markup: bool = True,
-    scip_document: Optional[Document] = None,
-    scip_index: Optional[Index] = None,
-    scip_baseurl: Optional[str] = None,
+    scip_document: Document | None = None,
+    scip_index: Index | None = None,
+    scip_baseurl: str | None = None,
 ) -> str:
     """Render code as HTML.
 
@@ -197,12 +277,6 @@ def highlight_or_render(
     if render_markup and markup.can_render(filename):
         return markup.render(filename, code)
 
-    if scip_document is not None:
-        assert scip_index is not None and scip_baseurl is not None, (
-            "scip_index and scip_baseurl are required with scip_document"
-        )
-        return _render_scip_lines(code, scip_document, scip_index, scip_baseurl)
-
     try:
         lexer = get_lexer_for_filename(filename, code)
     except ClassNotFound:
@@ -210,5 +284,11 @@ def highlight_or_render(
             lexer = guess_lexer(code)
         except ClassNotFound:
             lexer = TextLexer()
+
+    if scip_document is not None:
+        assert scip_index is not None and scip_baseurl is not None, (
+            "scip_index and scip_baseurl are required with scip_document"
+        )
+        return _render_scip_lines(code, scip_document, scip_index, scip_baseurl, lexer)
 
     return highlight(code, lexer, KlausHtmlFormatter())
