@@ -9,7 +9,7 @@ protobufs = ["klaus/scip.proto"]
 ignore_missing_imports = true
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py310"
 line-length = 88
 extend-exclude = ["klaus/scip_pb2.py"]
 

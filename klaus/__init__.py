@@ -23,10 +23,11 @@ class Klaus(flask.Flask):
         "undefined": jinja2.StrictUndefined,
     }
 
-    def __init__(self, repo_paths, site_name, use_smarthttp):
+    def __init__(self, repo_paths, site_name, use_smarthttp, scip_policy="none"):
         """(See `make_app` for parameter descriptions.)"""
         self.site_name = site_name
         self.use_smarthttp = use_smarthttp
+        self.scip_policy = scip_policy
 
         valid_repos, invalid_repos = self.load_repos(repo_paths)
         self.valid_repos = {repo.namespaced_name: repo for repo in valid_repos}
@@ -84,6 +85,15 @@ class Klaus(flask.Flask):
                 )
         # fmt: on
 
+    def should_generate_scip(self, git_repo, git_commit):
+        if self.scip_policy == "none":
+            return False
+        if self.scip_policy == "ALL":
+            return True
+        if self.scip_policy == "tags-and-branches":
+            return git_commit.id in git_repo.get_tag_and_branch_shas()
+        raise ValueError(f"Unknown scip policy {self.scip_policy!r}")
+
     def load_repos(self, repo_paths):
         valid_repos = []
         invalid_repos = []
@@ -104,6 +114,7 @@ def make_app(
     require_browser_auth=False,
     disable_push=False,
     unauthenticated_push=False,
+    scip_policy="none",
 ):
     """
     Returns a WSGI app with all the features (smarthttp, authentication)
@@ -128,11 +139,19 @@ def make_app(
         are set, but push should not be supported.
     :param htdigest_file: A *file-like* object that contains the HTTP auth credentials.
     :param unauthenticated_push: Allow push'ing without authentication. DANGER ZONE!
+    :param scip_policy: When to generate SCIP indexes on demand for revisions
+        that don't yet have one.  Pre-generated dumps under
+        ``<repo>/.scip/<sha>.scip`` are always used.  When no dump exists:
 
-    Code intelligence (cross-references and syntax classes) is enabled
-    automatically when a SCIP index is present at ``<repo>/.scip/<sha>.scip``
-    (with ``HEAD.scip`` as a fallback).  When no index is present, files are
-    rendered with Pygments syntax highlighting.
+        - ``'none'``: never generate; render with Pygments.
+        - ``'tags-and-branches'``: generate for revisions that are the HEAD of
+          a tag or branch.
+        - ``'ALL'``: generate for every revision.  May result in high server
+          load; don't use for public servers.
+
+        Generation happens in a background thread and uses ``git worktree``,
+        so the first request renders with Pygments and subsequent requests
+        for the same revision pick up the SCIP index.
     """
     if unauthenticated_push:
         if not use_smarthttp:
@@ -155,6 +174,7 @@ def make_app(
         repo_paths,
         site_name,
         use_smarthttp,
+        scip_policy=scip_policy,
     )
     app.wsgi_app = utils.ProxyFix(app.wsgi_app)
 

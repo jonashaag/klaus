@@ -1,14 +1,16 @@
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
+import time
 
 import pytest
 import requests
 import requests.auth
 
 import klaus
-from klaus import scip_index, scip_pb2
+from klaus import scip_generate, scip_index, scip_pb2
 
 from .utils import *
 
@@ -235,6 +237,78 @@ def test_scip_falls_back_to_pygments_when_no_dump():
         # Pygments emits a <table class="highlighttable"> with linenos but no scip- classes.
         assert "scip-" not in response.text
         assert 'class="highlighttable"' in response.text
+
+
+def test_scip_policy_gating():
+    app = klaus.Klaus({None: [TEST_REPO]}, TEST_SITE_NAME, False, scip_policy="none")
+    repo = next(iter(app.valid_repos.values()))
+    commit = repo.get_commit("master")
+    assert app.should_generate_scip(repo, commit) is False
+
+    app = klaus.Klaus({None: [TEST_REPO]}, TEST_SITE_NAME, False, scip_policy="ALL")
+    assert app.should_generate_scip(repo, commit) is True
+
+    app = klaus.Klaus(
+        {None: [TEST_REPO]}, TEST_SITE_NAME, False, scip_policy="tags-and-branches"
+    )
+    # master is a branch HEAD; tag1 is a tag.  Both should be eligible.
+    assert app.should_generate_scip(repo, commit) is True
+    tag_commit = repo.get_commit("tag1")
+    assert app.should_generate_scip(repo, tag_commit) is True
+    # A commit that isn't the HEAD of any ref shouldn't be eligible.  The
+    # root commit (master~~) has no tag or branch pointing at it.
+    root = repo.get_commit(repo.get_commit("tag1").parents[0].decode("ascii"))
+    assert app.should_generate_scip(repo, root) is False
+
+
+def test_scip_generate_via_worktree(monkeypatch):
+    """Background generation should produce <repo>/.scip/<sha>.scip via a
+    fake indexer running in a `git worktree add` tempdir."""
+
+    scip_index.clear_cache()
+    _remove_test_scip_dump()
+
+    fake_index = scip_pb2.Index()
+    fake_doc = fake_index.documents.add()
+    fake_doc.relative_path = "test.c"
+    fake_occ = fake_doc.occurrences.add()
+    fake_occ.range.extend([0, 0, 0, 3])
+    fake_occ.syntax_kind = scip_pb2.IdentifierBuiltinType
+    payload = fake_index.SerializeToString().hex()
+    fake_indexer = scip_generate.Indexer(
+        name="fake",
+        applies=lambda _: True,
+        command=[
+            sys.executable,
+            "-c",
+            f"open('index.scip','wb').write(bytes.fromhex('{payload}'))",
+        ],
+    )
+    monkeypatch.setattr(scip_generate, "INDEXERS", [fake_indexer])
+
+    import dulwich.repo
+
+    sha = dulwich.repo.Repo(TEST_REPO).head().decode("ascii")
+    dump_path = os.path.join(TEST_REPO, ".scip", f"{sha}.scip")
+
+    try:
+        scip_generate.request_index(TEST_REPO, sha)
+        # Wait for the background thread to finish.
+        for _ in range(200):
+            with scip_generate._LOCK:
+                thread = scip_generate._INFLIGHT.get((TEST_REPO, sha))
+            if thread is None or not thread.is_alive():
+                break
+            time.sleep(0.05)
+        else:
+            raise AssertionError("indexer thread didn't finish")
+
+        assert os.path.isfile(dump_path), "expected dump at %s" % dump_path
+        index = scip_index.load_index(TEST_REPO, sha)
+        assert index is not None
+        assert index.get_document("test.c") is not None
+    finally:
+        _remove_test_scip_dump()
 
 
 def _GET_unauth(url=""):

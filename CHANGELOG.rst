@@ -8,6 +8,13 @@ UNRELEASED
   syntax classes and cross-reference links. Files not covered by SCIP fall
   back to Pygments syntax highlighting. The ``--ctags`` CLI flag and
   ``KLAUS_CTAGS_POLICY`` env var are gone.
+- Add ``--scip`` / ``KLAUS_SCIP_POLICY`` ({none, tags-and-branches, ALL},
+  default none) for on-demand SCIP generation. When enabled, the first
+  request for an un-indexed revision triggers a background job that runs
+  an indexer inside a ``git worktree`` and writes the dump to
+  ``<repo>/.scip/<sha>.scip``; subsequent requests pick it up. The default
+  indexer is ``scip-python``; the indexer list is pluggable via
+  ``klaus.scip_generate.INDEXERS``.
 
 3.0.1 (Jun 17, 2024)
 --------------------

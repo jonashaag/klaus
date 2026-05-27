@@ -26,5 +26,6 @@ def get_args_from_env():
         unauthenticated_push=strtobool(
             os.environ.get("KLAUS_UNAUTHENTICATED_PUSH", "0")
         ),
+        scip_policy=os.environ.get("KLAUS_SCIP_POLICY", "none"),
     )
     return args, kwargs

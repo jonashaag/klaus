@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 import sys
 import webbrowser
@@ -44,6 +45,14 @@ def make_parser():
         default=None,
     )
     parser.add_argument(
+        "--scip",
+        help="generate SCIP indexes on demand for which revisions? "
+        "default: none. WARNING: Don't use 'ALL' for public servers!",
+        choices=["none", "tags-and-branches", "ALL"],
+        default="none",
+    )
+
+    parser.add_argument(
         "repos",
         help="repositories to serve",
         metavar="DIR",
@@ -73,6 +82,11 @@ def make_parser():
 def main():
     args = make_parser().parse_args()
 
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+
     if args.version:
         print(KLAUS_VERSION)
         return 0
@@ -98,6 +112,7 @@ def main():
         force_unicode(args.site_name or args.host),
         args.smarthttp,
         args.htdigest,
+        scip_policy=args.scip,
     )
 
     if args.browser:

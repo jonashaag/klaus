@@ -11,7 +11,7 @@ from flask.views import View
 from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
 
-from klaus import markup, scip_index
+from klaus import markup, scip_generate, scip_index
 from klaus.highlighting import highlight_or_render
 from klaus.utils import (
     encode_for_git,
@@ -408,9 +408,10 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
     def render_code(self, render_markup):
         repo = self.context["repo"]
         commit = self.context["commit"]
+        sha = commit.id.decode("ascii")
 
         scip_args = {}
-        index = scip_index.load_index(repo.path, commit.id.decode("ascii"))
+        index = scip_index.load_index(repo.path, sha)
         if index is not None:
             document = index.get_document(self.context["path"])
             if document is not None:
@@ -424,6 +425,8 @@ class BaseFileView(TreeViewMixin, BaseBlobView):
                         path="",
                     ),
                 }
+        elif current_app.should_generate_scip(repo, commit):
+            scip_generate.request_index(repo.path, sha)
 
         return highlight_or_render(
             force_unicode(self.context["blob_or_tree"].data),
