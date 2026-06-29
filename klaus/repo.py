@@ -267,7 +267,7 @@ class FancyRepo:
     def get_blob_or_tree(self, commit, path):
         """Return the Git tree or blob object for `path` at `commit`."""
         try:
-            (mode, oid) = tree_lookup_path(
+            mode, oid = tree_lookup_path(
                 self.dulwich_repo.__getitem__, commit.tree, encode_for_git(path)
             )
         except NotTreeError:

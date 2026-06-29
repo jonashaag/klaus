@@ -253,7 +253,7 @@ class ReadmeMixin:
 
     def get_readme_context(self):
         try:
-            (readme_filename, readme_data) = self._get_readme()
+            readme_filename, readme_data = self._get_readme()
         except KeyError:
             return {
                 "is_markup": None,
@@ -385,7 +385,7 @@ class SubmoduleView(BaseRepoView):
             raise NotFound("Parent path for submodule missing")
 
         try:
-            (submodule_url, submodule_path) = _get_submodule(
+            submodule_url, submodule_path = _get_submodule(
                 repo, commit, encode_for_git(path)
             )
         except KeyError:
