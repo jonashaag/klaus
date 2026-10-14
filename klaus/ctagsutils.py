@@ -32,8 +32,17 @@ def create_tagsfile(git_repo_path, git_rev):
             ["git", "clone", "-q", "--shared", git_repo_path, checkout_tmpdir]
         )
         subprocess.check_call(["git", "checkout", "-q", git_rev], cwd=checkout_tmpdir)
+        # Untrusted checkout: read no option files, follow no symlinks out of it.
         subprocess.check_call(
-            ["ctags", "--fields=+l", "-Rno", target_tagsfile], cwd=checkout_tmpdir
+            [
+                "ctags",
+                "--options=NONE",
+                "--links=no",
+                "--fields=+l",
+                "-Rno",
+                target_tagsfile,
+            ],
+            cwd=checkout_tmpdir,
         )
     finally:
         shutil.rmtree(checkout_tmpdir)
