@@ -170,7 +170,11 @@ class BaseRepoView(View):
 
         [1] https://github.com/jonashaag/klaus/issues/36#issuecomment-23990266
         """
-        self.make_template_context(repo, namespace, rev, path.strip("/"))
+        try:
+            self.make_template_context(repo, namespace, rev, path.strip("/"))
+        except dulwich.objects.SubmoduleEncountered:
+            # The path is inside a submodule, whose objects are not in this repo.
+            raise NotFound("File not found")
         return self.get_response()
 
     def get_response(self):
