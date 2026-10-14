@@ -87,3 +87,9 @@ def test_display_invalid_repos():
         response = requests.get(UNAUTH_TEST_SERVER).text
         assert '<ul class="repolist invalid">' in response
         assert "<div class=name>invalid_repo</div>" in response
+
+
+def test_submodule_view_not_a_submodule():
+    with serve():
+        response = requests.get(UNAUTH_TEST_REPO_URL + "submodule/HEAD/test.c")
+        assert response.status_code == 404
