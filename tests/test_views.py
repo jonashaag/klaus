@@ -82,6 +82,13 @@ def test_regression_gh233_treeview_paths():
         assert "blob/HEAD/folder/test.txt" in response
 
 
+def test_path_inside_submodule():
+    with serve():
+        for view in ["blob", "raw", "tree", "blame", "submodule"]:
+            response = requests.get(UNAUTH_TEST_REPO_URL + view + "/HEAD/submodule/f")
+            assert response.status_code == 404, view
+
+
 def test_display_invalid_repos():
     with serve():
         response = requests.get(UNAUTH_TEST_SERVER).text
