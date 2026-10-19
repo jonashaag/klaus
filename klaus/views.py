@@ -522,7 +522,15 @@ class RawView(BaseBlobView):
         # Explicitly set an empty mimetype. This should work well for most
         # browsers as they do file type recognition anyway.
         # The correct way would be to implement proper file type recognition here.
-        return Response(self.context["blob_or_tree"].chunked, mimetype="")
+        return Response(
+            self.context["blob_or_tree"].chunked,
+            mimetype="",
+            # Never run HTML or scripts from a repository on klaus's origin.
+            headers={
+                "X-Content-Type-Options": "nosniff",
+                "Content-Security-Policy": "sandbox",
+            },
+        )
 
 
 class DownloadView(BaseRepoView):
