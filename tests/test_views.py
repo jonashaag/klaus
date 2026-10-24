@@ -67,6 +67,15 @@ def test_render_image():
         assert '<img src="/dont-render/raw/HEAD/image.jpg"' in response
 
 
+def test_raw_view_headers():
+    with serve():
+        response = requests.get(UNAUTH_TEST_REPO_URL + "raw/HEAD/test.c")
+        assert response.text == "int a;\n"
+        assert response.headers["Content-Type"] == ""
+        assert response.headers["X-Content-Type-Options"] == "nosniff"
+        assert response.headers["Content-Security-Policy"] == "sandbox"
+
+
 def test_dont_render_large_file():
     with serve():
         response = requests.get(
