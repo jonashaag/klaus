@@ -51,6 +51,13 @@ def test_no_newline_at_end_of_file():
         assert response.count("No newline at end of file") == 1
 
 
+def test_commit_view_file_links():
+    with serve():
+        response = requests.get(UNAUTH_TEST_REPO_DONT_RENDER_URL + "commit/HEAD/").text
+        for path in ["binary", "image.jpg", "toolarge"]:
+            assert f'href="/dont-render/blob/HEAD/{path}"' in response
+
+
 def test_dont_render_binary():
     with serve():
         response = requests.get(
