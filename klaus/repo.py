@@ -349,8 +349,8 @@ class FancyRepo:
                 file_changes.append(
                     {
                         "is_binary": True,
-                        "old_filename": oldpath or "/dev/null",
-                        "new_filename": newpath or "/dev/null",
+                        "old_filename": force_unicode(oldpath or b"/dev/null"),
+                        "new_filename": force_unicode(newpath or b"/dev/null"),
                         "chunks": None,
                     }
                 )
@@ -361,8 +361,8 @@ class FancyRepo:
             )
             change = {
                 "is_binary": False,
-                "old_filename": oldpath or "/dev/null",
-                "new_filename": newpath or "/dev/null",
+                "old_filename": force_unicode(oldpath or b"/dev/null"),
+                "new_filename": force_unicode(newpath or b"/dev/null"),
                 "chunks": chunks,
                 "additions": additions,
                 "deletions": deletions,
