@@ -36,7 +36,7 @@ def create_tagsfile(git_repo_path, git_rev):
 
         # Checkout the specific revision
         repo = Repo(checkout_tmpdir)
-        repo.reset_index(repo[git_rev.encode()].tree)
+        repo.get_worktree().reset_index(repo[git_rev.encode()].tree)
 
         # Untrusted checkout: read no option files, follow no symlinks out of it.
         subprocess.check_call(
