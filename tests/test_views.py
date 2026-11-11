@@ -58,6 +58,15 @@ def test_commit_view_file_links():
             assert f'href="/dont-render/blob/HEAD/{path}"' in response
 
 
+def test_tree_view():
+    with serve():
+        response = requests.get(UNAUTH_TEST_REPO_DONT_RENDER_URL + "tree/HEAD/")
+        assert response.status_code == 200
+        assert "caf\u00e9.txt" in response.text
+        for path in ["binary", "image.jpg", "toolarge"]:
+            assert f'href="/dont-render/blob/HEAD/{path}"' in response.text
+
+
 def test_dont_render_binary():
     with serve():
         response = requests.get(
