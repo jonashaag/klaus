@@ -18,4 +18,7 @@ git add image.jpg
 yes | head -n 102400 > toolarge
 git add toolarge
 
-git commit -am first
+# File name that is not valid UTF-8, added to the index only (macOS refuses it on disk)
+printf '100644 %s\tcaf\351.txt\n' "$(echo x | git hash-object -w --stdin)" | git update-index --index-info
+
+git commit -m first

@@ -286,7 +286,7 @@ class FancyRepo:
             # entry_rel: Entry('foo.txt', ...)
             # entry_abs: Entry('spam/eggs/foo.txt', ...)
             entry_abs = entry_rel.in_path(encode_for_git(path))
-            path_str = decode_from_git(entry_abs.path)
+            path_str = force_unicode(entry_abs.path)
             item = (os.path.basename(path_str), path_str)
             if S_ISGITLINK(entry_abs.mode):
                 submodules.append(item)
