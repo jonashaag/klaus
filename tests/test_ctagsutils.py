@@ -33,9 +33,7 @@ def _make_hostile_repo(path, outside):
         GIT_COMMITTER_EMAIL="t@t",
     )
     subprocess.check_call(["git", "commit", "-q", "-m", "x"], cwd=path, env=env)
-    return (
-        subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=path).decode().strip()
-    )
+    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=path).strip()
 
 
 def test_create_tagsfile_ignores_repo_options_and_symlinks(tmp_path):

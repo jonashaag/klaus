@@ -4,7 +4,6 @@ import locale
 import mimetypes
 import os
 import re
-import subprocess
 import time
 import warnings
 from typing import Union
@@ -14,6 +13,7 @@ try:
 except ImportError:
     chardet = None  # type: ignore
 
+from dulwich.repo import Repo
 from humanize import naturaltime
 from werkzeug.middleware.proxy_fix import ProxyFix as WerkzeugProxyFix
 
@@ -238,14 +238,15 @@ def guess_git_revision():
     """
     git_dir = os.path.join(os.path.dirname(__file__), "..", ".git")
     try:
-        return force_unicode(
-            subprocess.check_output(
-                ["git", "log", "--format=%h", "-n", "1"], cwd=git_dir
-            ).strip()
-        )
-    except OSError:
-        # Either the git executable couldn't be found in the OS's PATH
-        # or no ".git" directory exists, i.e. this is no "bleeding-edge" installation.
+        if os.path.exists(git_dir):
+            repo = Repo(os.path.dirname(git_dir))
+            commit = repo[repo.head()]
+            return force_unicode(commit.id.decode()[:7])
+        else:
+            return None
+    except (OSError, KeyError):
+        # Either no ".git" directory exists, or we couldn't read it
+        # i.e. this is no "bleeding-edge" installation.
         return None
 
 
