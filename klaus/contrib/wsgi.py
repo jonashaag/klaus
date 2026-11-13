@@ -1,3 +1,10 @@
+"""
+WSGI application factory module for Klaus.
+
+This module creates a WSGI application instance by reading configuration
+from environment variables and setting up optional HTTP digest authentication.
+"""
+
 from klaus import make_app
 
 from .app_args import get_args_from_env

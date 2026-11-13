@@ -1,3 +1,11 @@
+"""
+WSGI application entry point for Klaus with auto-reloading functionality.
+
+This module creates a WSGI application that automatically reloads when changes
+are detected in the repository files. It handles environment variable configuration,
+argument processing, and htdigest file caching.
+"""
+
 import io
 import os
 import warnings
@@ -12,7 +20,9 @@ if "KLAUS_REPOS" in os.environ:
     )
 
 args, kwargs = get_args_from_env()
+
 repos_root = os.environ.get("KLAUS_REPOS_ROOT") or os.environ["KLAUS_REPOS"]
+
 args = (repos_root,) + args[1:]
 
 if kwargs["htdigest_file"]:
