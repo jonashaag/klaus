@@ -289,9 +289,9 @@ class HistoryView(TreeViewMixin, ReadmeMixin, BaseRepoView):
         if page:
             skip = (self.context["page"] - 1) * history_length + 10
             if page > 7:
-                self.context["previous_pages"] = [0, 1, 2, None] + list(range(page))[
-                    -3:
-                ]
+                self.context["previous_pages"] = [0, 1, 2, None] + list(
+                    range(page - 3, page)
+                )
             else:
                 self.context["previous_pages"] = range(page)
         else:
