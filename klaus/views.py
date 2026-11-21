@@ -378,11 +378,13 @@ class SubmoduleView(BaseRepoView):
         repo, rev, path, commit = _get_repo_and_rev(repo, namespace, rev, path)
 
         try:
-            submodule_rev = tree_lookup_path(
+            (mode, submodule_rev) = tree_lookup_path(
                 repo.__getitem__, commit.tree, encode_for_git(path)
-            )[1]
+            )
         except KeyError:
             raise NotFound("Parent path for submodule missing")
+        if not dulwich.objects.S_ISGITLINK(mode):
+            raise NotFound("Not a submodule")
 
         try:
             (submodule_url, submodule_path) = _get_submodule(
@@ -405,8 +407,8 @@ class SubmoduleView(BaseRepoView):
             "tags": repo.get_tag_names(),
             "path": path,
             "subpaths": list(subpaths(path)) if path else None,
-            "submodule_url": force_unicode(submodule_url),
-            "submodule_path": force_unicode(submodule_path),
+            "submodule_url": submodule_url and force_unicode(submodule_url),
+            "submodule_path": submodule_path and force_unicode(submodule_path),
             "submodule_rev": force_unicode(submodule_rev),
             "base_href": None,
         }
