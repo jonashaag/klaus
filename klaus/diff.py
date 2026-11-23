@@ -1,11 +1,11 @@
 """
-    lodgeit.lib.diff
-    ~~~~~~~~~~~~~~~~
+lodgeit.lib.diff
+~~~~~~~~~~~~~~~~
 
-    Render a nice diff between two things.
+Render a nice diff between two things.
 
-    :copyright: 2007 by Armin Ronacher.
-    :license: BSD
+:copyright: 2007 by Armin Ronacher.
+:license: BSD
 """
 
 from difflib import SequenceMatcher
